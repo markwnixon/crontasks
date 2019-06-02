@@ -1,0 +1,6 @@
+/__pycache__
+*.pyc
+*.txt
+textcleaner
+remote_db_connect.py
+geckodriver.log
