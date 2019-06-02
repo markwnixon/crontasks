@@ -1,7 +1,7 @@
 # crontasks
 These tasks are run on our company server ('fserver') at specified intervals:
 Here is the crontask general schedule:<br>
-/* /* /* /* /* uploader.sh >> /home/mark/flask/crontasks/uploader.log 2>&1<br>
+&ast; &ast; &ast; &ast; &ast; uploader.sh >> /home/mark/flask/crontasks/uploader.log 2>&1<br>
 3 * * * * gate.sh >> /home/mark/flask/crontasks/gate.log 2>&1<br>
 9 3 * * * shipreport.sh >> /home/mark/flask/crontasks/shipreport.log 2>&1<br>
 
