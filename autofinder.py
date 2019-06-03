@@ -8,9 +8,8 @@ import os
 import shutil
 import fnmatch
 import subprocess
-from systemdepfunc import addpath, addpath2
 
-from remote_db_connect import db
+from remote_db_connect import db, tunnel
 from models2 import Storage, OverSeas, Orders, Moving, People, Autos
 from cronfuncs import d2s, nonone, nodollar
 from scrapers import vinscraper
@@ -301,5 +300,5 @@ def autofind(p5s, txtfile, srcfile):
                                Email='', Associate1='', Associate2='', Date1=today, Date2=None, Original='', Ptype='TowCo', Temp1='', Temp2='')
                 db.session.add(input)
                 db.session.commit()
-
+    tunnel.stop()
     return newfile, error
