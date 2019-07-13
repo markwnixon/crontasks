@@ -269,8 +269,10 @@ def autofind(p5s, txtfile, srcfile):
             bdat = Autos.query.filter(Autos.VIN == vin).first()
             if bdat is None or vin == 'NoVIN':
                 print("Entering data in Autos database")
-                input = Autos(Jo=orderid, Hjo=None, Year=year, Make=make, Model=model, Color=color, VIN=vin, Title=None, State=None, EmpWeight=wt, Dispatched='Horizon Motors', Value=value,
-                              TowCompany=carrier, TowCost=payment, TowCostEa=each, Original=original, Status='New', Date1=date1, Date2=date2, Pufrom=pufrom, Delto='FEL', Ncars=ncars, Orderid=orderid)
+                input = Autos(Jo=orderid, Hjo=None, Year=year, Make=make, Model=model, Color=color,
+                              VIN=vin, Title=None, State=None, EmpWeight=wt, Dispatched='Horizon Motors', Value=value,
+                              TowCompany=carrier, TowCost=payment, TowCostEa=each, Original=original, Status='New',
+                              Date1=date1, Date2=date2, Pufrom=pufrom, Delto='FEL', Ncars=ncars, Orderid=orderid)
                 db.session.add(input)
                 db.session.commit()
                 print('This auto not in database, adding to records...')
