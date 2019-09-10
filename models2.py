@@ -38,7 +38,7 @@ class ChalkBoard(db.Model):
         self.register_date=register_date
         self.creator=creator
         self.comments=comments
-                
+
 class General(db.Model):
     __tablename__ = 'general'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -46,7 +46,7 @@ class General(db.Model):
     Category=db.Column('Category', db.String(50))
     Textinfo=db.Column('Textinfo', db.String(25))
     Path = db.Column('Path', db.String(25))
-    
+
     def __init__(self,Subject,Category,Textinfo,Path):
         self.Subject=Subject
         self.Category=Category
@@ -86,7 +86,7 @@ class TruckJobs(db.Model):
         self.Origin=Origin
         self.Destination=Destination
         self.Comm=Comm
-        
+
 class Interchange(db.Model):
     __tablename__ = 'interchange'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -157,7 +157,30 @@ class Proofs(db.Model):
         self.Date=Date
         self.Time = Time
 
-            
+
+class Chassis(db.Model):
+    __tablename__ = 'chassis'
+    id = db.Column('id', db.Integer, primary_key=True)
+    Jo = db.Column('Jo', db.String(20))
+    Company = db.Column('Company', db.String(45))
+    Date = db.Column('Date', db.DateTime)
+    InvoNum = db.Column('InvoNum', db.String(20))
+    Total = db.Column('Total', db.String(20))
+    Container = db.Column('Container', db.String(20))
+    Chass = db.Column('Chass', db.String(20))
+    Amount = db.Column('Amount', db.String(20))
+
+    def __init__(self, Jo, Company, Date, InvoNum, Total, Container, Chass, Amount):
+        self.Jo = Jo
+        self.Company = Company
+        self.Date = Date
+        self. InvoNum = InvoNum
+        self.Total = Total
+        self.Container = Container
+        self.Chass = Chass
+        self.Amount = Amount
+
+
 class Orders(db.Model):
     __tablename__ = 'orders'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -167,13 +190,13 @@ class Orders(db.Model):
     Order = db.Column('Order', db.String(50))
     Bid=db.Column('Bid', db.Integer)
     Lid=db.Column('Lid', db.Integer)
-    Did=db.Column('Did', db.Integer)    
+    Did=db.Column('Did', db.Integer)
     Company = db.Column('Company', db.String(50))
     Location = db.Column('Location', db.String(99))
     BOL = db.Column('BOL', db.String(50))
     Booking= db.Column('Booking', db.String(50))
     Container = db.Column('Container', db.String(50))
-    Driver = db.Column('Driver', db.String(50))        
+    Driver = db.Column('Driver', db.String(50))
     Pickup = db.Column('Pickup', db.String(50))
     Delivery = db.Column('Delivery', db.String(50))
     Amount = db.Column('Amount', db.String(50))
@@ -189,7 +212,7 @@ class Orders(db.Model):
     Detention = db.Column('Detention', db.Integer)
     Storage = db.Column('Storage', db.Integer)
     Release = db.Column('Release',db.Boolean)
-    Company2 = db.Column('Company2', db.String(50))   
+    Company2 = db.Column('Company2', db.String(50))
     Seal = db.Column('Seal', db.String(50))
     Shipper = db.Column('Shipper', db.String(50))
     Type = db.Column('Type', db.String(50))
@@ -234,7 +257,7 @@ class Orders(db.Model):
         self.Label=Label
         self.Dropblock1=Dropblock1
         self.Dropblock2=Dropblock2
-        
+
 class Drops(db.Model):
     __tablename__ = 'drops'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -243,29 +266,29 @@ class Drops(db.Model):
     Addr2 = db.Column('Addr2',db.String(50))
     Phone = db.Column('Phone',db.String(50))
     Email = db.Column('Email',db.String(50))
-    
+
     def __init__(self, Entity,Addr1,Addr2,Phone,Email):
         self.Entity=Entity
         self.Addr1=Addr1
         self.Addr2=Addr2
         self.Phone=Phone
         self.Email=Email
-        
-        
+
+
 class Moving(db.Model):
     __tablename__ = 'moving'
     id = db.Column('id',db.Integer,primary_key=True)
     Status = db.Column('Status', db.String(50))
     Jo = db.Column('JO', db.String(25))
-    Order = db.Column('Order', db.String(50))   
+    Order = db.Column('Order', db.String(50))
     Dropblock1 = db.Column('Dropblock1', db.String(500))
     Drop1 = db.Column('Drop1', db.String(50))
     Dropblock2 = db.Column('Dropblock2', db.String(500))
-    Drop2 = db.Column('Drop2', db.String(50))   
+    Drop2 = db.Column('Drop2', db.String(50))
     BOL = db.Column('BOL', db.String(50))
     Booking= db.Column('Booking', db.String(50))
     Container = db.Column('Container', db.String(50))
-    Driver = db.Column('Driver', db.String(50))        
+    Driver = db.Column('Driver', db.String(50))
     Pickup = db.Column('Pickup', db.String(50))
     Delivery = db.Column('Delivery', db.String(50))
     Amount = db.Column('Amount', db.String(50))
@@ -279,7 +302,7 @@ class Moving(db.Model):
     Description = db.Column('Description', db.String(400))
     Chassis = db.Column('Chassis', db.String(50))
     Cache = db.Column('Storage', db.Integer)
-    Release = db.Column('Release',db.Boolean)   
+    Release = db.Column('Release',db.Boolean)
     Seal = db.Column('Seal', db.String(50))
     Shipper = db.Column('Shipper', db.String(50))
     Pid = db.Column('Pid', db.Integer)
@@ -318,8 +341,8 @@ class Moving(db.Model):
         self.Shipper=Shipper
         self.Type=Type
         self.Label=Label
-                        
-            
+
+
 class JO(db.Model):
     __tablename__ = 'job'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -337,13 +360,13 @@ class JO(db.Model):
         self.status=status
         # self.dinc=dinc
         # self.dexp=dexp
-        
-class Services(db.Model): 
+
+class Services(db.Model):
     __tablename__ = 'services'
     id = db.Column('id',db.Integer,primary_key=True)
     Service = db.Column('Service', db.String(40))
     Price = db.Column('Price', db.Numeric(10,2))
-        
+
     def __init__(self, Service, Price):
         self.Service=Service
         self.Price=Price
@@ -363,7 +386,7 @@ class Partners(db.Model):
         self.Addr2=Addr2
         self.Location=Location
         self.Type=Type
-        
+
 class Drivers(db.Model):
     __tablename__='drivers'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -373,8 +396,8 @@ class Drivers(db.Model):
     Email= db.Column('Email',db.String(50))
     Path= db.Column('Path',db.String(50))
     Phone=db.Column('Phone',db.String(25))
-    
-    def __init__(self, Name, Truck, Tag, Email,Path, Phone):  
+
+    def __init__(self, Name, Truck, Tag, Email,Path, Phone):
         self.Name=Name
         self.Truck=Truck
         self.Tag=Tag
@@ -405,8 +428,8 @@ class People(db.Model):
     Date1 = db.Column('Date1',db.DateTime)
     Date2 = db.Column('Date2',db.DateTime)
     Original = db.Column('Original', db.String(50))
-    
-    def __init__(self, Ptype,Company,First,Middle,Last,Addr1,Addr2,Addr3,Idtype,Idnumber,Telephone,Email,Associate1,Associate2,Temp1,Temp2,Date1,Date2,Original):  
+
+    def __init__(self, Ptype,Company,First,Middle,Last,Addr1,Addr2,Addr3,Idtype,Idnumber,Telephone,Email,Associate1,Associate2,Temp1,Temp2,Date1,Date2,Original):
         self.Ptype=Ptype
         self.Company=Company
         self.First=First
@@ -426,7 +449,7 @@ class People(db.Model):
         self.Date1=Date1
         self.Date2=Date2
         self.Original=Original
-        
+
 class Storage(db.Model):
     __tablename__='storage'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -442,8 +465,8 @@ class Storage(db.Model):
     Date = db.Column('Date', db.DateTime)
     Label = db.Column('Label', db.String(99))
     BalFwd=db.Column('BalFwd',db.String(25))
-    
-    def __init__(self, Jo, Pid, Description, Amount, Status, Cache, Original, Path, Company, Date, Label, BalFwd):  
+
+    def __init__(self, Jo, Pid, Description, Amount, Status, Cache, Original, Path, Company, Date, Label, BalFwd):
         self.Pid=Pid
         self.Jo=Jo
         self.Description=Description
@@ -456,7 +479,7 @@ class Storage(db.Model):
         self.Date=Date
         self.Label=Label
         self.BalFwd=BalFwd
-        
+
 
 class AutoInvoice(db.Model):
     __tablename__='autoinvoice'
@@ -465,13 +488,13 @@ class AutoInvoice(db.Model):
     Sid= db.Column('sid',db.Integer)
     Freq= db.Column('freq',db.String(20))
     Day= db.Column('day',db.Integer)
-    
+
     def __init__(self, Jo, Sid, Freq, Day):
         self.Jo=Jo
         self.Sid=Sid
         self.Freq=Freq
         self.Day=Day
-        
+
 class Horizon(db.Model):
     __tablename__='horizon'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -485,7 +508,7 @@ class Horizon(db.Model):
     Vin=db.Column('Vin',db.String(25))
     Cost=db.Column('Cost',db.String(25))
     Sale=db.Column('Sale',db.String(25))
-    Bfee=db.Column('Bfee',db.String(25))    
+    Bfee=db.Column('Bfee',db.String(25))
     Tow=db.Column('Tow',db.String(25))
     Repair=db.Column('Repair',db.String(25))
     Oitem=db.Column('Oitem',db.String(25))
@@ -497,7 +520,7 @@ class Horizon(db.Model):
     Label=db.Column('Label',db.String(99))
     Date=db.Column('Date',db.DateTime)
     DocumentFee=db.Column('DocumentFee',db.String(25))
-    
+
     def __init__(self, Jo, Pid,Company,Aid,Make,Model,Year, Vin, Cost, Sale, Bfee, DocumentFee, Tow, Repair,
                  Oitem, Ocost, Ipath, Apath, Cache, Status, Label, Date):
         self.Jo=Jo
@@ -505,25 +528,25 @@ class Horizon(db.Model):
         self.Company=Company
         self.Aid=Aid
         self.Make=Make
-        self.Model=Model    
+        self.Model=Model
         self.Year=Year
-        self.Vin=Vin        
-        self.Cost=Cost        
-        self.Sale=Sale        
+        self.Vin=Vin
+        self.Cost=Cost
+        self.Sale=Sale
         self.Bfee=Bfee
         self.DocumentFee=DocumentFee
-        self.Tow=Tow       
-        self.Repair=Repair        
-        self.Oitem=Oitem        
-        self.Ocost=Ocost        
-        self.Ipath=Ipath        
-        self.Apath=Apath        
+        self.Tow=Tow
+        self.Repair=Repair
+        self.Oitem=Oitem
+        self.Ocost=Ocost
+        self.Ipath=Ipath
+        self.Apath=Apath
         self.Cache=Cache
         self.Status=Status
         self.Label=Label
         self.Date=Date
-        
-                 
+
+
 class OverSeas(db.Model):
     __tablename__='overseas'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -541,18 +564,18 @@ class OverSeas(db.Model):
     ContainerType = db.Column('ContainerType',db.String(25))
     Container = db.Column('Container',db.String(25))
     Booking = db.Column('Booking',db.String(25))
-    CommoList = db.Column('CommoList',db.Integer)    
+    CommoList = db.Column('CommoList',db.Integer)
     ExportID = db.Column('ExportID',db.Integer)
     ConsigID = db.Column('ConsigID',db.Integer)
     NotifyID = db.Column('NotifyID',db.Integer)
     FrForID = db.Column('FrForID',db.Integer)
-    PreCarryID = db.Column('PreCarryID',db.Integer)    
+    PreCarryID = db.Column('PreCarryID',db.Integer)
     BillTo = db.Column('BillTo', db.String(50))
     Exporter = db.Column('Exporter', db.String(50))
     Consignee = db.Column('Consignee', db.String(50))
     Notify = db.Column('Notify', db.String(50))
     FrFor = db.Column('FrFor', db.String(50))
-    PreCarry = db.Column('PreCarry', db.String(50))    
+    PreCarry = db.Column('PreCarry', db.String(50))
     Estimate = db.Column('Estimate',db.String(25))
     Charge = db.Column('Charge',db.String(25))
     Itotal= db.Column('Itotal',db.String(25))
@@ -570,8 +593,8 @@ class OverSeas(db.Model):
     ExpRef = db.Column('ExpRef',db.String(45))
     AddNote = db.Column('AddNote',db.String(45))
 
-       
-    def __init__(self, Jo, Pid, MoveType, Direction, Commodity, Pod, Pol, Origin,ContainerType, Container, Booking, CommoList, ExportID, ConsigID, NotifyID, FrForID, PreCarryID, BillTo, Exporter, Consignee, Notify, FrFor, PreCarry, Estimate, Charge, Dpath,Ipath,Apath,Cache, Status, Label, Driver, Seal, Description,Tpath,PuDate,RetDate,Itotal,RelType,AES,ExpRef,AddNote):  
+
+    def __init__(self, Jo, Pid, MoveType, Direction, Commodity, Pod, Pol, Origin,ContainerType, Container, Booking, CommoList, ExportID, ConsigID, NotifyID, FrForID, PreCarryID, BillTo, Exporter, Consignee, Notify, FrFor, PreCarry, Estimate, Charge, Dpath,Ipath,Apath,Cache, Status, Label, Driver, Seal, Description,Tpath,PuDate,RetDate,Itotal,RelType,AES,ExpRef,AddNote):
         self.Jo=Jo
         self.Pid=Pid
         self.MoveType=MoveType
@@ -614,7 +637,7 @@ class OverSeas(db.Model):
         self.AES=AES
         self.ExpRef=ExpRef
         self.AddNote=AddNote
-        
+
 class Vocc(db.Model):
     __tablename__='vocc'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -625,7 +648,7 @@ class Vocc(db.Model):
     P_First = db.Column('P_First',db.String(25))
     P_Last = db.Column('P_Last',db.String(25))
     P_Email = db.Column('P_Email',db.String(50))
-    
+
     def __init__(self, Name, B_First, B_Last, B_Email, P_First, P_Last, P_Email):
         self.Name=Name
         self.B_First=B_First
@@ -634,11 +657,11 @@ class Vocc(db.Model):
         self.P_First=P_First
         self.P_Last=P_Last
         self.P_Email=P_Email
-        
+
 class Autos(db.Model):
     __tablename__='autos'
     id = db.Column('id',db.Integer,primary_key=True)
-    Jo = db.Column('JO',db.String(25))    
+    Jo = db.Column('JO',db.String(25))
     Year = db.Column('Year',db.String(25))
     Make = db.Column('Make',db.String(25))
     Model = db.Column('Model',db.String(25))
@@ -661,7 +684,7 @@ class Autos(db.Model):
     Ncars = db.Column('Ncars',db.Integer)
     Orderid= db.Column('Orderid',db.String(25))
     Hjo = db.Column('Hjo',db.String(25))
-    
+
     def __init__(self, Jo, Year, Make, Model, Color, VIN, Title, State, EmpWeight, Dispatched, Value, Original, TowCompany,
                  TowCost, TowCostEa, Status, Date1, Date2, Pufrom, Delto, Ncars, Orderid, Hjo):
         self.Jo=Jo
@@ -687,11 +710,11 @@ class Autos(db.Model):
         self.Ncars=Ncars
         self.Orderid=Orderid
         self.Hjo=Hjo
-        
+
 class Autoshold(db.Model):
     __tablename__='autoshold'
     id = db.Column('id',db.Integer,primary_key=True)
-    Jo = db.Column('JO',db.String(25))    
+    Jo = db.Column('JO',db.String(25))
     Year = db.Column('Year',db.String(25))
     Make = db.Column('Make',db.String(25))
     Model = db.Column('Model',db.String(25))
@@ -714,7 +737,7 @@ class Autoshold(db.Model):
     Ncars = db.Column('Ncars',db.Integer)
     Orderid= db.Column('Orderid',db.String(25))
     Hjo = db.Column('Hjo',db.String(25))
-    
+
     def __init__(self, Jo, Year, Make, Model, Color, VIN, Title, State, EmpWeight, Dispatched, Value, Original, TowCompany,
                  TowCost, TowCostEa, Status, Date1, Date2, Pufrom, Delto, Ncars, Orderid, Hjo):
         self.Jo=Jo
@@ -740,14 +763,14 @@ class Autoshold(db.Model):
         self.Ncars=Ncars
         self.Orderid=Orderid
         self.Hjo=Hjo
-        
-        
+
+
 class Bookings(db.Model):
     __tablename__='bookings'
     id = db.Column('id',db.Integer,primary_key=True)
     Jo = db.Column('JO',db.String(25))
     Booking = db.Column('Booking',db.String(25))
-    ExportRef = db.Column('ExportRef',db.String(25))    
+    ExportRef = db.Column('ExportRef',db.String(25))
     Vessel = db.Column('Vessel',db.String(50))
     Line = db.Column('Line',db.String(50))
     PortCut = db.Column('PortCut',db.DateTime)
@@ -780,7 +803,7 @@ class Bookings(db.Model):
         self.LoadPort=LoadPort
         self.Dest=Dest
         self.Status=Status
-        
+
 class FELVehicles(db.Model):
     __tablename__='felvehicles'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -799,8 +822,8 @@ class FELVehicles(db.Model):
     Odometer= db.Column('Odometer',db.String(25))
     Owner= db.Column('Owner',db.String(50))
     Status= db.Column('Status',db.String(25))
-    
-    def __init__(self, Unit, Year, Make, Model, Color, VIN, Title, Plate, EmpWeight, GrossWt, DOTNum, ExpDate, Odometer, Owner, Status):   
+
+    def __init__(self, Unit, Year, Make, Model, Color, VIN, Title, Plate, EmpWeight, GrossWt, DOTNum, ExpDate, Odometer, Owner, Status):
         self.Unit=Unit
         self.Year=Year
         self.Make=Make
@@ -833,7 +856,7 @@ class Invoices(db.Model):
     Date = db.Column('Date', db.DateTime)
     Original = db.Column('Original', db.String(50))
     Status = db.Column('Status', db.String(25))
-    
+
     def __init__(self, Jo, SubJo, Pid, Service, Description, Ea, Qty, Amount, Total, Date, Original, Status):
         self.Jo=Jo
         self.SubJo=SubJo
@@ -859,7 +882,7 @@ class Income(db.Model):
     Ref=db.Column('Ref',db.String(25))
     Date = db.Column('Date', db.DateTime)
     Original = db.Column('Original', db.String(50))
-    
+
     def __init__(self, Jo, SubJo, Pid, Description, Amount, Ref, Date, Original):
         self.Jo=Jo
         self.SubJo=SubJo
@@ -869,7 +892,7 @@ class Income(db.Model):
         self.Ref=Ref
         self.Date=Date
         self.Original=Original
-        
+
 class FELBills(db.Model):
     __tablename__='felbills'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -895,8 +918,8 @@ class FELBills(db.Model):
     Co=db.Column('Co',db.String(9))
     Temp1=db.Column('Temp1',db.String(50))
     Temp2=db.Column('Temp2',db.String(50))
-    
-    def __init__(self, Jo, Pid, Company, Memo, Description, bAmount, Status, Cache, Original, Ref, bDate, pDate, pAmount, pMulti, Account, bType, bClass, Link, User, Co, Temp1, Temp2):          
+
+    def __init__(self, Jo, Pid, Company, Memo, Description, bAmount, Status, Cache, Original, Ref, bDate, pDate, pAmount, pMulti, Account, bType, bClass, Link, User, Co, Temp1, Temp2):
         self.Jo=Jo
         self.Pid=Pid
         self.Company=Company
@@ -926,12 +949,12 @@ class BillAccts(db.Model):
     Btype = db.Column('Btype',db.String(25))
     Bclass = db.Column('Bclass',db.String(25))
     Bnum = db.Column('Bnum',db.String(10))
-    
+
     def __init__(self,Btype,Bclass, Bnum):
         self.Btype=Btype
         self.Bclass=Bclass
         self.Bnum=Bnum
-        
+
 class Accounts(db.Model):
     __tablename__='accounts'
     id = db.Column('id',db.Integer,primary_key=True)
@@ -940,12 +963,10 @@ class Accounts(db.Model):
     AcctNumber = db.Column('AcctNumber',db.String(25))
     Routing = db.Column('Routing',db.String(25))
     Payee = db.Column('Payee',db.String(50))
-    
+
     def __init__(self, Name, Amount, AcctNumber, Routing, Payee):
         self.Name=Name
         self.Amount=Amount
         self.AcctNumber=AcctNumber
         self.Routing=Routing
         self.Payee=Payee
-    
-    

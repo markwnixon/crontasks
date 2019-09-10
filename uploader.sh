@@ -4,4 +4,4 @@ echo $PATH
 cd /home/mark/flask
 source flaskenv/bin/activate
 cd /home/mark/flask/crontasks
-python3 uploader.py
+python3 jayuploader.py

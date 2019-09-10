@@ -55,3 +55,13 @@ def addtxt(inpath):
     basefile = os.path.splitext(inpath)[0]
     textfile = basefile+'.txt'
     return textfile
+
+def hiddendata():
+    email1 = 'onestoplogisticsco'
+
+    password1 = 'OneUser1123!'
+
+    ourserver = 'mail.az1-ss7.a2hosting.com:587'
+    emails = [email1]
+    passwds = [password1]
+    return emails, passwds, ourserver

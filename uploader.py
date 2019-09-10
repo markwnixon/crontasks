@@ -1,4 +1,4 @@
-from remote_db_connect import tunnel
+from remote_db_connect import db, tunnel
 import os
 import shutil
 import subprocess
@@ -7,8 +7,12 @@ from autofinder import autofind
 from interchange_parse import interparse
 from booking_parse import bookparse
 import datetime
+from scrapers import vinscraper
+from models2 import Autos
 
 print('This run started at: ', datetime.datetime.now())
+
+today = datetime.date.today()
 
 
 def noblanklines(path, txtfile):
@@ -197,7 +201,7 @@ if 1 == 1:  # Keep this in case want to convert back to a looping script
                             os.remove(s5s+newtxt)
 
                     else:
-                        pythonline = ' mnixon@ssh.pythonanywhere.com:/home/mnixon/felrun/tmp/processing/'
+                        pythonline = ' mnixon@ssh.pythonanywhere.com:/home/mnixon/felrun/tmp/processing/vins.txt'
                         copyline1 = 'scp '+s5s+srcfile+pythonline+folder
                         print(copyline1)
                         os.system(copyline1)
@@ -206,5 +210,73 @@ if 1 == 1:  # Keep this in case want to convert back to a looping script
                         os.system(copyline2)
                         os.remove(s5s+srcfile)
                         os.remove(s5s+txtfile)
+
+
+
+pythonline = ' mnixon@ssh.pythonanywhere.com:/home/mnixon/felrun/tmp/processing/vins.txt'
+#pythonline = '/home/mark/flask/felrun/tmp/processing/vins.txt'
+copyline1 = 'scp '+pythonline+' /home/mark/flask/crontasks'
+print(copyline1)
+os.system(copyline1)
+
+delline1 = 'ssh mnixon@ssh.pythonanywhere.com "rm /home/mnixon/felrun/tmp/processing/vins.txt" '
+print(delline1)
+os.system(delline1)
+
+try:
+    longs = open('vins.txt').read()
+    vlist = longs.split()
+except:
+    vlist=[]
+
+for vin in vlist:
+    print('Running VIN:',vin)
+    if len(vin)==18:
+        vin=vin[1:18]
+    if len(vin)==17:
+        adat = Autos.query.filter(Autos.VIN == vin).first()
+        if adat is None:
+            #try:
+            year,make,model,wt,price,navg=vinscraper(vin)
+
+            #except:
+                #print(vin,' is not a valid vin')
+
+            lvin=len(vin)
+            vin5=vin[lvin-5:lvin]
+
+            if year is not None:
+
+                print(vin, len(vin), year, make, model, wt, price, navg)
+                adat=Autos.query.filter(Autos.VIN==vin).first()
+                if adat is not None:
+                    print('This VIN already in the system')
+                    print('Adding Weight and Value updates:')
+                    print(adat.id)
+                    price=price.replace('$','')
+                    adat.TowCompany='xxx'
+                    adat.EmpWeight=str(wt)
+                    adat.Value=str(price)
+                    print(adat.Value)
+                    adat.Ncars=1
+                    db.session.commit()
+                else:
+                    print('This VIN being added to the system')
+
+                    towcost='TBD'
+                    orderid='NYA'
+                    towcompany='TBD'
+                    ncars=1
+
+                    price=price.replace('$','')
+                    input= Autos(Jo=orderid,Hjo=None,Year=year,Make=make,Model=model,Color='',VIN=vin,Title='',State='',EmpWeight=wt,Dispatched=None,Value=price,TowCompany=towcompany,TowCost=towcost,TowCostEa=' ',Original=None,Status='New',Date1=today,Date2=today,Pufrom='',Delto='',Ncars=ncars,Orderid=orderid)
+                    db.session.add(input)
+                    db.session.commit()
+
+try:
+    os.remove('vins.txt')
+except:
+    print('vins.txt does not exist')
+
 
 tunnel.stop()
