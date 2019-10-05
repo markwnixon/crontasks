@@ -1,6 +1,14 @@
 /__pycache__
 *.pyc
 *.txt
+*.log
+*.sh
+CCC_FELA_models.py
+CCC_FELA_remote_db_connect.py
+CCC_system_setup.py
+CCC_OSLM_models.py
+CCC_OSLM_remote_db_connect.py
 textcleaner
 remote_db_connect.py
-geckodriver.log
+/incoming
+/tmp

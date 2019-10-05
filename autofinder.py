@@ -1,19 +1,17 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_mysqldb import MySQL
-from flask import session, request
 import datetime
-import calendar
-import os
-import shutil
-import fnmatch
-import subprocess
 
-from remote_db_connect import db, tunnel
-from models2 import Storage, OverSeas, Orders, Moving, People, Autos
 from cronfuncs import d2s, nonone, nodollar
 from scrapers import vinscraper
 
+from CCC_system_setup import mycompany
+
+co = mycompany()
+if co == 'FELA':
+    from CCC_FELA_remote_db_connect import tunnel, db
+    from CCC_FELA_models import Storage, OverSeas, Orders, Moving, People, Autos
+elif co == 'OSLM':
+    from CCC_OSLM_remote_db_connect import tunnel, db
+    from CCC_OSLM_models import Storage, OverSeas, Orders, Moving, People, Autos
 
 today = datetime.date.today()
 
@@ -269,10 +267,8 @@ def autofind(p5s, txtfile, srcfile):
             bdat = Autos.query.filter(Autos.VIN == vin).first()
             if bdat is None or vin == 'NoVIN':
                 print("Entering data in Autos database")
-                input = Autos(Jo=orderid, Hjo=None, Year=year, Make=make, Model=model, Color=color,
-                              VIN=vin, Title=None, State=None, EmpWeight=wt, Dispatched='Horizon Motors', Value=value,
-                              TowCompany=carrier, TowCost=payment, TowCostEa=each, Original=original, Status='New',
-                              Date1=date1, Date2=date2, Pufrom=pufrom, Delto='FEL', Ncars=ncars, Orderid=orderid)
+                input = Autos(Jo=orderid, Hjo=None, Year=year, Make=make, Model=model, Color=color, VIN=vin, Title=None, State=None, EmpWeight=wt, Dispatched='Horizon Motors', Value=value,
+                              TowCompany=carrier, TowCost=payment, TowCostEa=each, Original=original, Status='New', Date1=date1, Date2=date2, Pufrom=pufrom, Delto='FEL', Ncars=ncars, Orderid=orderid)
                 db.session.add(input)
                 db.session.commit()
                 print('This auto not in database, adding to records...')
