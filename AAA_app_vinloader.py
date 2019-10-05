@@ -221,11 +221,6 @@ for vin in vlist:
         file1.close()
         print('Done with', year, make, model, weight, price)
 
-        os.environ['MYPHONE'] = "7578973266"
-        os.environ['TWILIO_ACCOUNT_SID'] = "AC12e54bc8d564fee9dae9b4d4bc5e1660"
-        os.environ['TWILIO_AUTH_TOKEN'] = "0657e34cdd3c4eb2f72a472b4e8f8270"
-        os.environ['PUBLICIP'] = "mserverlocal.chickenkiller.com"
-
         myphone = os.environ['MYPHONE']
         print(myphone)
 
