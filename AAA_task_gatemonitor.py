@@ -43,6 +43,8 @@ def gatescraper(printif):
     yesterday = datetime.strftime(datetime.now() - timedelta(1), '%m/%d/%Y')
     #todaystr = datetime.strftime(datetime.now() - timedelta(9), '%m/%d/%Y')
     today = datetime.today()
+    cutoff = datetime.now() - timedelta(60)
+    cutoff = cutoff.date()
     todaystr = datetime.today().strftime('%m/%d/%Y')
     startdate = yesterday
     enddate = todaystr
@@ -136,8 +138,8 @@ def gatescraper(printif):
                 mytimedt = datetime.strptime(mytime, '%I:%M %p')
                 mytime = mytimedt.strftime('%H:%M')
                 print('mytime =', mytime) if printif == 1 else 1
-
-                idat = Interchange.query.filter( (Interchange.CONTAINER == thiscon) & (Interchange.TYPE == movetyp) ).first()
+                print('cutoff =',cutoff) if printif == 1 else 1
+                idat = Interchange.query.filter( (Interchange.CONTAINER == thiscon) & (Interchange.TYPE == movetyp) & (Interchange.Date > cutoff) ).first()
                 if idat is None:
 
                     contype = f'{cr[4]} {cr[5]} {cr[6]}'
