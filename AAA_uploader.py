@@ -21,7 +21,7 @@ elif co == 'OSLM':
     from CCC_OSLM_models import Autos
 
 print('This run started at: ', datetime.datetime.now())
-print(co, websites)
+#print(co, websites)
 
 today = datetime.date.today()
 
