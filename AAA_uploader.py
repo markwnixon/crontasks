@@ -1,4 +1,4 @@
-
+import sys
 import os
 import shutil
 import subprocess
@@ -21,7 +21,7 @@ elif co == 'OSLM':
     from CCC_OSLM_models import Autos
 
 print('This run started at: ', datetime.datetime.now())
-print(websites)
+print(co, websites)
 
 today = datetime.date.today()
 
@@ -164,6 +164,7 @@ if 1 == 1:  # Keep this in case want to convert back to a looping script
         s5s = addpath4(folder+'/')
         filefix(i5s)
         filelist = os.listdir(i5s)
+        print(folder,i5s,filelist)
         if filelist:
             for filename in filelist:
                 nfiles += 1
@@ -304,3 +305,4 @@ except:
 
 
 tunnel.stop()
+sys.exit('Uploading completed...')
