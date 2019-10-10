@@ -19,9 +19,6 @@ elif co == 'OSLM':
     from CCC_OSLM_remote_db_connect import tunnel, db
     from CCC_OSLM_models import Autos
 
-from models_oslm import Autos
-from remote_db_connect_oslm import db, tunnel
-
 from twilio.rest import Client
 
 today = datetime.date.today()
