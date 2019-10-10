@@ -180,7 +180,7 @@ try:
     os.remove('incoming/whatsapp/vins.txt')
 except IOError:
     vlist = []
-    file1 = open(addpath2('vinrun.txt'), 'a+')
+    file1 = open(addpath2('whatsapp/vinrun.txt'), 'a+')
     file1.write('Error in opening incoming/vins.txt\n')
     file1.close()
 
@@ -188,7 +188,7 @@ for vin in vlist:
 
     now = datetime.datetime.now()
     date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
-    file1 = open(addpath2('vinrun.txt'), 'a+')
+    file1 = open(addpath2('whatsapp/vinrun.txt'), 'a+')
     file1.write('At '+date_time+' running task for VIN:'+vin+'\n')
     file1.close()
 
