@@ -232,7 +232,7 @@ for vin in vlist:
         client = Client()
 
         print(f'Sent from {from_phone}')
-        print(f'Sent to {to_phone}')
+        print(f'Sent to {sessionph}')
 
         message = client.messages.create(body=tw_output,from_=from_phone,to=sessionph)
 
