@@ -178,6 +178,8 @@ try:
     longs = open('incoming/whatsapp/vins.txt').read()
     vlist = longs.split()
     os.remove('incoming/whatsapp/vins.txt')
+    sessionph = vlist[0]
+    vlist.remove(sessionph)
 except IOError:
     vlist = []
     file1 = open(addpath2('whatsapp/vinrun.txt'), 'a+')
@@ -218,8 +220,8 @@ for vin in vlist:
         file1.close()
         print('Done with', year, make, model, weight, price)
 
-        myphone = os.environ['MYPHONE']
-        print(myphone)
+        #myphone = os.environ['MYPHONE']
+        #print(myphone)
 
         sid = os.environ['TWILIO_ACCOUNT_SID']
         token = os.environ['TWILIO_AUTH_TOKEN']
@@ -229,11 +231,11 @@ for vin in vlist:
         client = Client()
 
         from_phone='whatsapp:+14155238886'
-        to_phone='whatsapp:+1'+myphone
-        print(from_phone)
-        print(to_phone)
+        #to_phone='whatsapp:+1'+myphone
+        print(f'Sent from {from_phone})
+        print(f'Sent to {to_phone})
 
-        message = client.messages.create(body=tw_output,from_=from_phone,to=to_phone)
+        message = client.messages.create(body=tw_output,from_=from_phone,to=sessionph)
 
 
 tunnel.stop()
