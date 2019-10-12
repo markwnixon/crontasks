@@ -180,6 +180,7 @@ def quickvinloader(vin):
 
 
 # Main part of running code
+client = Client()
 try:
     longs = open('incoming/whatsapp/vins.txt').read()
     vlist = longs.split()
@@ -193,6 +194,7 @@ except IOError:
     file1.close()
 
 for vin in vlist:
+    message = client.messages.create(body=f'Looking up VIN: {vin}', from_=from_phone, to=sessionph)
 
     now = datetime.datetime.now()
     date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
@@ -201,6 +203,7 @@ for vin in vlist:
     file1.close()
 
     year, make, model, error = quickvinloader(vin)
+    message = client.messages.create(body=f'Found...\nYear: {year}\nMake: {make}\nModel: {model}\n...getting weight and price...', from_=from_phone, to=sessionph)
     if error == 'All is well':
         weight = curbweight(year, make, model)
         price, navg = carprice(year, make, model)
@@ -229,7 +232,7 @@ for vin in vlist:
         print(sid)
         print(token)
 
-        client = Client()
+
 
         print(f'Sent from {from_phone}')
         print(f'Sent to {sessionph}')
