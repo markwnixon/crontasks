@@ -9,7 +9,13 @@ from random import randint
 from statistics import mean
 import os
 
-from CCC_system_setup import mycompany, usernames, passwords, websites, addpath2
+from CCC_system_setup import mycompany, usernames, passwords, websites, addpath2, from_phone
+
+sid = os.environ['TWILIO_ACCOUNT_SID']
+token = os.environ['TWILIO_AUTH_TOKEN']
+print(sid)
+print(token)
+print(from_phone)
 
 co = mycompany()
 if co == 'FELA':
@@ -220,18 +226,11 @@ for vin in vlist:
         file1.close()
         print('Done with', year, make, model, weight, price)
 
-        #myphone = os.environ['MYPHONE']
-        #print(myphone)
-
-        sid = os.environ['TWILIO_ACCOUNT_SID']
-        token = os.environ['TWILIO_AUTH_TOKEN']
         print(sid)
         print(token)
 
         client = Client()
 
-        from_phone='whatsapp:+14155238886'
-        #to_phone='whatsapp:+1'+myphone
         print(f'Sent from {from_phone}')
         print(f'Sent to {to_phone}')
 
