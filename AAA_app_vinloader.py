@@ -232,8 +232,8 @@ for vin in vlist:
 
         from_phone='whatsapp:+14155238886'
         #to_phone='whatsapp:+1'+myphone
-        print(f'Sent from {from_phone})
-        print(f'Sent to {to_phone})
+        print(f'Sent from {from_phone}')
+        print(f'Sent to {to_phone}')
 
         message = client.messages.create(body=tw_output,from_=from_phone,to=sessionph)
 
