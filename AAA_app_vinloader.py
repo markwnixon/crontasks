@@ -221,7 +221,7 @@ for vin in vlist:
 
         file1 = open(addpath2('vinrun.txt'), 'a+')
         output = f'VIN:{vin} Year:{year} Make:{make} Model:{model} Weight:{weight} Price:{price} Msg:{error}\n'
-        tw_output = f'*{vin}*\nYear:{year}\nMake:{make}\nModel:{model}\nWeight:{weight}\nPrice:${price}\nMsg:{error}\n'
+        tw_output = f'*{vin}*\nYear: *{year}*\nMake: *{make}*\nModel: *{model}*\nWeight: *{weight}*\nPrice: *{price}*\nMsg: _{error}_\n'
         file1.write(output)
         file1.close()
         print('Done with', year, make, model, weight, price)
