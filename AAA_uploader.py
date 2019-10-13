@@ -6,6 +6,7 @@ import subprocess
 from autofinder import autofind
 from interchange_parse import interparse
 from booking_parse import bookparse
+from knight_parse import knight_parse
 import datetime
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from scrapers import vinscraper
@@ -62,6 +63,14 @@ def checkpdf(s5s, inputf):
         txtfile = 0
 
     return pdffile, txtfile
+
+def checkfortxt(item,textfile):
+    num = 0
+    with open(textfile) as infile:
+        for line in infile:
+            if item in line.lower():
+                num = num + 1
+    return num
 
 
 def checkpdfscan(s5s, inputf):
@@ -153,7 +162,7 @@ def filefix(s1):
 
 
 folderlist = ['bills', 'pods', 'general', 'titles', 'dispatch',
-              'interchange', 'tjobs', 'ojobs', 'bookings']
+              'interchange', 'tjobs', 'orders', 'bookings']
 
 if 1 == 1:  # Keep this in case want to convert back to a looping script
     nfiles = 0
@@ -197,17 +206,28 @@ if 1 == 1:  # Keep this in case want to convert back to a looping script
                         print('Scannedjpgtext:', txtfile)
 
                     error = 1
-                    if folder == 'interchange' or folder == 'dispatch' or folder == 'bookings':
+                    if folder == 'interchange' or folder == 'dispatch' or folder == 'bookings' or folder == 'orders':
                         if folder == 'interchange':
                             error = interparse(s5s, txtfile, srcfile)
                             newfile = srcfile
                             newtxt = txtfile
+
                         elif folder == 'dispatch':
                             newfile, error = autofind(s5s, txtfile, srcfile)
                             newtxt = newfile.replace('.pdf', '.txt')
+
                         elif folder == 'bookings':
                             newfile, error = bookparse(s5s, txtfile)
                             newtxt = newfile.replace('.pdf', '.txt')
+
+                        elif folder == 'orders':
+                            knightjob = checkfortxt('knight',s5s+txtfile)
+                            print('Found knight occurances = ',knightjob)
+                            if knightjob > 4:
+                                newfile = knight_parse(s5s+txtfile)
+                                newtxt = txtfile
+                                error = 0
+
 
                         if error == 0:
                             shutil.move(s5s+srcfile, s5s+newfile)
@@ -216,7 +236,7 @@ if 1 == 1:  # Keep this in case want to convert back to a looping script
                             copyline1 = f'scp {s5s+newfile} {pythonline}'
                             print(copyline1)
                             os.system(copyline1)
-                            copyline2 = 'scp '+s5s+newtxt+pythonline+folder
+                            copyline2 = f'scp {s5s+txtfile} {pythonline}'
                             print(copyline2)
                             os.system(copyline2)
                             os.remove(s5s+newfile)
@@ -302,7 +322,6 @@ try:
     os.remove(addpath4('vins.txt'))
 except:
     print('vins.txt does not exist')
-
 
 tunnel.stop()
 sys.exit('Uploading completed...')
