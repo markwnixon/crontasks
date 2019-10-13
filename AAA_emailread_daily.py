@@ -181,8 +181,6 @@ def checkdate(emaildate,filename,txtfile):
                     returnval=1
     return returnval
 
-
-
 # Subroutines to test out individual emails
 if 1==2:
     username = "info@firsteaglelogistics.com"
