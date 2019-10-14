@@ -397,6 +397,7 @@ if 1==1:
         datefrom = (datetime.date.today() - datetime.timedelta(dayback)).strftime("%d-%b-%Y")
         print(datefrom)
         username = "info@horizonmotors1.com"
+        #username = "mnixon@firsteaglelogistics.com"
         password = "User1123!"
         imap_url = "az1-ss7.a2hosting.com"
         con = imaplib.IMAP4_SSL(imap_url)
