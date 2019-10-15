@@ -23,7 +23,7 @@ printif = 0
 
 runat = datetime.now()
 today = runat.date()
-lookback = runat - timedelta(60)
+lookback = runat - timedelta(30)
 lbdate = lookback.date()
 print(' ')
 print('________________________________________________________')
