@@ -4,10 +4,10 @@ from CCC_system_setup import addpath3, addpath4, websites, usernames, passwords,
 co = mycompany()
 if co == 'FELA':
     from CCC_FELA_remote_db_connect import db
-    from CCC_FELA_models import JO
+    from CCC_FELA_models import JO, Drops
 elif co == 'OSLM':
     from CCC_OSLM_remote_db_connect import db
-    from CCC_OSLM_models import JO
+    from CCC_OSLM_models import JO, Drops
 
 today = datetime.date.today()
 
@@ -77,3 +77,18 @@ def newjo(jtype,sdate):
     db.session.add(input2)
     lv.nextid=nextid+1
     return nextjo
+
+def dropupdate(dropblock):
+    droplist=dropblock.splitlines()
+    avec=[' ']*5
+    for j,drop in enumerate(droplist):
+        if j<5:
+            avec[j]=drop
+    entity=avec[0]
+    addr1=avec[1]
+    edat=Drops.query.filter((Drops.Entity==entity) & (Drops.Addr1==addr1)).first()
+    if edat is None:
+        input = Drops(Entity=avec[0],Addr1=avec[1],Addr2=avec[2],Phone=avec[3],Email=avec[4])
+        db.session.add(input)
+        db.session.commit()
+    return entity

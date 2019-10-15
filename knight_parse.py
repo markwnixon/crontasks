@@ -8,7 +8,7 @@ elif co == 'OSLM':
     from CCC_OSLM_models import Orders, JO, People
 import datetime
 import re
-from viewfuncs import d2s, dropupdate
+from cronfuncs import d2s, dropupdate
 
 def knight_parse(txtfile):
     longs = open(txtfile).read()
