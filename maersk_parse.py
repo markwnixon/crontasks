@@ -128,13 +128,15 @@ def maerskparser(s5s, txtfile, longs):
     if dictdata:
         for index in range(len(dictdata)):
             obj = dictdata[index]
-            Booking = obj.get("Booking")
-            if 'T' in Booking or len(Booking) < 8:
+            booking = obj.get("Booking")
+            if 'T' in booking or len(booking) < 8:
                 t1 = booking_p.findall(longs)
                 if t1:
-                    Booking = t1[0].strip()
-            if len(Booking) > 7:
-                newfile = Booking+'.pdf'
+                    booking = t1[0].strip()
+            if len(booking) > 7:
+                newfile = booking+'.pdf'
+                mysetlist.update({'Booking': booking})
+
             else:
                 newfile = 'Booknotfound.pdf'
             # Convert all dates to Database Storage format:
@@ -151,9 +153,10 @@ def maerskparser(s5s, txtfile, longs):
             if estarr is not None:
                 estarr = datetime.datetime.strptime(estarr, '%Y/%m/%d')
 
-            bdata = Bookings.query.filter(Bookings.Booking == Booking).first()
+
+            bdata = Bookings.query.filter(Bookings.Booking == booking).first()
             if bdata is None:
-                input = Bookings(Jo=None, Booking=Booking, ExportRef=obj.get("ExportRef"), Line=obj.get("Line"),
+                input = Bookings(Jo=None, Booking=booking, ExportRef=obj.get("ExportRef"), Line=obj.get("Line"),
                                  Vessel=obj.get("Vessel"), PortCut=portcut, DocCut=doccut, SailDate=saildate, EstArr=estarr,
                                  RelType=None, AES=None, Original=newfile, Amount=obj.get("Amount"),
                                  LoadPort=obj.get("LoadPort"), Dest=obj.get("Dest"), Status="Unmatched")
@@ -175,6 +178,7 @@ def maerskparser(s5s, txtfile, longs):
                     bdata.Amount = obj.get("Amount")
                     bdata.LoadPort = obj.get("LoadPort")
                     bdata.Dest = obj.get("Dest")
+                    print('Booking aleady exists...just updating it')
 
             db.session.commit()
 
