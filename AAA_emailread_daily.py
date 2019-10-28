@@ -9,14 +9,14 @@ import re
 import numpy as np
 from cronfuncs import newjo
 
-from CCC_system_setup import addpath3, addpath4, websites, usernames, passwords, mycompany, addpaths
+from CCC_system_setup import addpath3, addpath4, websites, usernames, passwords, mycompany, addpaths, imap_url
 co = mycompany()
 if co == 'FELA':
     from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import FELVehicles, Storage, Invoices, JO, Income, Orders, FELBills, Accounts, Bookings, OverSeas, Autos, People, Interchange, Drivers, ChalkBoard, Proofs,Services, Drops
+    from CCC_FELA_models import Orders, OverSeas
 elif co == 'OSLM':
     from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import FELVehicles, Storage, Invoices, JO, Income, Orders, FELBills, Accounts, Bookings, OverSeas, Autos, People, Interchange, Drivers, ChalkBoard, Proofs,Services, Drops
+    from CCC_OSLM_models import Orders, OverSeas
 
 #booking_p=re.compile('[159][0123456789]{8}')
 booking_p=re.compile("[159][0123456789]{8}|[E][BKG0123456789]{11}|[S][0123456789]{9}")
@@ -181,25 +181,6 @@ def checkdate(emaildate,filename,txtfile):
                     returnval=1
     return returnval
 
-# Subroutines to test out individual emails
-if 1==2:
-    username = "info@firsteaglelogistics.com"
-    password = "User1123!"
-    imap_url = "az1-ss7.a2hosting.com"
-    con = imaplib.IMAP4_SSL(imap_url)
-    con.login(username,password)
-    #con.list()
-    con.select('INBOX')
-
-    #test area
-    result,data=con.fetch(b'7','(RFC822)')
-    raw=email.message_from_bytes(data[0][1])
-    body=get_body(raw)
-    body=body.decode('utf-8')
-    blist=body.split()
-    for b in blist:
-        print(b)
-
 if 1==1:
 
     if remit>0:
@@ -227,20 +208,21 @@ if 1==1:
 
     if gbook>0:
         if gbook==1:
-            usernames=["info2@firsteaglelogistics.com"]
+            usernamelist=[usernames['inf2']]
+            password = passwords['inf2']
             dayback=14
         if gbook==2:
-            usernames=["info@firsteaglelogistics.com"]
+            usernamelist=[usernames['info']]
+            password = passwords['info']
             dayback=450
 
         datefrom = (datetime.date.today() - datetime.timedelta(dayback)).strftime("%d-%b-%Y")
         print('Running GBook from...',datefrom)
-        password = "User1123!"
-        imap_url = "az1-ss7.a2hosting.com"
+
         att_dir=addpath4('emaildocs/globalbook')
         txt_file=addpath4('emaildocs/global_bookings.txt')
 
-        for username in usernames:
+        for username in usernamelist:
             con = imaplib.IMAP4_SSL(imap_url)
             con.login(username,password)
             con.select('INBOX')
@@ -308,19 +290,19 @@ if 1==1:
 #_____________________________________________________________________________________________________________
     if kjob>0:
         if kjob==1:
-            usernames=["info2@firsteaglelogistics.com"]
+            usernamelist=[usernames['inf2']]
+            password = passwords['inf2']
             dayback=120
         if kjob==2:
-            usernames=["info@firsteaglelogistics.com"]
+            usernamelist = [usernames['info']]
+            password = passwords['info']
             dayback=450
         datefrom = (datetime.date.today() - datetime.timedelta(dayback)).strftime("%d-%b-%Y")
         print(datefrom)
-        password = "User1123!"
-        imap_url = "az1-ss7.a2hosting.com"
         att_dir=addpath4('emaildocs/knightloads')
         txt_file=addpath4('emaildocs/knight_loads.txt')
 
-        for username in usernames:
+        for username in usernamelist:
             con = imaplib.IMAP4_SSL(imap_url)
             con.login(username,password)
             con.select('INBOX')
@@ -396,10 +378,8 @@ if 1==1:
             dayback=450
         datefrom = (datetime.date.today() - datetime.timedelta(dayback)).strftime("%d-%b-%Y")
         print(datefrom)
-        username = "info@horizonmotors1.com"
-        #username = "mnixon@firsteaglelogistics.com"
-        password = "User1123!"
-        imap_url = "az1-ss7.a2hosting.com"
+        username = usernames['infh']
+        password = passwords['infh']
         con = imaplib.IMAP4_SSL(imap_url)
         con.login(username,password)
         con.select('INBOX')

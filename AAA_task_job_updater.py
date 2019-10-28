@@ -23,7 +23,7 @@ printif = 0
 
 runat = datetime.now()
 today = runat.date()
-lookback = runat - timedelta(30)
+lookback = runat - timedelta(60)
 lbdate = lookback.date()
 print(' ')
 print('________________________________________________________')
@@ -32,7 +32,8 @@ print('________________________________________________________')
 print(' ')
 
 #Make sure all the booking and container numbers for orders have upper case:
-jdata = Orders.query.filter( (~Orders.Status.endswith('3')) & (Orders.Date > lbdate)).all()
+#These correction made only once, using Release...set to 1 after corrections
+jdata = Orders.query.filter( (~Orders.Status.endswith('3')) & (Orders.Date > lbdate) & (Orders.Release == 0) ).all()
 for jdat in jdata:
     bk = jdat.Booking
     bk = bk.upper()
@@ -42,9 +43,10 @@ for jdat in jdata:
     con = con.strip()
     jdat.Booking = bk
     jdat.Container = con
+    jdat.Release = 1
     db.session.commit()
 
-#Sometimes we return container with different booking number, so we need to get the container number to the job whether it is and In or and Out:
+#Sometimes we return container with different booking number, so we need to get the container number to the job whether it is an In or and Out:
 jdata = Orders.query.filter( (~Orders.Status.endswith('3')) & (Orders.Date > lbdate)).all()
 for jdat in jdata:
     con = jdat.Container
@@ -104,7 +106,7 @@ for jdat in jdata:
             idat.Company = tdat.Shipper
             db.session.commit()
 
-# Match up the containers that can be matched up
+# Match up the containers that can be matched up IN to OUT matching
 idata = Interchange.query.filter( (Interchange.TYPE.contains('Out') & (Interchange.Date > lbdate)) ).all()
 for idat in idata:
     con = idat.CONTAINER

@@ -54,6 +54,19 @@ def d2s(instr):
         outstr = instr
     return outstr
 
+def d1s(instr):
+    try:
+        instr = instr.replace('$', '').replace(',', '')
+    except:
+        instr = str(instr)
+    try:
+        infloat = float(instr)
+        outstr = "%0.1f" % infloat
+    except:
+        outstr = instr
+    return outstr
+
+
 def newjo(jtype,sdate):
     dt = datetime.datetime.strptime(sdate, '%Y-%m-%d')
     year= str(dt.year)
