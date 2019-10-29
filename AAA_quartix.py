@@ -193,6 +193,7 @@ for jback in range(delta+1):
 
                             print('***Route***',locat, dtnow)
 
+
             print(dataret) if printif == 1 else 1
             trips = dataret['NumberOfTrips']
             distance = dataret['Distance']*.62137

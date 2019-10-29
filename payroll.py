@@ -4,7 +4,6 @@ import datetime
 from math import sqrt
 from cronfuncs import dropupdate, d1s, d2s
 
-
 today = datetime.datetime.today()
 #today = today.date()
 print(today)

@@ -32,7 +32,6 @@ elif co == 'OSLM':
     unames = [usernames['serv']]
     password = passwords['serv']
 
-
 #First download emails from Quartix
 #_____________________________________________________________________________________________________________
 # Subroutine for download Quartix attachments from weeklys
