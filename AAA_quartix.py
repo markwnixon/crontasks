@@ -5,8 +5,8 @@ from math import sqrt
 from cronfuncs import dropupdate, d1s, d2s
 
 
-daybackfrom = 30
-daybackto = 0
+daybackfrom = 4
+daybackto = 4
 printif = 0
 # (daybackto=0 is today; from 1 to 0 is yesterday and today)
 
@@ -150,7 +150,7 @@ for jback in range(delta+1):
 
     for jid, vid in enumerate(ids):
 
-            print(f'Grabbing Data for Unit:{units[jid]} VIN:{vins[jid]} on Date{datehere_s}') if printif == 1 else 1
+            print(f'Grabbing Data for Unit:{units[jid]} VIN:{vins[jid]} on Date{datehere_s}')
             print('') if printif == 1 else 1
 
             parameters = {
@@ -161,6 +161,38 @@ for jback in range(delta+1):
             API_ENDPOINT = "https://qws.quartix.com/v2/api/vehicles/route"
             r = s.get(url = API_ENDPOINT, params=parameters)
             dataret = r.json()['Data']['Summary']
+
+            #Calculate time in port:
+            otherset = r.json()['Data']['Trips']
+            #print('Otherset',otherset)
+            inport = 0
+            for kdx, tset in enumerate(otherset):
+                print(f'Trip No. {kdx}')
+                routes = tset['Route']
+
+                if routes:
+                    for rout in routes:
+                        #print('###Route###',rout)
+                        etype = rout['EventType']
+                        if etype != 'Distance':
+                            locat = rout['Location']
+                            dtnow = rout['EventDateTime']
+                            tstamp = dtnow[0:16]
+                            timehere = datetime.datetime.strptime(tstamp, '%Y-%m-%dT%H:%M')
+                            if 'Broening' in locat or 'Dundalk' in locat:
+                                #We are in port, see if new port entry:
+                                if inport == 0:
+                                    portstart = timehere
+                                    inport = 1
+                                else:
+                                    porttime = timehere - portstart
+                            elif inport == 1:
+                                #Our time in port is now over
+                                print(f'Time in port start:{portstart} end:{timehere} time in:{porttime}')
+                                inport = 0
+
+                            print('***Route***',locat, dtnow)
+
             print(dataret) if printif == 1 else 1
             trips = dataret['NumberOfTrips']
             distance = dataret['Distance']*.62137
@@ -274,21 +306,6 @@ for jback in range(delta+1):
                                      Locationstop=loc2, Maintid=str(driverid), Status='0')
                     db.session.add(input)
                     db.session.commit()
-                else:
-                    if tdat.Status == '0':
-                        tdat.Status = '1'
-                        tdat.GPSin = start_dt
-                        tdat.GPSout = ended_dt
-                        tdat.Distance = di
-                        tdat.rdist = d2s(rm_max)
-                        tdat.Rloc = loc_max
-                        tdat.Stoptime = None
-                        tdat.Gotime = str(total_optime)
-                        tdat.Locationstart = loc_start
-                        tdat.Locationstop = loc2
-                        tdat.Maintid = str(driverid)
-                        tdat.Driver = driver
-                        db.session.commit()
 
             else:
                 print('No data here for truck')
