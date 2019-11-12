@@ -92,5 +92,76 @@ for dat in ddata:
     print(f'Summary for {driver}: 1st Week Hrs {d1s(tot1)} and 2nd Week Hrs {d1s(tot2)} which becomes biweekly {d1s(reg_hours)} regular hours and {d1s(ot_hours)} OT')
     print(' ')
 
+tot1=0
+tot2=0
+tystart =[436,436,436,436,436, 0, 0, 435,435,435,435,435, 0, 0]
+tystop = [436,436,436,436,435, 0, 0, 435,435,435,435,435, 0, 0]
+pdate = pstart
+driver = 'Tiwand McClary'
+wk1 = pstart + datetime.timedelta(6)
+
+for ix in range(14):
+    #print(pdate,tystart[ix],tystop[ix])
+
+    ustart = str(tystart[ix])
+    ustop = str(tystop[ix])
+
+    hdat1 = Trucklog.query.filter( (Trucklog.Unit == ustart) & (Trucklog.Date == pdate) ).first()
+    hdat2 = Trucklog.query.filter( (Trucklog.Unit == ustop) & (Trucklog.Date == pdate) ).first()
+    if hdat1 is None:
+        print(' ')
+        #print(f'No Truck Date for {ustart} on {pdate}')
+    elif hdat2 is None:
+        print(' ')
+        #print(f'No Truck Date for {ustop} on {pdate}')
+    else:
+        startdt = hdat1.GPSin
+        enddt = hdat2.GPSout
+        shift = str(enddt - startdt)
+        try:
+            (hr, min, sec) = shift.split(':')
+            shift_time = round(float(int(hr) * 3600 + int(min) * 60 + int(sec)) / 3600.0, 2)
+        except:
+            shift_time = 0
+
+        print(f'Driver:{driver} Date:{pdate} Hours:{d1s(shift_time)} StartIn:{hdat1.Unit} EndIn:{hdat2.Unit}')
+        if pdate <= wk1:
+            tot1 = tot1 + shift_time
+        else:
+            tot2 = tot2 + shift_time
+
+    pdate = pdate + datetime.timedelta(1)
+wk1tot = tot1
+wk2tot = tot2
+if tot1 > 40.0:
+    ot1 = tot1 - 40.0
+    tot1 = 40.0
+else:
+    ot1 = 0.0
+
+if tot2 > 40.0:
+    ot2 = tot2 - 40.0
+    tot2 = 40.0
+else:
+    ot2 = 0.0
+
+reg_hours = tot1 + tot2
+ot_hours = ot1 + ot2
+
+print(f'Summary for {driver}: {d1s(reg_hours)} regular hours and {d1s(ot_hours)} OT')
+print(f'Week 1 Summary: {d1s(wk1tot)} hours is {d1s(tot1)}Reg and {d1s(ot1)}OT')
+print(f'Week 2 Summary: {d1s(wk2tot)} hours is {d1s(tot2)}Reg and {d1s(ot2)}OT')
+print(' ')
+
+
+
+
+
+
+
+
+
+
+
 
 tunnel.stop()
