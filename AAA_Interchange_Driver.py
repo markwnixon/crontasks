@@ -14,17 +14,17 @@ co = mycompany()
 
 if co == 'FELA':
     from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Trucklog, Drivers, Driverlog, Interchange, FELVehicles
+    from CCC_FELA_models import Trucklog, Drivers, Driverlog, Interchange, FELVehicles, Portlog
     uname = usernames['quartix']
     password = passwords['quartix']
 
 elif co == 'OSLM':
     from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Trucklog, Drivers, Driverlog, Interchange
+    from CCC_OSLM_models import Trucklog, Drivers, Driverlog, Interchange, Portlog
     uname = usernames['quartix']
     password = passwords['quartix']
 
-cutoff = datetime.date(2019,10,1)
+cutoff = datetime.date(2019,8,16)
 idata = Interchange.query.filter( (Interchange.Path != 'V') & (Interchange.Date > cutoff) ).all()
 for idat in idata:
     idate = idat.Date
@@ -40,6 +40,9 @@ for idat in idata:
     if len(ddata) == 1:
         ddat = ddata[0]
         print(idat.CONTAINER, unit, ddat.Driver)
+        idat.Path = 'V'
+        idat.DRIVER = ddat.Driver
+        db.session.commit()
     else:
         for ddat in ddata:
             print('**',idat.CONTAINER, unit, ddat.Driver)

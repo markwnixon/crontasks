@@ -23,7 +23,7 @@ elif co == 'OSLM':
     uname = usernames['quartix']
     password = passwords['quartix']
 
-pstart = datetime.date(2019,10,14)
+pstart = datetime.date(2019,10,28)
 pstop = pstart + datetime.timedelta(14)
 wk1 = pstart + datetime.timedelta(7)
 print(pstart,pstop)

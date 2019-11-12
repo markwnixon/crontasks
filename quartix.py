@@ -22,13 +22,13 @@ co = mycompany()
 
 if co == 'FELA':
     from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Trucklog, Drivers
+    from CCC_FELA_models import Trucklog, Drivers, Portlog
     unames = [usernames['mnix']]
     password = passwords['mnix']
 
 elif co == 'OSLM':
     from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Trucklog, Drivers
+    from CCC_OSLM_models import Trucklog, Drivers, Portlog
     unames = [usernames['serv']]
     password = passwords['serv']
 
