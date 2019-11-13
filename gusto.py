@@ -36,7 +36,7 @@ def put_payroll(type, fn, earn, empcost, emptaxes, paydt, pdsdt, pdedt, hours, o
 
 
 
-csvfile = addpath4('payroll/gusto_history.csv')
+csvfile = addpath4('payroll/gusto_ytd_nov13.csv')
 print(csvfile)
 
 name =''
@@ -135,11 +135,11 @@ if 1 == 1:
 
         type = pdat.Function
         if type == 'Driver':
-            wcrate = .10
+            wcrate = .1007
         elif type == 'Admin:':
-            wcrate = .1
+            wcrate = .0020
         elif type == 'Warehouse':
-            wcrate == .04
+            wcrate == .0020
         pay = float(pdat.GrossEarning)
         wcomp = wcrate * pay
         fullcost = wcomp + float(pdat.CompanyPay)
