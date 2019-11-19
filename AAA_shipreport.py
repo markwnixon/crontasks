@@ -32,17 +32,13 @@ def convert_date_dt(indate,inform):
     return adatedt.date()
 
 def convert_date(indate,inform):
-    try:
-        adate = indate[0:11]
-        adate = adate.strip()
-        adatedt = datetime.datetime.strptime(adate, inform)
-        adatedt = adatedt.date()
-        delta = adatedt - today
-        daysaway = delta.days
-        date1str = adatedt.strftime('%Y-%m-%d')
-    except:
-        daysaway = 0
-        date1str = date2str
+    adate = indate[0:11]
+    adate = adate.strip()
+    adatedt = datetime.datetime.strptime(adate, inform)
+    adatedt = adatedt.date()
+    delta = adatedt - today
+    daysaway = delta.days
+    date1str = adatedt.strftime('%Y-%m-%d')
 
     return date1str, daysaway
 
@@ -57,6 +53,10 @@ with Display():
         container = odat.Container
         container = container[0:11]  # in case we added letters to designate street turn
         container = container.strip()
+        try:
+            lcon = len(container)
+        except:
+            lcon = 0
 
         book = Bookings.query.filter(Bookings.Booking == bk).first()
         if book is not None:
@@ -65,48 +65,46 @@ with Display():
             portstatus='Unknown'
             daysaway=0
             date2dt = book.EstArr
+            depdate_dt = book.SailDate
             date2str = date2dt.strftime('%Y-%m-%d')
             bk = book.Booking
             shipline = book.Line
 
             time.sleep(2)
-            if shipline == 'Maersk':
+            if shipline == 'Maersk' and lcon > 9:
+                print(f'Looking for {container}')
                 browser = webdriver.Firefox()
                 browser.set_window_size(1920, 1080)
                 url='https://www.maersk.com/tracking/#tracking/'+container
                 browser.get(url)
-                time.sleep(1)
-                site_data=browser.page_source
-                page_soup=soup(site_data,'html.parser')
-                allspans=[item.get_text(strip=True) for item in page_soup.select("span")]
-                for j,span in enumerate(allspans):
-                    #print(j,span)
-                    if 'Estimated arrival' in span:
-                        adate=allspans[j+1]
-                        seastatus='At Sea'
-                        portstatus='Left Port'
-                    if 'Arrival date' in span:
-                        adate=allspans[j+1]
-                        seastatus='Has Arrived'
-                        portstatus='Has Arrived'
-                    if 'Load' in span:
-                        adate2=allspans[j+1]
-                        portstatus='Left Port'
-                    if 'Gate in' in span:
-                        adate2=allspans[j+1]
-                        portstatus='Still at Port'
-                        seastatus='Still at Port'
-
+                time.sleep(3)
+                try:
+                    contentstr = '//*[@id="table_id"]/tbody/tr/td[3]/span[4]'
+                    selectElem = browser.find_element_by_xpath(contentstr)
+                    adate = selectElem.text
+                    print(f'Container {container} arrives on {adate}')
+                except:
+                    print('Could not find element')
+                try:
                     date1str, daysaway = convert_date(adate,'%d %b %Y')
+                    arrdate_dt = convert_date_dt(adate, '%d %b %Y')
+                except:
+                    try:
+                        date1str, daysaway = convert_date(adate2, '%d %b %Y')
+                        arrdate_dt = convert_date_dt(adate2, '%d %b %Y')
+                    except:
+                        daysaway = 0
+                        date1str = date2str
+                        arrdate_dt = book.EstArr
+                checkdate = arrdate_dt - book.EstArr
+                checkdate = checkdate.days
 
-                    if portstatus=='Has Arrived':
-                        allstatus='Arrived'
-                    elif portstatus=='Left Port' and seastatus=='At Sea':
-                        allstatus='At Sea'
-                    elif portstatus=='Still at Port':
-                        allstatus='Not Left Yet'
-                    else:
-                        allstatus = 'Unknown'
+
+                allstatus = 'Not Left Yet'
+                if today > depdate_dt:
+                    allstatus = 'At Sea'
+                if today >= arrdate_dt:
+                    allstatus = 'Arrived'
 
                 browser.quit()
 
@@ -153,6 +151,10 @@ with Display():
                 arrdate = selectElem.text
                 date1str, daysaway = convert_date(arrdate, '%d.%m.%Y')
                 arrdate_dt = convert_date_dt(arrdate, '%d.%m.%Y')
+
+                checkdate = arrdate_dt - book.EstArr
+                checkdate = checkdate.days
+
                 allstatus = 'Not Left Yet'
                 if today > depdate_dt:
                     allstatus = 'At Sea'
@@ -170,7 +172,7 @@ with Display():
             else:
                 pay = 'Pmt Due'
 
-            if (shipline == 'Hoegh' or shipline == 'Maersk') and daysaway > -5:
+            if (shipline == 'Hoegh' or (shipline == 'Maersk' and lcon > 9)) and daysaway > -10 and checkdate < 40:
                 tabdata.append([str(daysaway),allstatus,date1str,pay,date2str,bk,container,book.Vessel,odat.BillTo,odat.Exporter])
 
 
@@ -179,7 +181,7 @@ with Display():
     newtabdata = sorted(tabdata, key = operator.itemgetter(2))
     for tab in newtabdata:
         print(tab[:10])
-    #emailshipreport(tabdata)
+    emailshipreport(newtabdata)
 
     
 tunnel.stop()
