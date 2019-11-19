@@ -71,7 +71,7 @@ def get_odometer(vid, distance):
 
     return ostart, ostop
 
-def insert_driverbase(datehere,driver, vid, sdt, edt, distance,sloc,eloc, ids, units):
+def insert_driverbase(datehere, driver, vid, sdt, edt, distance, sloc, eloc, ids, units):
     if distance > 0:
         ostart, ostop = get_odometer(vid, distance)
     else:
