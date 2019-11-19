@@ -45,7 +45,8 @@ def convert_date(indate,inform):
 
 with Display():
 #if 1 == 1:
-
+    browser = webdriver.Firefox()
+    browser.set_window_size(1920, 1080)
     tabdata=[]
 
     for odat in odata:
@@ -73,8 +74,8 @@ with Display():
             time.sleep(2)
             if shipline == 'Maersk' and lcon > 9:
                 print(f'Looking for {container}')
-                browser = webdriver.Firefox()
-                browser.set_window_size(1920, 1080)
+                #browser = webdriver.Firefox()
+                #browser.set_window_size(1920, 1080)
                 url='https://www.maersk.com/tracking/#tracking/'+container
                 browser.get(url)
                 time.sleep(3)
@@ -106,11 +107,8 @@ with Display():
                 if today >= arrdate_dt:
                     allstatus = 'Arrived'
 
-                browser.quit()
-
             elif shipline == 'Hoegh':
-                browser = webdriver.Firefox()
-                browser.set_window_size(1920, 1080)
+
                 url='https://www.hoeghautoliners.com/my-cargo'
                 browser.get(url)
                 time.sleep(2)
@@ -163,7 +161,10 @@ with Display():
 
                 print(voyage, lport, depdate, disport, arrdate)
 
+                # This site will not allow refresh or resubmit of URL.  Must quit to clear so can get another book.
                 browser.quit()
+                browser = webdriver.Firefox()
+                browser.set_window_size(1920, 1080)
 
             # Get payment status:
             bdat = FELBills.query.filter( (FELBills.Memo.contains(bk)) | (FELBills.Description.contains(bk)) ).first()
@@ -183,5 +184,5 @@ with Display():
         print(tab[:10])
     emailshipreport(newtabdata)
 
-    
+browser.quit()
 tunnel.stop()

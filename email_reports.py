@@ -25,9 +25,8 @@ def emailshipreport(tabdata):
     #shutil.copy(mfile,newfile)
 
     emailfrom = usernames['mnix']
-    #emailto = usernames['info']
-    emailto = usernames['expo']
-    #emailcc = usernames['expo']
+    emailto = usernames['info']
+    emailcc = usernames['expo']
     #fileToSend = tfile
     username = usernames['mnix']
     password = passwords['mnix']
@@ -41,19 +40,19 @@ def emailshipreport(tabdata):
     s1='<td>'
     s2='</td><td>'
     body = '<html><body><p>Here is status of FEL related Shipline Activity</p><p>Blue = arrived, Red = arrives in less than 10 days, Ordered by new arrival date</p>\n\n'
-    body = body + "<table><tr align = 'center'>"
-    body = body + '<td><b>Days<br>Away</b></td><td><b>Status</b></td><td><b>New Arrival Date</b></td><td><b>Release</b></td><td><b>Old Arrival Date</b></td><td><b>Booking</b></td><td><b>Container</b></td><td><b>BillTo</b></td><td><b>Exporter</b></td></tr>\n'
+    body = body + "<table cellspacing='20'><tr>"
+    body = body + "<td style='text-align:center'><b>Days<br>Away</b></td><td style='text-align:center'><b>Status</b></td><td style='text-align:center'><b>New<br>Arrival<br>Date</b></td><td style='text-align:center'><b>Release</b></td><td style='text-align:center'><b>Old<br>Arrival<br>Date</b></td><td style='text-align:center'><b>Booking</b></td><td style='text-align:center'><b>Container</b></td><td style='text-align:center'><b>Bill<br>To</b></td><td style='text-align:center'><b>Exporter</b></td></tr>\n"
     for tab in tabdata:
         try:
             daway=int(tab[0])
             if daway<0:
-                s1="<td style='color: blue'>"
+                s1="<td style='text-align:center;color: blue'>"
                 s2='</td>'+s1
             elif daway<11:
-                s1="<td style='color: red'>"
+                s1="<td style='text-align:center;color: red'>"
                 s2='</td>'+s1
             else:
-                s1="<td>"
+                s1="<td style='text-align:center'>"
                 s2='</td>'+s1
                 
         except:
