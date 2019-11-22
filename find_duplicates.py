@@ -29,7 +29,7 @@ elif co == 'OSLM':
 
 odata = Orders.query.filter(Orders.Shipper == 'Global Business Link').order_by(Orders.Date).all()
 
-if 1 == 2:
+if 1 == 1:
     num_dups = 0
     for odat in odata:
         bk = odat.Booking
@@ -53,19 +53,20 @@ if 1 == 2:
             cn = odat.Container
             print(f'{jx+1} {dt} {bk} | {cn} already invoiced')
 
-# Now make report of global jobs that have been invoiced.
-jx = 0
-for odat in odata:
-    status = odat.Status
-    ck1 = int(status[0])
-    ck2 = int(status[1])
-    if ck1 == 2 and ck2 ==0:
-        jx = jx+1
-        dt = odat.Date
-        dt2 = odat.Date2
-        bk = odat.Booking
-        cn = odat.Container
-        print(f'{jx} Out:{dt} In:{dt2} Bk:{bk} | Cn:{cn} Not Invoiced')
+if 1 == 2:
+    # Now make report of global jobs that have been invoiced.
+    jx = 0
+    for odat in odata:
+        status = odat.Status
+        ck1 = int(status[0])
+        ck2 = int(status[1])
+        if ck1 == 2 and ck2 ==0:
+            jx = jx+1
+            dt = odat.Date
+            dt2 = odat.Date2
+            bk = odat.Booking
+            cn = odat.Container
+            print(f'{jx} Out:{dt} In:{dt2} Bk:{bk} | Cn:{cn} Not Invoiced')
 
 
 tunnel.stop()
