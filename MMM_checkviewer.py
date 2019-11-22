@@ -24,7 +24,7 @@ if 1 == 1:
     token = client.service.StartSession(usernames['magaya'], passwords['magaya'])
     key = token['access_key']
 
-    ret = client.service.GetTransaction(key,'CK',0,'2369')
+    ret = client.service.GetTransaction(key,'CK',0,'2506')
     ret_xml = ret['trans_xml']
     print(ret_xml)
 
