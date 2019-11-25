@@ -24,9 +24,15 @@ if 1 == 1:
     token = client.service.StartSession(usernames['magaya'], passwords['magaya'])
     key = token['access_key']
 
-    ret = client.service.GetTransaction(key,'CK',0,'2506')
+    ret = client.service.GetTransaction(key,'CK',0,'4548')
     ret_xml = ret['trans_xml']
     print(ret_xml)
+    root = ET.fromstring(ret_xml)
+    cguid = root.attrib['GUID']
+    #eguid = root[0].attrib['GUID']
+    print(cguid)
+    #ret2 = client.service.DeleteTransaction(key, 'CK', '2034')
+    #print(ret2)
 
     #ret = client.service.GetTransRangeByDate(key,'CK','2019-10-01','2019-11-30',0)
     #ret_xml = ret['trans_list_xml']
