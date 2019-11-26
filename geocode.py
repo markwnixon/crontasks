@@ -35,7 +35,7 @@ def direct_resolver(json):
     txts = extract_values(json,'text')
     miles = []
     for txt in txts:
-        if 'mi' in txt and 'min' not in txt:
+        if ('mi' in txt or 'ft' in txt) and 'min' not in txt:
             miles.append(txt)
     return dirdata, lats, lons, miles
 
@@ -161,10 +161,34 @@ lons = lons[nremove:]
 lats = lats[::2]
 lons = lons[::2]
 print(len(lats), len(lons))
-for mi in miles:
-    print(mi)
-for aline in dirdata:
-    print(aline)
+
+tollroadlist = ['76']
+total_miles = miles[0]
+miles = miles[1:]
+legmiles = len(dirdata)*[0]
+legtolls = len(dirdata)*[0]
+for lx,mi in enumerate(miles):
+    legtoll = 0.00
+    try:
+        legmiles[lx] = miles[lx]
+    except:
+        legmiles[lx] = 0.0
+    for tollrd in tollroadlist:
+        t1 = 'I-'+tollrd
+        t2 = f'Interstate {tollrd}'
+        print(t1,t2)
+        if t1 in dirdata[lx] or t2 in dirdata[lx]:
+            try:
+                nmiles = float(legmiles[lx].replace('mi',''))
+            except:
+                nmiles = 0.00
+            legtoll = .09*nmiles
+            print('legtoll inside=', nmiles,legtoll)
+    legtolls[lx] = legtoll
+
+print(legtolls)
+for lx,aline in enumerate(dirdata):
+    print(aline, legmiles[lx],legtolls[lx])
 
 
 fm_tollbox =  [39.267757, -76.610192, 39.261248, -76.563158]
