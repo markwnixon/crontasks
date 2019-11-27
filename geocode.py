@@ -249,17 +249,47 @@ for jx,lat in enumerate(lats):
 
 
 tot_tolls = 0.00
+glidepath = .2  #hrs for start/stop/wait around each site
+rt_miles = tot_dist*2.0
+rt_hours = tot_dura*2.0 + glidepath*4.0
 for lx,aline in enumerate(dirdata):
     tot_tolls += legtolls[lx]
     print(aline)
     print(f'Dist:{d1s(miles[lx])}, Time:{d1s(hours[lx])}, Tolls:${d2s(legtolls[lx])}, TollCode:{legcodes[lx]}')
-bid = tot_dist*2.0*2.10 + tot_tolls*2 + 250.
+
+#Cost Analysis:
+cost_drv = rt_hours*27.00
+cost_fuel = rt_miles*.47
+cost_tolls = 2.0*tot_tolls
+cost_insur = 4.0*rt_hours
+subtotal = cost_drv+cost_fuel+cost_tolls+cost_insur
+cost_rm = .13*subtotal
+subtotal = subtotal + cost_rm
+cost_ga = .15*subtotal
+cost_total = subtotal + cost_ga
+
+bid = rt_miles*2.10 + cost_tolls + 250.
 cma_bid = bid/1.13
+
 print('Summary')
-print(f'Driver Cost: ${d2s(tot_dura*2*27.00)}')
-print(f'Fuel Cost: ${d2s(tot_dist*2*.47)}')
-print(f'Toll Cost: ${d2s(tot_tolls*2)}')
+print(f'Driver Cost: ${d2s(cost_drv)}')
+print(f'Fuel Cost: ${d2s(cost_fuel)}')
+print(f'Toll Cost: ${d2s(cost_tolls)}')
+print(f'Insurance Cost: ${d2s(cost_insur)}')
+print(f'Repair/Maint/Lic/Fees: ${d2s(cost_rm)}')
+print(f'General & Admin: ${d2s(cost_ga)}')
+print(f'Total Cost of Job: ${d2s(cost_total)}')
+bid2 = cost_total * 1.5
+bid3 = cost_total * 2.0
+
 print(f'Recommended Bid: ${d2s(bid)}')
 print(f'Recommended CMA Bid: ${d2s(cma_bid)} plus fuel')
+print(f'Lowest Cost-Based Bid: ${d2s(bid2)}')
+print(f'Normal Cost-Based Bid: ${d2s(bid3)}')
+
+print(f'Projected Gross Profit: ${d2s(bid-cost_total)}')
+print(f'Projected Margin: {d2s(100.0*(bid - cost_total)/bid)}%')
+print(f'Lowest Cost-Based Bid')
+
 
 tunnel.stop()

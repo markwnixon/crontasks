@@ -55,7 +55,7 @@ client = Client(magaya_wsdl_url, transport=Transport(session=session))
 token = client.service.StartSession(usernames['magaya'], passwords['magaya'])
 key = token['access_key']
 
-ret = client.service.GetTransRangeByDate(key,'BK','2019-10-01','2019-11-08',0)
+ret = client.service.GetTransRangeByDate(key,'BK','2019-10-01','2019-11-27',0)
 ret_xml = ret['trans_list_xml']
 
 root = ET.fromstring(ret_xml)
@@ -76,7 +76,7 @@ def get_address_block(nc1):
     for nc2 in nc1:
         tag2, txt2 = nc2.tag, nc2.text
         tag2 = tag2.replace('{http://www.magaya.com/XMLSchema/V1}', '').strip()
-        print('Address Block',tag2,txt2)
+        #print('Address Block',tag2,txt2)
         if tag2 == 'Name':
             name = txt2
         if tag2 == 'Email':
@@ -87,7 +87,7 @@ def get_address_block(nc1):
             for nc3 in nc2:
                 tag3, txt3 = nc3.tag, nc3.text
                 tag3 = tag3.replace('{http://www.magaya.com/XMLSchema/V1}', '').strip()
-                print('Address Block 3', tag3, txt3)
+                #print('Address Block 3', tag3, txt3)
                 if tag3 == 'Street':
                     if addr1 == 'NAY':
                         addr1 = txt3
@@ -119,7 +119,7 @@ def get_address_block1(nc1):
         for nc2 in nc1:
             tag2, txt2 = nc2.tag, nc2.text
             tag2 = tag2.replace('{http://www.magaya.com/XMLSchema/V1}', '').strip()
-            print('Address Block',tag2,txt2)
+            #print('Address Block',tag2,txt2)
             if tag2 == 'Type':
                 typea = txt2
             if tag2 == 'Name':
@@ -132,7 +132,7 @@ def get_address_block1(nc1):
                 for nc3 in nc2:
                     tag3, txt3 = nc3.tag, nc3.text
                     tag3 = tag3.replace('{http://www.magaya.com/XMLSchema/V1}', '').strip()
-                    print('Address Block 3', tag3, txt3)
+                    #print('Address Block 3', tag3, txt3)
                     if tag3 == 'Street':
                         if addr1 == 'NAY':
                             addr1 = txt3
@@ -162,7 +162,7 @@ if 1 == 1:
     for child in xml:
         if 'OceanBooking' in child.tag:
             itemsfound = ['None'] * len(itemstofind)
-            print(f'The child tag is {child.tag} = {child.text}')
+            #print(f'The child tag is {child.tag} = {child.text}')
             for nc1 in child:
                 tag, txt = nc1.tag, nc1.text
                 tag = tag.replace('{http://www.magaya.com/XMLSchema/V1}','').strip()
@@ -182,15 +182,15 @@ if 1 == 1:
                 if tag == 'IssuedBy':
                     iss_block = get_address_block(nc1)
 
-            print(itemsfound)
-            print('notblock',not_block)
-            print('conblock',con_block)
-            print('shiblock', shi_block)
-            print('issblock', iss_block)
-            if 1 == 2:
+            #print(itemsfound)
+            #print('notblock',not_block)
+            #print('conblock',con_block)
+            #print('shiblock', shi_block)
+            #print('issblock', iss_block)
+            if 1 == 1:
                 booking = itemsfound[0]
                 odat = OverSeas.query.filter(OverSeas.Booking==booking).first()
-                if odat is None and booking != 'None':
+                if odat is None:
                     print(f'Adding booking {booking}')
                     itemstofind = ['BookingNumber', 'Number', 'NotifyPartyName', 'ShipperName', 'EstimatedDepartureDate',
                                    'EstimatedArrivalDate', 'PickupDate', 'CutoffDate', 'ConsigneeName',
@@ -207,17 +207,18 @@ if 1 == 1:
                     container = itemsfound[9]
                     print(f'Jo: {jo} Booking: {booking} Container:{container} Shipper:{shipper}, Consignee:{consignee}, Notify:{notify}')
                     print(f'Depart:{depdate} Arrive:{arrdate} Earliest:{pudate} Cutoff:{codate}')
-                    input = OverSeas(Jo=jo, Pid=0, MoveType='Ocean', Direction='Export', Commodity=None, Pod=None, Pol=None,
-                                     Origin=None, PuDate=pudate, ContainerType=None,
-                                     Booking=booking, CommoList=0, ExportID=0, ConsigID=0, NotifyID=0, FrForID=0,
-                                     PreCarryID=0, Estimate=None, Charge=None, Container=container,
-                                     Dpath=None, Ipath=None, Apath=None, Cache=0, Status='000', Label=None,
-                                     BillTo=shipper, Exporter=shipper, Consignee=consignee, Notify=notify,
-                                     FrFor=None, PreCarry=None, Driver=None, Seal=None, Description= 'Magaya API',
-                                     RetDate=None, Tpath=None, Itotal='',
-                                     RelType='Seaway Bill', AES='', ExpRef='', AddNote='')
-                    db.session.add(input)
-                    db.session.commit()
+                    if 1 == 2:
+                        input = OverSeas(Jo=jo, Pid=0, MoveType='Ocean', Direction='Export', Commodity=None, Pod=None, Pol=None,
+                                         Origin=None, PuDate=pudate, ContainerType=None,
+                                         Booking=booking, CommoList=0, ExportID=0, ConsigID=0, NotifyID=0, FrForID=0,
+                                         PreCarryID=0, Estimate=None, Charge=None, Container=container,
+                                         Dpath=None, Ipath=None, Apath=None, Cache=0, Status='000', Label=None,
+                                         BillTo=shipper, Exporter=shipper, Consignee=consignee, Notify=notify,
+                                         FrFor=None, PreCarry=None, Driver=None, Seal=None, Description= 'Magaya API',
+                                         RetDate=None, Tpath=None, Itotal='',
+                                         RelType='Seaway Bill', AES='', ExpRef='', AddNote='')
+                        db.session.add(input)
+                        db.session.commit()
 
 #ret = client.service.EndSession(token)
 #print(ret)
