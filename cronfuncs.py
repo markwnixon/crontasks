@@ -3,10 +3,10 @@ import datetime
 from CCC_system_setup import addpath3, addpath4, websites, usernames, passwords, mycompany, addpaths
 co = mycompany()
 if co == 'FELA':
-    from CCC_FELA_remote_db_connect import db
+    from CCC_FELA_remote_db_connect import db, tunnel
     from CCC_FELA_models import JO, Drops
 elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import db
+    from CCC_OSLM_remote_db_connect import db, tunnel
     from CCC_OSLM_models import JO, Drops
 
 today = datetime.date.today()

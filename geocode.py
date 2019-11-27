@@ -3,6 +3,7 @@ from pprint import pprint
 from json import dump
 from CCC_system_setup import apikeys
 from csv import QUOTE_ALL, DictWriter
+from cronfuncs import d2s, d1s, db, tunnel
 
 print(apikeys)
 API_KEY_GEO = apikeys['gkey']
@@ -28,16 +29,16 @@ def extract_values(obj, key):
     return results
 
 def direct_resolver(json):
-    print(json)
-    dirdata = extract_values(json, 'html_instructions')
-    lats = extract_values(json, 'lat')
-    lons = extract_values(json, 'lng')
-    txts = extract_values(json,'text')
-    miles = []
-    for txt in txts:
-        if ('mi' in txt or 'ft' in txt) and 'min' not in txt:
-            miles.append(txt)
-    return dirdata, lats, lons, miles
+    di, du, ht, la, lo = [],[],[],[],[]
+    t1 = json['routes'][0]['legs'][0]['steps']
+    for t2 in t1:
+        di.append(t2['distance']['text'])
+        du.append(t2['duration']['text'])
+        ht.append(t2['html_instructions'])
+        la.append(t2['end_location']['lat'])
+        lo.append(t2['end_location']['lng'])
+
+    return di, du, ht, la, lo
 
 def route_resolver(json):
     print(json)
@@ -112,14 +113,50 @@ def get_distance(start,end):
     return data
 
 def get_directions(start,end):
+    dists, duras, lats, lons = [], [], [], []
+    tot_dist = 0.0
+    tot_dura = 0.0
     start = start.replace(" ", "+")
     end = end.replace(" ", "+")
     url = f'https://maps.googleapis.com/maps/api/directions/json?origin={start}&destination={end}'
     url = url + f'&key={API_KEY_DIS}'
     print(url)
     response = get(url)
-    dirdata, lats, lons, miles = direct_resolver(response.json())
-    return dirdata, lats, lons, miles
+    dis, dus, hts, las, los  = direct_resolver(response.json())
+
+    #Convert all mixed units to miles, hours and convert from text to floats
+    for di in dis:
+        if 'mi' in di:
+            nu = float(di.replace('mi',''))
+        elif 'ft' in di:
+            nu = float(di.replace('ft',''))/5280.0
+        else:
+            nu = 0.0
+        dists.append(nu)
+        tot_dist += nu
+
+    for du in dus:
+        dul = du.split()
+        if len(dul) == 4:
+            hr = float(dul[0])
+            min = float(dul[2])
+            hrs = hr + min/60.0
+        elif len(dul) == 2:
+            if 'hr' in du:
+                hrs = float(dul[0])
+            elif 'min' in du:
+                hrs = float(dul[0])/60.0
+            else:
+                hrs = 0.0
+        duras.append(hrs)
+        tot_dura += hrs
+
+    for la in las:
+        lats.append(float(la))
+    for lo in los:
+        lons.append(float(lo))
+
+    return dists, duras, lats, lons, hts, tot_dist, tot_dura
 
 if 1 == 2:
     """
@@ -133,64 +170,41 @@ if 1 == 2:
         print(get_address_details(i))
 
 start = '2600 Broening Highway, Baltimore, MD'
-end = 'Pittsburgh, PA'
-dist,dura = get_distance(start,end)
-print(dist,dura)
-dist = dist.replace('mi','')
-duralist = dura.split()
-if len(duralist) == 4:
-    hrs = float(duralist[0])
-    mins = float(duralist[2])
-if len(duralist) == 2:
-    hrs = 0.0
-    mins = float(duralist[0])
+end = 'Manassas, VA'
+if 1 == 2:
+    dist,dura = get_distance(start,end)
+    print(dist,dura)
+    dist = dist.replace('mi','')
+    duralist = dura.split()
+    if len(duralist) == 4:
+        hrs = float(duralist[0])
+        mins = float(duralist[2])
+    if len(duralist) == 2:
+        hrs = 0.0
+        mins = float(duralist[0])
 
-tothrs = hrs + mins/60.0
-drvcost = tothrs * 27.0
-fuelcost = float(dist)/6.0*2.78
-print(tothrs,drvcost,dist,fuelcost)
+    tothrs = hrs + mins/60.0
+    drvcost = tothrs * 27.0
+    fuelcost = float(dist)/6.0*2.78
+    print(tothrs,drvcost,dist,fuelcost)
 
 
 ####################################  Directions Section  ######################################
-dirdata,lats,lons,miles = get_directions(start,end)
-print(len(dirdata), len(lats), len(lats), len(miles))
-npts = len(dirdata)
-nremove = len(lats) - 2*npts
-lats = lats[nremove:]
-lons = lons[nremove:]
-lats = lats[::2]
-lons = lons[::2]
-print(len(lats), len(lons))
+miles, hours, lats, lons, dirdata, tot_dist, tot_dura = get_directions(start,end)
+print(f'Total distance {d1s(tot_dist)} miles and total duration {d1s(tot_dura)} hours')
 
-tollroadlist = ['76']
-total_miles = miles[0]
-miles = miles[1:]
-legmiles = len(dirdata)*[0]
-legtolls = len(dirdata)*[0]
+#Calculate road tolls
+tollroadlist = ['I-76','NJ Tpke']
+tollroadcpm = [.784, .275]
+legtolls = len(dirdata)*[0.0]
+legcodes = len(dirdata)*['None']
 for lx,mi in enumerate(miles):
-    legtoll = 0.00
-    try:
-        legmiles[lx] = miles[lx]
-    except:
-        legmiles[lx] = 0.0
-    for tollrd in tollroadlist:
-        t1 = 'I-'+tollrd
-        t2 = f'Interstate {tollrd}'
-        print(t1,t2)
-        if t1 in dirdata[lx] or t2 in dirdata[lx]:
-            try:
-                nmiles = float(legmiles[lx].replace('mi',''))
-            except:
-                nmiles = 0.00
-            legtoll = .09*nmiles
-            print('legtoll inside=', nmiles,legtoll)
-    legtolls[lx] = legtoll
+    for nx,tollrd in enumerate(tollroadlist):
+        if tollrd in dirdata[lx]:
+            legtolls[lx] = tollroadcpm[nx]*mi
+            legcodes[lx] = tollrd
 
-print(legtolls)
-for lx,aline in enumerate(dirdata):
-    print(aline, legmiles[lx],legtolls[lx])
-
-
+#Calculate plaza tolls
 fm_tollbox =  [39.267757, -76.610192, 39.261248, -76.563158]
 bht_tollbox = [39.259962, -76.566240, 39.239063, -76.603324]
 fsk_tollbox = [39.232770, -76.502453, 39.202279, -76.569906]
@@ -219,6 +233,8 @@ for jx,lat in enumerate(lats):
             if lo > lol and lo < loh:
                 stat2 = 'toll'
                 tollcode = tollcodes[kx]
+                legtolls[jx] = 24.00
+                legcodes[jx] = tollcode
         if jx > 0:
             lam = (lah + lal)/2.0
             lom = (loh + lol)/2.0
@@ -227,15 +243,23 @@ for jx,lat in enumerate(lats):
             stat3, stat4 = checkcross(lam,la_last,la,lom,lo_last,lo)
             if stat3 == 1 and stat4 ==1:
                 tollcode = tollcodes[kx]
-    print(lat,lons[jx],stat1, stat2, stat3, stat4, tollcode)
+                legtolls[jx] = 24.00
+                legcodes[jx] = tollcode
+    #print(lat,lons[jx],stat1, stat2, stat3, stat4, tollcode)
 
 
+tot_tolls = 0.00
+for lx,aline in enumerate(dirdata):
+    tot_tolls += legtolls[lx]
+    print(aline)
+    print(f'Dist:{d1s(miles[lx])}, Time:{d1s(hours[lx])}, Tolls:${d2s(legtolls[lx])}, TollCode:{legcodes[lx]}')
+bid = tot_dist*2.0*2.10 + tot_tolls*2 + 250.
+cma_bid = bid/1.13
+print('Summary')
+print(f'Driver Cost: ${d2s(tot_dura*2*27.00)}')
+print(f'Fuel Cost: ${d2s(tot_dist*2*.47)}')
+print(f'Toll Cost: ${d2s(tot_tolls*2)}')
+print(f'Recommended Bid: ${d2s(bid)}')
+print(f'Recommended CMA Bid: ${d2s(cma_bid)} plus fuel')
 
-
-
-
-if 1 == 2:
-    with open("data.csv",'w') as csvfile:
-        csvwriter = DictWriter(csvfile, fieldnames=data[0].keys(), quoting=QUOTE_ALL)
-        csvwriter.writeheader()
-        csvwriter.writerows(data)
+tunnel.stop()
