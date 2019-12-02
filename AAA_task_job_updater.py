@@ -1,13 +1,8 @@
 import sys
 from bs4 import BeautifulSoup as soup
 
-import time
 from datetime import datetime, timedelta
-import os
 
-from pyvirtualdisplay import Display
-from selenium import webdriver
-import pdfkit
 
 from CCC_system_setup import addpath4, websites, usernames, passwords, mycompany
 co = mycompany()

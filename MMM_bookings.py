@@ -207,7 +207,7 @@ if 1 == 1:
                     container = itemsfound[9]
                     print(f'Jo: {jo} Booking: {booking} Container:{container} Shipper:{shipper}, Consignee:{consignee}, Notify:{notify}')
                     print(f'Depart:{depdate} Arrive:{arrdate} Earliest:{pudate} Cutoff:{codate}')
-                    if 1 == 2:
+                    if 1 == 1:
                         input = OverSeas(Jo=jo, Pid=0, MoveType='Ocean', Direction='Export', Commodity=None, Pod=None, Pol=None,
                                          Origin=None, PuDate=pudate, ContainerType=None,
                                          Booking=booking, CommoList=0, ExportID=0, ConsigID=0, NotifyID=0, FrForID=0,
