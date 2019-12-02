@@ -14,7 +14,7 @@ from CCC_system_setup import mycompany, usernames, passwords, websites, addpath4
 co = mycompany()
 if co == 'FELA':
     from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Chassis, Interchange, FELBills, People, Payroll
+    from CCC_FELA_models import Chassis, Interchange, Bills, People, Payroll
 elif co == 'OSLM':
     from CCC_OSLM_remote_db_connect import tunnel, db
     from CCC_OSLM_models import Chassis, Interchange

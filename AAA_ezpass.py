@@ -17,12 +17,12 @@ from CCC_system_setup import mycompany, usernames, passwords, websites
 co = mycompany()
 if co == 'FELA':
     from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Tolls, FELVehicles
+    from CCC_FELA_models import Tolls, Vehicles
 elif co == 'OSLM':
     from CCC_OSLM_remote_db_connect import tunnel, db
     from CCC_OSLM_models import Tolls
 
-tdata = FELVehicles.query.filter(FELVehicles.Transponder != None).all()
+tdata = Vehicles.query.filter(Vehicles.Transponder != None).all()
 for tdat in tdata:
     print(tdat.Unit, tdat.Transponder)
 

@@ -167,7 +167,7 @@ with Display():
                 browser.set_window_size(1920, 1080)
 
             # Get payment status:
-            bdat = FELBills.query.filter( (FELBills.Memo.contains(bk)) | (FELBills.Description.contains(bk)) ).first()
+            bdat = Bills.query.filter( (Bills.Memo.contains(bk)) | (Bills.Description.contains(bk)) ).first()
             if bdat is not None:
                 pay = 'Paid'
             else:

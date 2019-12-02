@@ -13,7 +13,7 @@ from CCC_system_setup import mycompany, usernames, passwords, websites
 co = mycompany()
 if co == 'FELA':
     from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Chassis, Interchange, FELBills, People
+    from CCC_FELA_models import Chassis, Interchange, Bills, People
 elif co == 'OSLM':
     from CCC_OSLM_remote_db_connect import tunnel, db
     from CCC_OSLM_models import Chassis, Interchange
@@ -30,7 +30,7 @@ def chassis_insert(company,datedt,invonum,total,con,cha,amt,days,dateout,datein,
 
 def bills_insert(co, datedt, datedue, invonum, invoamt, status, comment):
 
-    bdat = FELBills.query.filter((FELBills.Memo == invonum) & (FELBills.bAmount == invoamt)).first()
+    bdat = Bills.query.filter((Bills.Memo == invonum) & (Bills.bAmount == invoamt)).first()
     if bdat is None:
         pdat = People.query.filter(People.Company == co).first()
         company = pdat.Company
@@ -42,7 +42,7 @@ def bills_insert(co, datedt, datedue, invonum, invoamt, status, comment):
             pamt = invoamt
         else:
             pamt = '0.00'
-        input = FELBills(Jo=billno, Pid=aid, Company=co, Memo=memo, Description=bdesc, bAmount=invoamt, Status=status,
+        input = Bills(Jo=billno, Pid=aid, Company=co, Memo=memo, Description=bdesc, bAmount=invoamt, Status=status,
                          Cache=0, Original=None,
                          Ref='', bDate=datedt, pDate=None, pAmount=pamt, pMulti=None, pAccount='FEL Citibank',
                          bAccount='Equipment Rental', bType='Expensse',
@@ -51,7 +51,7 @@ def bills_insert(co, datedt, datedue, invonum, invoamt, status, comment):
         db.session.add(input)
         db.session.commit()
         # Now change the bill number:
-        bdat = FELBills.query.filter(FELBills.Jo == billno).first()
+        bdat = Bills.query.filter(Bills.Jo == billno).first()
         newbillno = 'B' + str(bdat.id)
         bdat.Jo = newbillno
         db.session.commit()
