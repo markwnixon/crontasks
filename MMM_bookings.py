@@ -7,7 +7,7 @@ from CCC_system_setup import mycompany, apiservers, usernames, passwords, websit
 co = mycompany()
 if co == 'FELA':
     from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Magaccts, OverSeas
+    from CCC_FELA_models import Magaccts, OverSeas, Bookings
 elif co == 'OSLM':
     from CCC_OSLM_remote_db_connect import tunnel, db
     from CCC_OSLM_models import Autos, Drivers, Vehicles
@@ -46,6 +46,23 @@ def get_dt_date(input):
         return datedt.date()
     except:
         return None
+
+def getput(nm,os):
+    cdat = People.query.filter(People.Company == nm[0]).first()
+    if cdat is None:
+        input = People(Company=nm[0], First=None, Middle=None, Last=None, Addr1=nm[1], Addr2=nm[2], Addr3=nm[3],
+                       Idtype=None, Idnumber=None,
+                       Telephone=nm[4], Email=nm[5], Associate1=None, Associate2=None, Date1=today, Ptype=os,
+                       Date2=None, Original=None, Temp1=None, Temp2=None, Accountid=None)
+        db.session.add(input)
+        db.session.commit()
+        print(f'Adding {name} to {os} Database with {addr1} {addr2} {tel} {email}')
+        newdat = People.query.filter(People.Company == name).first()
+        return newdat.id
+    else:
+        print(f'Found {name}')
+        return cdat.id
+
 
 
 session = Session()
@@ -174,7 +191,11 @@ if 1 == 1:
                             #print(jx,itemsfound)
                             itemsfound[jx] = txt
                 if tag == 'NotifyParty':
-                    not_block = get_address_block(nc1)
+                    try:
+                        not_block = get_address_block(nc1)
+                        print('notblock', not_block)
+                    except:
+                        not_block = []
                 if tag == 'Consignee':
                     con_block = get_address_block(nc1)
                 if tag == 'Shipper':
@@ -183,14 +204,15 @@ if 1 == 1:
                     iss_block = get_address_block(nc1)
 
             #print(itemsfound)
-            #print('notblock',not_block)
-            #print('conblock',con_block)
-            #print('shiblock', shi_block)
-            #print('issblock', iss_block)
+
+            print('conblock',con_block)
+            print('shiblock', shi_block)
+            print('issblock', iss_block)
             if 1 == 1:
                 booking = itemsfound[0]
                 odat = OverSeas.query.filter(OverSeas.Booking==booking).first()
-                if odat is None:
+                bdat = Bookings.query.filter(Bookings.Booking == booking).first()
+                if odat is None or bdat is None:
                     print(f'Adding booking {booking}')
                     itemstofind = ['BookingNumber', 'Number', 'NotifyPartyName', 'ShipperName', 'EstimatedDepartureDate',
                                    'EstimatedArrivalDate', 'PickupDate', 'CutoffDate', 'ConsigneeName',
@@ -207,16 +229,28 @@ if 1 == 1:
                     container = itemsfound[9]
                     print(f'Jo: {jo} Booking: {booking} Container:{container} Shipper:{shipper}, Consignee:{consignee}, Notify:{notify}')
                     print(f'Depart:{depdate} Arrive:{arrdate} Earliest:{pudate} Cutoff:{codate}')
-                    if 1 == 1:
+                    if odat is None:
+                        cindex = getput(con_block, 'OverSeas2')
+                        sindex = getput(shi_block, 'OverSeas')
+                        nindex = getput(not_block, 'OverSeas2')
+                        findex = getput(iss_block, 'OverSeas')
                         input = OverSeas(Jo=jo, Pid=0, MoveType='Ocean', Direction='Export', Commodity=None, Pod=None, Pol=None,
                                          Origin=None, PuDate=pudate, ContainerType=None,
-                                         Booking=booking, CommoList=0, ExportID=0, ConsigID=0, NotifyID=0, FrForID=0,
+                                         Booking=booking, CommoList=0, ExportID=sindex, ConsigID=cindex, NotifyID=nindex, FrForID=findex,
                                          PreCarryID=0, Estimate=None, Charge=None, Container=container,
                                          Dpath=None, Ipath=None, Apath=None, Cache=0, Status='000', Label=None,
                                          BillTo=shipper, Exporter=shipper, Consignee=consignee, Notify=notify,
                                          FrFor=None, PreCarry=None, Driver=None, Seal=None, Description= 'Magaya API',
                                          RetDate=None, Tpath=None, Itotal='',
                                          RelType='Seaway Bill', AES='', ExpRef='', AddNote='')
+                        db.session.add(input)
+                        db.session.commit()
+                    if bdat is None:
+                        input = Bookings(Jo=jo, Booking=booking, ExportRef=None, Line=None, Vessel=None,
+                                         PortCut=None,
+                                         DocCut=None, SailDate=depdate, EstArr=arrdate,
+                                         RelType=None, AES=None, Original=None, Amount=None,
+                                         LoadPort=None, Dest=None, Status="New")
                         db.session.add(input)
                         db.session.commit()
 
