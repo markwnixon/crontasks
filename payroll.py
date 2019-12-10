@@ -23,7 +23,7 @@ elif co == 'OSLM':
     uname = usernames['quartix']
     password = passwords['quartix']
 
-pstart = datetime.date(2019,11,11)
+pstart = datetime.date(2019,11,25)
 pstop = pstart + datetime.timedelta(14)
 wk1 = pstart + datetime.timedelta(7)
 print(pstart,pstop)
@@ -94,8 +94,8 @@ for dat in ddata:
 
 tot1=0
 tot2=0
-tystart =[435,435,435,435,435, 0, 0, 435,435,435,435,437, 0, 0]
-tystop = [435,435,435,435,435, 0, 0, 435,435,435,437,437, 0, 0]
+tystart =[437,435,435,0,0, 0, 0, 437,437,437,436,436, 0, 0]
+tystop = [435,435,437,0,0, 0, 0, 437,437,436,436,436, 0, 0]
 pdate = pstart
 driver = 'Tiwand McClary'
 wk1 = pstart + datetime.timedelta(6)
