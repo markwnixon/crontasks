@@ -452,7 +452,8 @@ if 1==1:
                                         Seal=None, Pickup=None, Delivery=None, Amount='275.00', Path=None, Original=None,
                                         Description=None, Chassis=None, Detention='0', Storage='0', Release=0, Shipper='Global Business Link',
                                         Type=None, Time3=None, Bid=167, Lid=36, Did=540, Label=None, Dropblock1='Global Business Link\n4000 Coolidge Ave K\nBaltimore, MD 21229',
-                                        Dropblock2='Baltimore Seagirt\n2600 Broening Hwy\nBaltimore, MD 21224',Commodity='Auto',Packing='Each')
+                                        Dropblock2='Baltimore Seagirt\n2600 Broening Hwy\nBaltimore, MD 21224',Commodity='Auto',Packing='Each',Links=None,
+                                        Hstat=-1,Istat=-1,Proof=None)
                         db.session.add(input)
                         db.session.commit()
                     else:

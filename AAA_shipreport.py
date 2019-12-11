@@ -14,7 +14,7 @@ from CCC_system_setup import mycompany
 co = mycompany()
 if co == 'FELA':
     from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Bookings, OverSeas, FELBills
+    from CCC_FELA_models import Bookings, OverSeas, Bills
 elif co == 'OSLM':
     from CCC_OSLM_remote_db_connect import tunnel, db
     from CCC_OSLM_models import Bookings, OverSeas
