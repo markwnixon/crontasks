@@ -37,6 +37,7 @@ def gatescraper(printif):
 
     username = usernames['gate']
     password = passwords['gate']
+    print('username,password=',username,password)
 
     outpath = addpath4('interchange/')
     print('Entering Firefox') if printif == 1 else 1
