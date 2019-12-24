@@ -18,7 +18,7 @@ printif = 0
 
 runat = datetime.now()
 today = runat.date()
-lookback = runat - timedelta(60)
+lookback = runat - timedelta(30)
 lbdate = lookback.date()
 print(' ')
 print('________________________________________________________')
@@ -120,41 +120,41 @@ for idat in idata:
         idat.Status = 'BBBBBB'
     db.session.commit()
 
-# Move Jobs Along the Status Path for Containers:
-jdata = Orders.query.filter((~Orders.Status.startswith('3')) & (Orders.Date > lbdate)).all()
-for jdat in jdata:
-    con = jdat.Container
-    bk = jdat.Booking
+def checkon(con,bk):
     if con == 'TBD' or len(con) < 9:
         con = 'XXX'
+    else:
+        retcon = con
     if len(bk) < 6:
         bk = 'YYY'
-    stat = jdat.Status
-    d1 = stat[1]
+    else:
+        retbk = bk
+    return con, bk
+
+
+
+
+# Move Jobs Along the Status Path for Containers:
+jdata = Orders.query.filter((Orders.Hstat < 2) & (Orders.Date > lbdate)).all()
+for jdat in jdata:
+    con, bk = checkon(jdat.Container,jdat.Booking)
+    stat = jdat.Hstat
     idat = Interchange.query.filter( ((Interchange.CONTAINER == con) | (Interchange.RELEASE == bk)) & (Interchange.TYPE.contains('Out')) & (Interchange.Date > lbdate) ).first()
     if idat is not None:
         istat = idat.Status
         if istat == 'IO':
-            d0 = '2'
+            jdat.Hstat = 2
         else:
-            d0 = '1'
+            jdat.Hstat = 1
     else:
-        d0 = '0'
-
-    jdat.Status = d0 + d1
+        jdat.Hstat = 0
     db.session.commit()
 
 
 #Make a match of all Jobs with Container Data:
-jdata = Orders.query.filter( (~Orders.Status.endswith('3')) & (Orders.Date > lbdate)).all()
+jdata = Orders.query.filter( (Orders.Hstat < 4) & (Orders.Date > lbdate)).all()
 for jdat in jdata:
-    bk = jdat.Booking
-    con = jdat.Container
-    if con == 'TBD' or len(con) < 9:
-        con = 'XXX'
-    if len(bk) < 6:
-        bk = 'YYY'
-
+    con, bk = checkon(jdat.Container, jdat.Booking)
     idat = Interchange.query.filter(((Interchange.CONTAINER == con) | (Interchange.RELEASE == bk)) & (Interchange.TYPE.contains('Out')) & (Interchange.Date > lbdate)).first()
     if idat is not None:
         #print(f'Match to truck job {idat.Order} and {idat.Container}')
