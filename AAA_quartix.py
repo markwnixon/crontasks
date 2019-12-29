@@ -460,7 +460,7 @@ for jback in range(delta+1):
             if tdat is None:
                 input = Trucklog(Date=datehere, Unit=units[jid], Tag = tag, GPSin=start_dt, GPSout=ended_dt, Shift=d2s(shift_time), Distance=di,
                                  Gotime=d2s(total_optime), Rdist=d2s(rm_max), Rloc=loc_max, Odomstart=str(ostart), Odomstop=str(ostop), Odverify=None,
-                                 Driver=driver, Maintrecord='None', Locationstart=loc_start,
+                                 DriverStart=driver, Maintrecord='None', Locationstart=loc_start, DriverEnd=driver,
                                  Locationstop=loc2, Maintid=str(driverid), Status='0')
                 db.session.add(input)
                 db.session.commit()
