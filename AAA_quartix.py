@@ -6,7 +6,7 @@ from cronfuncs import dropupdate, d1s, d2s
 from datetime import timedelta
 
 
-daybackfrom = 20
+daybackfrom = 5
 daybackto = 1
 printif = 0
 # (daybackto=0 is today; from 1 to 0 is yesterday and today)
