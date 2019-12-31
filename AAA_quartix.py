@@ -9,7 +9,15 @@ from datetime import timedelta
 daybackfrom = 5
 daybackto = 1
 printif = 0
+printlog = 1
 # (daybackto=0 is today; from 1 to 0 is yesterday and today)
+
+runat = datetime.datetime.now()
+print(' ') if printlog == 1 else 1
+print('______________________________________________________________________') if printlog == 1 else 1
+print('This sequence of AAA_quartix.py run at ', runat) if printlog == 1 else 1
+print('______________________________________________________________________') if printlog == 1 else 1
+print(' ') if printlog == 1 else 1
 
 
 today = datetime.datetime.today()
@@ -91,16 +99,19 @@ def insert_driverbase(datehere, driver, vid, sdt, edt, distance, sloc, eloc, ids
 
     tdat = Driverlog.query.filter((Driverlog.Date == datehere) & (Driverlog.Truck == unit)).first()
     if tdat is None:
+        print(f'Adding to Driverlog for Date:{datehere} and Driver:{driver} in Unit:{unit}') if printlog == 1 else 1
         input = Driverlog(Date=datehere, Driver=driver, GPSin=sdt, GPSout=edt,Odomstart=str(ostart), Odomstop=str(ostop), Truck=unit,Locationstart = sloc, Locationstop = eloc, Shift = d1s(shift_time), Status='0')
         db.session.add(input)
         db.session.commit()
+    else:
+        print(f'Data Already Exists in Driverlog for Date:{datehere} and Driver:{driver} in Unit:{unit}')
 
 def insert_portdata(datehere,portstart,portstop,porttime,custtime,thisunit,portmiles):
     pdat = Portlog.query.filter( (Portlog.Date == datehere) & (Portlog.GPSin==portstart)).first()
     if pdat is None:
         if 1 == 1:
             pt = str(porttime)
-            print(pt)
+            print(pt) if printif == 1 else 1
             (hr, min, sec) = pt.split(':')
             portdec = round(float(int(hr) * 3600 + int(min) * 60 + int(sec)) / 3600.0, 2)
         try:
@@ -122,7 +133,7 @@ def insert_portdata(datehere,portstart,portstop,porttime,custtime,thisunit,portm
                 dt_time = datetime.datetime.strptime(dstring, "%d-%b-%YT%H:%M")
             except:
                 dt_time = datetime.datetime.strptime(datehere_s, "%d-%b-%Y")
-            print('idat',time,dt_time)
+            print('idat',time,dt_time) if printif == 1 else 1
             type = idat.TYPE
 
             if dt_time >= pcheck and dt_time <= portstop:
@@ -131,6 +142,7 @@ def insert_portdata(datehere,portstart,portstop,porttime,custtime,thisunit,portm
                 elif 'Out' in type:
                     cout = idat.CONTAINER
 
+        print(f'Adding to Portlog for Date:{datehere} in Unit:{thisunit}') if printlog == 1 else 1
         input = Portlog(Date=datehere,Unit=thisunit,Driver=None,GPSin=portstart,GPSout=portstop,PortTime=d2s(portdec),CustTime=d2s(custdec),ConIn=cin,ConOut=cout,Status='0',Portmiles=d2s(portmiles))
         db.session.add(input)
         db.session.commit()
@@ -200,7 +212,7 @@ for dat in dataret:
     units.append(dat['VehicleInitials'])
 
 print(ids) if printif == 1 else 1
-print(vins)
+print(vins) if printif == 1 else 1
 print(units) if printif == 1 else 1
 print(' ') if printif == 1 else 1
 print(' ') if printif == 1 else 1
@@ -238,7 +250,7 @@ for jback in range(delta+1):
             exitline = [39.256, -76.53826, 39.25749, -76.53753]
             exit_criteria = .000210
 
-        print(f'Grabbing Data for Unit:{thisunit} VIN:{vins[jid]} on Date{datehere_s}')
+        print(f'Grabbing Data for Unit:{thisunit} VIN:{vins[jid]} on Date{datehere_s}') if printif == 1 else 1
         print('') if printif == 1 else 1
 
         parameters = {
@@ -256,7 +268,7 @@ for jback in range(delta+1):
         inport, custtime, cstart, cstop = 0, 0, 0, 0
         customs = 'no'
         for kdx, tset in enumerate(otherset):
-            print(f'Trip No. {kdx}')
+            print(f'Trip No. {kdx}') if printif == 1 else 1
             routes = tset['Route']
 
             for rout in routes:
@@ -298,13 +310,13 @@ for jback in range(delta+1):
                     if etype == 'Distance':
                         if inport == 0 and lat<entryline[2] and lat>entryline[0]:
                             crit_entry = near_line(lat, lon, entryline)
-                            print('Route', locat, timehere, lat, lon, head,crit_entry)
+                            print('Route', locat, timehere, lat, lon, head,crit_entry) if printif == 1 else 1
                             if crit_entry < .001 and (head > 170 and head < 260):
                                 #We are entering port, see if new port entry:
                                 #print('***Port Entry***', locat, timehere, lat, lon, geolat, geolon)
-                                print(' ')
-                                print('%%%%%%In PORT Clicked ON%%%%%%%')
-                                print(' ')
+                                print(' ') if printif == 1 else 1
+                                print('%%%%%%In PORT Clicked ON%%%%%%%') if printif == 1 else 1
+                                print(' ') if printif == 1 else 1
                                 portstart = timehere
                                 latlast,lonlast = lat, lon
                                 portmiles = 0.0
@@ -312,18 +324,18 @@ for jback in range(delta+1):
 
                         elif inport == 1 and lat<exitline[2] and lat>exitline[0]:
                             crit_exit = near_line(lat, lon, exitline)
-                            print('Route', locat, timehere, lat, lon, head, crit_exit)
+                            print('Route', locat, timehere, lat, lon, head, crit_exit) if printif == 1 else 1
                             if crit_exit < exit_criteria and (head > 300 or head < 40):
                                 #print('###Port Exit###',timehere,geolat,geolon)
                                 customs = customs.replace('comp', 'yes')
-                                print(' ')
-                                print('%%%%%%PORT Clicked OFF%%%%%%%')
-                                print(' ')
+                                print(' ') if printif == 1 else 1
+                                print('%%%%%%PORT Clicked OFF%%%%%%%') if printif == 1 else 1
+                                print(' ') if printif == 1 else 1
                                 portstop = timehere
                                 porttime = timehere - portstart
-                                print(f'****Time in port start:{portstart} end:{timehere} time in:{porttime} and customs:{customs}')
+                                print(f'****Time in port start:{portstart} end:{timehere} time in:{porttime} and customs:{customs}') if printif == 1 else 1
                                 if customs == 'yes':
-                                    print(f'Customs start:{cstart} and stop:{cstop} for total time of {custtime}')
+                                    print(f'Customs start:{cstart} and stop:{cstop} for total time of {custtime}') if printif == 1 else 1
                                 else:
                                     custtime = 0
                                 insert_portdata(datehere, portstart, portstop, porttime, custtime, thisunit, portmiles)
@@ -337,7 +349,7 @@ for jback in range(delta+1):
                         else:
                             # We are in the port, but not at the beginning or end so calculate distance run
                             crit_exit = near_line(lat, lon, exitline)
-                            print('Route in portbox only', locat, timehere, lat, lon, head, crit_exit)
+                            print('Route in portbox only', locat, timehere, lat, lon, head, crit_exit) if printif == 1 else 1
 
         if inport == 1:
             # Have an end to a day and showing still inport, close down using last_box
@@ -417,7 +429,7 @@ for jback in range(delta+1):
                 if radialmiles > rm_max:
                     rm_max = radialmiles
                     loc_max = loc2
-                print(f'At end of trip {j} radialmiles from base={radialmiles}')
+                print(f'At end of trip {j} radialmiles from base={radialmiles}') if printif == 1 else 1
 
             if distance > 0:
                 ostart, ostop = get_odometer(vid, distance)
@@ -437,33 +449,36 @@ for jback in range(delta+1):
                     driverid = did
             unit = units[jid]
             driver = driver_find(datehere,unit,driverid)
-            print(shift_time)
-            print('Items for Database:')
-            print(f'Date:{datehere}')
-            print(start_dt)
-            print(ended_dt)
-            print(f'Unit:{unit}')
-            print(f'Tag/Vin:{tag}')
-            print(f'Distance:{distance}')
-            print(f'Maximum radial miles {rm_max} at {loc_max}')
-            print(f'OdomStart:{ostart}')
-            print(f'OdomStop:{ostop}')
-            print(f'Oper_Time:{total_optime}')
-            print(f'Driver:{driverid}')
-            print(f'Driver:{driver}')
-            print(f'LocStart:{loc_start}')
-            print(f'LocStop:{loc2}')
+            print(shift_time) if printif == 1 else 1
+            print('Items for Database:') if printif == 1 else 1
+            print(f'Date:{datehere}') if printif == 1 else 1
+            print(start_dt) if printif == 1 else 1
+            print(ended_dt) if printif == 1 else 1
+            print(f'Unit:{unit}') if printif == 1 else 1
+            print(f'Tag/Vin:{tag}') if printif == 1 else 1
+            print(f'Distance:{distance}') if printif == 1 else 1
+            print(f'Maximum radial miles {rm_max} at {loc_max}') if printif == 1 else 1
+            print(f'OdomStart:{ostart}') if printif == 1 else 1
+            print(f'OdomStop:{ostop}') if printif == 1 else 1
+            print(f'Oper_Time:{total_optime}') if printif == 1 else 1
+            print(f'Driver:{driverid}') if printif == 1 else 1
+            print(f'Driver:{driver}') if printif == 1 else 1
+            print(f'LocStart:{loc_start}') if printif == 1 else 1
+            print(f'LocStop:{loc2}') if printif == 1 else 1
 
             di = d1s(distance)
 
             tdat = Trucklog.query.filter((Trucklog.Date == datehere) & (Trucklog.Tag == tag)).first()
             if tdat is None:
+                print(f'Adding to Trucklog for Date:{datehere} and Unit:{units[jid]}') if printlog == 1 else 1
                 input = Trucklog(Date=datehere, Unit=units[jid], Tag = tag, GPSin=start_dt, GPSout=ended_dt, Shift=d2s(shift_time), Distance=di,
                                  Gotime=d2s(total_optime), Rdist=d2s(rm_max), Rloc=loc_max, Odomstart=str(ostart), Odomstop=str(ostop), Odverify=None,
                                  DriverStart=driver, Maintrecord='None', Locationstart=loc_start, DriverEnd=driver,
                                  Locationstop=loc2, Maintid=str(driverid), Status='0')
                 db.session.add(input)
                 db.session.commit()
+            else:
+                print(f'Data Already Exists in Trucklog for Date:{datehere} and Unit:{units[jid]}') if printlog == 1 else 1
 
             pdata = Portlog.query.filter( (Portlog.Date == datehere) & (Portlog.Unit == units[jid]) ).all()
             for pdat in pdata:
@@ -471,7 +486,7 @@ for jback in range(delta+1):
                 db.session.commit()
 
         else:
-            print('No data here for truck')
+            print('No data here for truck') if printif == 1 else 1
 
 
     # Get a list of active drivers and their id tags on this date
@@ -497,13 +512,13 @@ for jback in range(delta+1):
         API_ENDPOINT = "https://qws.quartix.com/v2/api/drivers/trips"
         r = s.get(url = API_ENDPOINT, params=parameters)
         dataret = r.json()['Data']
-        print(f'Attempting to get return on ID {tid} Driver {driver}')
+        print(f'Attempting to get return on ID {tid} Driver {driver}') if printif == 1 else 1
         #print(dataret)
         if dataret:
             vidlist=[]
             distance = 0.0
             for jdx,dr in enumerate(dataret):
-                print(dr)
+                print(dr) if printif == 1 else 1
                 dist = dr['Distance'] * .62137
                 distance = distance + dist
                 # Grab the key data:
@@ -526,9 +541,9 @@ for jback in range(delta+1):
                 if jdx > 0:
                     if vidlist[jdx] != vidlist[jdx-1]:
                         vid = vidlist[jdx-1]
-                        print(f'In vehicle unit {vid}')
-                        print(f'Shift started {vstart} at {vloc_start}')
-                        print(f'Shift stopped {ended} at {loc2}')
+                        print(f'In vehicle unit {vid}') if printif == 1 else 1
+                        print(f'Shift started {vstart} at {vloc_start}') if printif == 1 else 1
+                        print(f'Shift stopped {ended} at {loc2}') if printif == 1 else 1
                         insert_driverbase(datehere, driver, vid, vstart_dt, ended_dt, distance, vloc_start, loc2, ids, units)
 
                         # Now set new start for next truck before we get the new values:
@@ -569,9 +584,9 @@ for jback in range(delta+1):
             except:
                 shift_time = 0
 
-            print(f'In vehicle unit {vehicleid}')
-            print(f'Shift started {vstart} at {vloc_start}')
-            print(f'Shift stopped {ended} at {loc2}')
+            print(f'In vehicle unit {vehicleid}') if printif == 1 else 1
+            print(f'Shift started {vstart} at {vloc_start}') if printif == 1 else 1
+            print(f'Shift stopped {ended} at {loc2}') if printif == 1 else 1
 
             insert_driverbase(datehere, driver, vehicleid, vstart_dt, ended_dt, distance, vloc_start, loc2, ids, units)
 
