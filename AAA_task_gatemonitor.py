@@ -202,6 +202,7 @@ def gatescraper(printif):
                     outpath = addpath4('interchange/')
                     newfile = outpath + viewfile
                     copyline = f'scp {newfile} {websites["ssh_data"]+"vinterchange"}'
+                    print('copyline=',copyline)
                     os.system(copyline)
                     os.remove(newfile)
 
