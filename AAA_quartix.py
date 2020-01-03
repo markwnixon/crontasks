@@ -7,7 +7,7 @@ from datetime import timedelta
 
 
 daybackfrom = 5
-daybackto = 1
+daybackto = 0
 printif = 0
 printlog = 1
 # (daybackto=0 is today; from 1 to 0 is yesterday and today)
