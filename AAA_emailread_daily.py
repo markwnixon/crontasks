@@ -27,8 +27,8 @@ booking_p=re.compile("[159][0123456789]{8}|[E][BKG0123456789]{11}|[S][0123456789
 #_____________________________________________________________________________________________________________
 remit=0
 gjob=1
-gbook=1
-kjob=1
+gbook=0
+kjob=0
 # 0 means do not run, 1 means run normal, 2 means create new baseline
 #_____________________________________________________________________________________________________________
 # Subroutines to extract remittances coming in from Knight
@@ -374,7 +374,7 @@ if 1==1:
 #_____________________________________________________________________________________________________________
     if gjob>0:
         if gjob==1:
-            dayback=16
+            dayback=30
         if gjob==2:
             dayback=450
         datefrom = (datetime.date.today() - datetime.timedelta(dayback)).strftime("%d-%b-%Y")
