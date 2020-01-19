@@ -453,7 +453,7 @@ if 1==1:
                                         Description=None, Chassis=None, Detention='0', Storage='0', Release=0, Shipper='Global Business Link',
                                         Type=None, Time3=None, Bid=167, Lid=36, Did=540, Label=None, Dropblock1='Global Business Link\n4000 Coolidge Ave K\nBaltimore, MD 21229',
                                         Dropblock2='Baltimore Seagirt\n2600 Broening Hwy\nBaltimore, MD 21224',Commodity='Auto',Packing='Each',Links=None,
-                                        Hstat=-1,Istat=-1,Proof=None,Invoice=None,Gate=None,Package=None,Manifest=None,Scache=0,Pcache=0,Icache=0,Mcache=0,Pkcache=0)
+                                        Hstat=-1,Istat=-1,Proof=None,Invoice=None,Gate=None,Package=None,Manifest=None,Scache=0,Pcache=0,Icache=0,Mcache=0,Pkcache=0, QBi=0)
                         db.session.add(input)
                         db.session.commit()
                     else:

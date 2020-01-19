@@ -1,9 +1,8 @@
-from CCC_system_setup import addpath4, websites, usernames, passwords, mycompany, addpaths
-co = mycompany()
-if co == 'FELA':
+from CCC_system_setup import addpath4, websites, usernames, passwords, mycompany, addpaths, scac, companydata
+if scac == 'FELA':
     from CCC_FELA_remote_db_connect import tunnel, db
     from CCC_FELA_models import Bills,People
-elif co == 'OSLM':
+elif scac == 'OSLM':
     from CCC_OSLM_remote_db_connect import tunnel, db
     from CCC_OSLM_models import Bills, People
 
@@ -266,7 +265,8 @@ def fuelsort(thisdate,testpdf,nbill):
             sdate=datetime.datetime.strptime(thisdate, '%Y-%m-%d').date()
             input = Bills(Jo='FT11', Pid=aid, Company=company, Memo='Weekly Fuel Bill', Description='Weekly Fuel Bill '+thisdate, bAmount=amount, Status='Paid', Cache=0, Original=filebase,
                              Ref='', bDate=sdate, pDate=sdate, pAmount=amount, pMulti=None, pAccount='FEL CitiBank', bAccount = 'Fuel', bType='Expense',
-                             bCat='Direct', bSubcat='Trucking', Link=billno, User='mark', Co='F', Temp1='', Temp2='', Recurring=0, dDate=sdate,pAmount2='0.00', pDate2=None)
+                             bCat='Direct', bSubcat='Trucking', Link=billno, User='mark', Co='F', Temp1='', Temp2='', Recurring=0, dDate=sdate,pAmount2='0.00', pDate2=None,
+                             Code1 = None, Code2=None, CkCache=0, QBi=0)
 
 
             db.session.add(input)
