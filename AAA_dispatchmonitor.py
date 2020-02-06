@@ -529,13 +529,16 @@ if len(dispatch_links)>0:
             car[i].value = value
         attrs = vars(car[i])
         print(', '.join("%s: %s" % item for item in attrs.items()))
+
     # Now ready to place in database:
+    iy = 0
     for jx, link in enumerate(dispatch_links):
         ncars = int(tow[jx].ncars)
-        for iy in range(ncars):
-            #print(tow[j].orderid,car[i].year,car[i].make,car[i].model,car[i].vin,car[i].empweight,car[i].value)
-            #print(tow[j].towcompany,tow[j].towcost,car[i].towcostea,tow[j].fn,tow[j].date1,tow[j].date2,tow[j].pufrom,tow[j].delto,tow[j].ncars)
-            print('just here',tow[jx].towcompany,tow[jx].addr1,tow[jx].addr2,tow[jx].phone)#input = Autos(Jo=orderid, Hjo=None, Year=year, Make=make, Model=model, Color=color, VIN=vin, Title=None, State=None, EmpWeight=wt, Dispatched='Horizon Motors', Value=value,
+        print(f'***Tow Order {tow[jx].orderid} complete for company {tow[jx].towcompany}***')
+        for ix in range(ncars):
+            print(tow[jx].orderid,car[iy].year,car[iy].make,car[iy].model,car[iy].vin,car[iy].empweight,car[iy].value)
+            print(tow[j].towcompany,tow[j].towcost,car[i].towcostea,tow[j].fn,tow[j].date1,tow[j].date2,tow[j].pufrom,tow[j].delto,tow[j].ncars)
+            print(tow[jx].towcompany,tow[jx].addr1,tow[jx].addr2,tow[jx].phone)#input = Autos(Jo=orderid, Hjo=None, Year=year, Make=make, Model=model, Color=color, VIN=vin, Title=None, State=None, EmpWeight=wt, Dispatched='Horizon Motors', Value=value,
             adat = Autos.query.filter(Autos.Orderid == tow[jx].orderid).first()
             if adat is None:
                 print("This is a new tow order so we need to add it to the database")
@@ -550,6 +553,9 @@ if len(dispatch_links)>0:
                     deloc=delist[-1]
                 else:
                     deloc='FEL'
+                if len(vin) != 17:
+                    vin='Placeholder'+tow[jx].orderid
+
                 bdat = Autos.query.filter(Autos.VIN == vin).first()
                 if bdat is None:
                     print("Entering data in Autos database")
@@ -576,6 +582,10 @@ if len(dispatch_links)>0:
                                        Email='', Associate1=towacct, Associate2='', Date1=tow[jx].date1, Date2=None, Original='',Temp1='',Temp2='', Accountid = towid)
                         db.session.add(input)
                         db.session.commit()
+                else:
+                    print(f'{tow[jx].orderid} with vin: {car[iy].vin} already in database')
+
+            iy = iy + 1
         try:
             newfile = paths[1]+'tmp/'+tow[jx].fn
             copyline = f'scp {newfile} {websites["ssh_data"]+"vdispatch"}'
