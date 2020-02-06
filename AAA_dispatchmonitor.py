@@ -20,10 +20,10 @@ from CCC_system_setup import addpath2, websites, usernames, passwords, mycompany
 co = mycompany()
 if co == 'FELA':
     from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Autos
+    from CCC_FELA_models import Autos, Accounts, People
 elif co == 'OSLM':
     from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Autos
+    from CCC_OSLM_models import Autos, Accounts, People
 
 
 class Cars:
@@ -411,6 +411,8 @@ if len(dispatch_links)>0:
             tow[j].addr2 = towcomp[2]
             tow[j].phone = phone
 
+            print('towdatahere',tow[j])
+
             dates = namelist[1].div.div.p.text.splitlines()
             for date in dates:
                 if 'Pickup' in date:
@@ -528,22 +530,22 @@ if len(dispatch_links)>0:
         attrs = vars(car[i])
         print(', '.join("%s: %s" % item for item in attrs.items()))
     # Now ready to place in database:
-    for j, link in enumerate(dispatch_links):
-        ncars = int(tow[j].ncars)
-        for i in range(ncars):
+    for jx, link in enumerate(dispatch_links):
+        ncars = int(tow[jx].ncars)
+        for iy in range(ncars):
             #print(tow[j].orderid,car[i].year,car[i].make,car[i].model,car[i].vin,car[i].empweight,car[i].value)
             #print(tow[j].towcompany,tow[j].towcost,car[i].towcostea,tow[j].fn,tow[j].date1,tow[j].date2,tow[j].pufrom,tow[j].delto,tow[j].ncars)
-            #print(tow[j].towcompany,tow[j].addr1,tow[j].addr2,tow[j].phone)#input = Autos(Jo=orderid, Hjo=None, Year=year, Make=make, Model=model, Color=color, VIN=vin, Title=None, State=None, EmpWeight=wt, Dispatched='Horizon Motors', Value=value,
-            adat = Autos.query.filter(Autos.Orderid == tow[j].orderid).first()
+            print('just here',tow[jx].towcompany,tow[jx].addr1,tow[jx].addr2,tow[jx].phone)#input = Autos(Jo=orderid, Hjo=None, Year=year, Make=make, Model=model, Color=color, VIN=vin, Title=None, State=None, EmpWeight=wt, Dispatched='Horizon Motors', Value=value,
+            adat = Autos.query.filter(Autos.Orderid == tow[jx].orderid).first()
             if adat is None:
                 print("This is a new tow order so we need to add it to the database")
-                vin=car[i].vin
-                pulist=tow[j].pufrom
+                vin=car[iy].vin
+                pulist=tow[jx].pufrom
                 if pulist is not None:
                     puloc=pulist[-1]
                 else:
                     puloc=''
-                delist=tow[j].delto
+                delist=tow[jx].delto
                 if delist is not None:
                     deloc=delist[-1]
                 else:
@@ -551,20 +553,31 @@ if len(dispatch_links)>0:
                 bdat = Autos.query.filter(Autos.VIN == vin).first()
                 if bdat is None:
                     print("Entering data in Autos database")
-                    input = Autos(Jo=tow[j].orderid, Hjo=None, Year=car[i].year, Make=car[i].make, Model=car[i].model, Color=car[i].color, VIN=car[i].vin, Title=None, State=None, EmpWeight=car[i].empweight, Dispatched='Horizon Motors', Value=car[i].value,
-                                  TowCompany=tow[j].towcompany, TowCost=tow[j].towcost, TowCostEa=car[i].towcostea, Original=tow[j].fn, Status='New', Date1=tow[j].date1, Date2=tow[j].date2, Pufrom=puloc, Delto=deloc, Ncars=tow[j].ncars, Orderid=tow[j].orderid)
+                    input = Autos(Jo=tow[jx].orderid, Hjo=None, Year=car[iy].year, Make=car[iy].make, Model=car[iy].model, Color=car[iy].color, VIN=car[iy].vin, Title=None, State=None, EmpWeight=car[iy].empweight, Dispatched='Horizon Motors', Value=car[iy].value,
+                                  TowCompany=tow[jx].towcompany, TowCost=tow[jx].towcost, TowCostEa=car[iy].towcostea, Original=tow[jx].fn, Status='New', Date1=tow[jx].date1, Date2=tow[jx].date2, Pufrom=puloc, Delto=deloc, Ncars=tow[jx].ncars, Orderid=tow[jx].orderid)
                     db.session.add(input)
                     db.session.commit()
 
                     pdat = People.query.filter((People.Ptype == 'TowCo') &
-                                               (People.Company == tow[j].towcompany)).first()
-                    if pdat is None:
-                        input = People(Company=tow[j].towcompany, First='', Middle='', Last='', Addr1=tow[j].addr1, Addr2=tow[j].addr2, Addr3='', Idtype='', Idnumber='', Telephone=tow[j].phone,
-                                       Email='', Associate1='', Associate2='', Date1=tow[j].date1, Date2=None, Original='', Ptype='TowCo', Temp1='', Temp2='')
+                                               (People.Company == tow[jx].towcompany)).first()
+                    tdat = Accounts.query.filter(Accounts.Name.contains('Tow')).first()
+                    if tdat is not None:
+                        towacct = tdat.Name
+                        towid = tdat.id
+                    else:
+                        towacct = None
+                        towid = None
+                    if pdat is not None:
+                        pdat.Temp1 = 'Updated'
+                        db.session.commit()
+                    else:
+                        print('input for:', tow[jx].towcompany, tow[jx].addr1, tow[jx].addr2, tow[jx].phone)
+                        input = People(Ptype='TowCo', Company=tow[jx].towcompany, First='', Middle='', Last='', Addr1=tow[jx].addr1, Addr2=tow[jx].addr2, Addr3='', Idtype='', Idnumber='', Telephone=tow[jx].phone,
+                                       Email='', Associate1=towacct, Associate2='', Date1=tow[jx].date1, Date2=None, Original='',Temp1='',Temp2='', Accountid = towid)
                         db.session.add(input)
                         db.session.commit()
         try:
-            newfile = paths[1]+'tmp/'+tow[j].fn
+            newfile = paths[1]+'tmp/'+tow[jx].fn
             copyline = f'scp {newfile} {websites["ssh_data"]+"vdispatch"}'
             os.system(copyline)
             os.remove(newfile)
