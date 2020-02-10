@@ -15,7 +15,7 @@ app = Flask(__name__, static_folder="tmp")
 SQLALCHEMY_DATABASE_URI = "mysql://{username}:{password}@{hostname}:{port}/{databasename}".format(
     username="felqb",
     password="User1123!",
-    hostname="69.138.190.134",
+    hostname="70.88.236.49",
     port="3307",
     databasename="CDataFELQB",
 )
