@@ -90,7 +90,6 @@ if 1 == 1:
                     input = QBaccounts(Name=name, Type=qb.Type, Sub1=sub1, Sub2=sub2, Co='F')
                     db.session.add(input)
 
-
     db.session.commit()
 
 
