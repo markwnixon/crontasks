@@ -1,20 +1,11 @@
 import datetime
 
-from CCC_system_setup import addpath1, addpath3, addpath4, websites, usernames, passwords, mycompany
-scac = mycompany()
-
-if scac == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-
-elif scac == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
+from CCC_system_setup import scac
+from remote_db_connect import tunnel, db
 
 print(f'Running company {scac}')
 
-from CCC_QB_models import QB_Invoices, QB_Accounts, QB_Bills, QB_Customers
-
-#from CCC_FELA_remote_db_connect import tunnel
-
+from QB_models import QB_Invoices, QB_Accounts, QB_Bills, QB_Customers
 from models import Orders, People, QBaccounts, Accttypes, Taxmap
 
 def parent_check(qb):
@@ -33,7 +24,7 @@ def parent_check(qb):
         sub2 = None
     return name,sub1,sub2
 
-skiplist = ['Bank Accounts', 'HMI CitiBan', 'Credit Cards', 'Ask My Accountant', 'Estimates', 'Purchase Orders']
+skiplist = ['Bank Accounts', 'Credit Cards', 'Ask My Accountant', 'Estimates', 'Purchase Orders']
 
 if 1 == 1:
     qbacct = QB_Accounts.query.all()
@@ -44,15 +35,15 @@ if 1 == 1:
             bankdat = QBaccounts.query.filter( (QBaccounts.Name == qb.Name) & (QBaccounts.Type == 'Bank') ).first()
             if bankdat is None and qb.Name not in skiplist:
                 print(f'Need to Add Quickbooks Bank Account {qb.Name} of Type {qb.Type}')
-                #input = QBaccounts(Name=qb.Name,Type='Bank',Sub1=None,Sub2=None,Co='F')
-                #db.session.add(input)
+                input = QBaccounts(Name=qb.Name,Type='Bank',Sub1=None,Sub2=None,Co='F')
+                db.session.add(input)
 
         elif qb.Type == 'CREDITCARD' and qb.Name not in skiplist:
             ccdat = QBaccounts.query.filter((QBaccounts.Name == qb.Name) & (QBaccounts.Type == 'Credit Card')).first()
             if ccdat is None:
                 print(f'Need to Add Quickbooks Credit Card Account {qb.Name} of Type {qb.Type}')
-                #input = QBaccounts(Name=qb.Name,Type='Credit Card',Sub1=None,Sub2=None,Co='F')
-                #db.session.add(input)
+                input = QBaccounts(Name=qb.Name,Type='Credit Card',Sub1=None,Sub2=None,Co='F')
+                db.session.add(input)
 
         elif qb.Type == 'INCOME':
             name,sub1,sub2 = parent_check(qb)
