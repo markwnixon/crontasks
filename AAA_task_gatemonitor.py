@@ -35,12 +35,12 @@ def gatescraper(printif):
 
     outpath = addpath3('interchange/')
     print('Entering Firefox') if printif == 1 else 1
-    yesterday = datetime.strftime(datetime.now() - timedelta(5), '%m/%d/%Y')
-    todaystr = datetime.strftime(datetime.now() - timedelta(4), '%m/%d/%Y')
+    yesterday = datetime.strftime(datetime.now() - timedelta(1), '%m/%d/%Y')
+    #todaystr = datetime.strftime(datetime.now() - timedelta(4), '%m/%d/%Y')
     today = datetime.today()
     cutoff = datetime.now() - timedelta(10)
     cutoff = cutoff.date()
-    #todaystr = datetime.today().strftime('%m/%d/%Y')
+    todaystr = datetime.today().strftime('%m/%d/%Y')
     startdate = yesterday
     enddate = todaystr
     consets = []
@@ -48,7 +48,6 @@ def gatescraper(printif):
     # for j,startdate in enumerate(startdates):
     # enddate=enddates[j]
     with Display():
-
 
         url1 = websites['gate']
         browser = webdriver.Firefox()
@@ -76,7 +75,7 @@ def gatescraper(printif):
         if 2 == 2:
 
             browser.get(newurl)
-            time.sleep(2)
+            time.sleep(3)
             print('newurl=', newurl, flush=True) if printif == 1 else 1
 
             selectElem = browser.find_element_by_xpath('//*[@id="StartDate"]')
