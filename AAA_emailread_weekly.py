@@ -182,7 +182,7 @@ if 1==1:
         if fleet==2:
             usernamelist = [usernames['inf2']]
             password = passwords['inf2']
-            dayback=90
+            dayback=410
 
         datefrom = (datetime.date.today() - datetime.timedelta(dayback)).strftime("%d-%b-%Y")
         print('Running Fleet from...',datefrom)
