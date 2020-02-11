@@ -1,4 +1,4 @@
-from CCC_system_setup import addpath3
+from CCC_system_setup import addpath3, scac
 from remote_db_connect import tunnel, db
 from models import Bills,People
 
@@ -6,7 +6,7 @@ import datetime
 import subprocess
 import re
 from PyPDF2 import PdfFileReader, PdfFileWriter
-from cronfuncs import nodollar
+from cronfuncs import nodollar, newjo
 
 date_y4=re.compile(r'\d{2}[/-]\d{1,2}[/-]\d{4}')
 fuel_d4=re.compile(r'[a]\d{1,3}[.]\d{4}[a]')
@@ -74,6 +74,7 @@ def fuelsort(thisdate,testpdf,nbill):
         np2=0
         gettotal=0
         getinfo=0
+        amount = 0.00
         fuelqty=[]
         ppg=[]
         isocards=[]
@@ -258,7 +259,9 @@ def fuelsort(thisdate,testpdf,nbill):
             pdat=People.query.filter(People.Company==company).first()
             aid=pdat.id
             sdate=datetime.datetime.strptime(thisdate, '%Y-%m-%d').date()
-            input = Bills(Jo='FT11', Pid=aid, Company=company, Memo='Weekly Fuel Bill', Description='Weekly Fuel Bill '+thisdate, bAmount=amount, Status='Paid', Cache=0, Original=filebase,
+            incode = scac[0] + 'B'
+            nextjo = newjo(incode,thisdate)
+            input = Bills(Jo=nextjo, Pid=aid, Company=company, Memo='Weekly Fuel Bill', Description='Weekly Fuel Bill '+thisdate, bAmount=amount, Status='Paid', Cache=0, Original=filebase,
                              Ref='', bDate=sdate, pDate=sdate, pAmount=amount, pMulti=None, pAccount='FEL CitiBank', bAccount = 'Fuel', bType='Expense',
                              bCat='Direct', bSubcat='Trucking', Link=billno, User='mark', Co='F', Temp1='', Temp2='', Recurring=0, dDate=sdate,pAmount2='0.00', pDate2=None,
                              Code1 = None, Code2=None, CkCache=0, QBi=0)

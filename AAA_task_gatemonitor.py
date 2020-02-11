@@ -35,12 +35,12 @@ def gatescraper(printif):
 
     outpath = addpath3('interchange/')
     print('Entering Firefox') if printif == 1 else 1
-    yesterday = datetime.strftime(datetime.now() - timedelta(5), '%m/%d/%Y')
-    todaystr = datetime.strftime(datetime.now() - timedelta(4), '%m/%d/%Y')
+    yesterday = datetime.strftime(datetime.now() - timedelta(2), '%m/%d/%Y')
+    #todaystr = datetime.strftime(datetime.now() - timedelta(4), '%m/%d/%Y')
     today = datetime.today()
     cutoff = datetime.now() - timedelta(10)
     cutoff = cutoff.date()
-    #todaystr = datetime.today().strftime('%m/%d/%Y')
+    todaystr = datetime.today().strftime('%m/%d/%Y')
     startdate = yesterday
     enddate = todaystr
     consets = []
