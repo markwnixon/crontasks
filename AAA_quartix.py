@@ -6,8 +6,8 @@ from cronfuncs import dropupdate, d1s, d2s
 from datetime import timedelta
 
 
-daybackfrom = 5
-daybackto = 0
+daybackfrom = 7
+daybackto = 1
 printif = 0
 printlog = 1
 # (daybackto=0 is today; from 1 to 0 is yesterday and today)
@@ -33,23 +33,14 @@ uname = usernames['quartix']
 password = passwords['quartix']
 
 def driver_find(tdate,unit,driverid):
-    #if tdate < datetime.date(2019, 7, 9) and unit=='435':
-        #driver = 'Hassan Khoder'
-
-    #Date id tags began
-    if tdate < datetime.date(2019, 8, 17):
+    driver = 'NAY'
+    ddat = Drivers.query.filter((Drivers.Start <= tdate) & (Drivers.End >= tdate) & (Drivers.Tagid == driverid)).first()
+    if ddat is not None:
+        driver = ddat.Name
+    else:
         ddat = Drivers.query.filter( (Drivers.Start <= tdate) & (Drivers.End >= tdate) & (Drivers.Truck == unit)).first()
         if ddat is not None:
             driver = ddat.Name
-        else:
-            driver = 'NAY'
-    else:
-        ddat = Drivers.query.filter((Drivers.Start <= tdate) & (Drivers.End >= tdate) & (Drivers.Tagid == driverid)).first()
-        if ddat is not None:
-            driver = ddat.Name
-        else:
-            driver = 'NAY'
-
     return driver
 
 def get_odometer(vid, distance):
@@ -185,10 +176,13 @@ print(s.cookies) if printif == 1 else 1
 parameters = {}
 API_ENDPOINT = "https://qws.quartix.com/v2/api/groups"
 r = s.get(url = API_ENDPOINT)
-dataret = r.json()
+dataret = r.json()['Data'][0]
 print(dataret) if printif == 1 else 1
+groupid = dataret['GroupID']
+print(groupid)
 
-parameters = {'GroupID':20525}
+
+parameters = {'GroupID':groupid}
 API_ENDPOINT = "https://qws.quartix.com/v2/api/vehicles"
 r = s.get(url = API_ENDPOINT, params = parameters)
 dataret = r.json()['Data']
@@ -230,12 +224,17 @@ for jback in range(delta+1):
             exitline = [39.256, -76.53826, 39.25749, -76.53753]
             exit_criteria = .000210
 
-        if thisunit == '436':
+        elif thisunit == '436':
             entryline = [39.25605, -76.53826, 39.25794, -76.53753]
             exitline = [39.256, -76.53826, 39.25749, -76.53753]
             exit_criteria = .000242
 
-        if thisunit == '435':
+        elif thisunit == '435':
+            entryline = [39.25605, -76.53826, 39.25850, -76.53730]
+            exitline = [39.256, -76.53826, 39.25749, -76.53753]
+            exit_criteria = .000210
+
+        else:
             entryline = [39.25605, -76.53826, 39.25850, -76.53730]
             exitline = [39.256, -76.53826, 39.25749, -76.53753]
             exit_criteria = .000210
@@ -367,7 +366,7 @@ for jback in range(delta+1):
         print('') if printif == 1 else 1
 
 
-        parameters = {'GroupID':20525,
+        parameters = {'GroupID':groupid,
                       'VehicleIDList':[vid],
                       'StartDay':datehere_s,
                       'EndDay':datehere_s

@@ -51,7 +51,7 @@ def chassis_insert(company,datedt,invonum,total,con,cha,amt,days,dateout,datein,
 # Select an invoice cutoff date
 today = datetime.datetime.today()
 today = today.date()
-dt = datetime.datetime.now() - datetime.timedelta(700)
+dt = datetime.datetime.now() - datetime.timedelta(7)
 dt = dt.date()
 datedt = dt
 print(dt)

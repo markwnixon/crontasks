@@ -1,12 +1,8 @@
-#from runmain import db
-from CCC_system_setup import scac, purpose
+from CCC_system_setup import purpose
 if purpose == 'webapp':
     from runmain import db
-elif purpose == 'script':
-    if scac == 'FELA':
-        from CCC_FELA_remote_db_connect import db
-    if scac == 'OSLM':
-        from CCC_OSLM_remote_db_connect import db
+else:
+    from remote_db_connect import db
 
 class class8(object):
     'An Automated Workflow and Accounting Software Package for Logistics'
