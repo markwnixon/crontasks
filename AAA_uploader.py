@@ -11,18 +11,12 @@ import datetime
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from scrapers import vinscraper
 
-from CCC_system_setup import websites, addpath3, addpath4, mycompany
+from CCC_system_setup import websites, addpath2, addpath3
 
-co = mycompany()
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Autos
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Autos
+from remote_db_connect import tunnel, db
+from models import Autos
 
 print('This run started at: ', datetime.datetime.now())
-#print(co, websites)
 
 today = datetime.date.today()
 
@@ -169,8 +163,8 @@ if 1 == 1:  # Keep this in case want to convert back to a looping script
     processlist = []
 
     for folder in folderlist:
-        i5s = addpath3(folder+'/')
-        s5s = addpath4(folder+'/')
+        i5s = addpath2(folder+'/')
+        s5s = addpath3(folder+'/')
         filefix(i5s)
         filelist = os.listdir(i5s)
         #print(folder,i5s,filelist)
@@ -184,7 +178,7 @@ if 1 == 1:  # Keep this in case want to convert back to a looping script
     if nfiles > 0:
 
         for folder in folderlist:
-            s5 = addpath4(folder)
+            s5 = addpath3(folder)
             s5s = s5+'/'
             filelist = os.listdir(s5)
             for file in filelist:
@@ -255,7 +249,7 @@ if 1 == 1:  # Keep this in case want to convert back to a looping script
 
 try:
     pythonline = websites['ssh_proc'] + 'vins.txt'
-    copyline1 = f'scp {pythonline} {addpath4("vins.txt")}'
+    copyline1 = f'scp {pythonline} {addpath3("vins.txt")}'
     print(copyline1)
     os.system(copyline1)
 
@@ -264,9 +258,9 @@ try:
 except:
     print('vins.txt not available at site')
 
-with open(addpath4('vin_data.txt'),'w+') as f:
+with open(addpath3('vin_data.txt'),'w+') as f:
     try:
-        longs = open(addpath4('vins.txt')).read()
+        longs = open(addpath3('vins.txt')).read()
         vlist = longs.split()
         print(longs,vlist)
     except:
@@ -326,13 +320,13 @@ with open(addpath4('vin_data.txt'),'w+') as f:
         f.write('Failed to complete the mission')
 
 try:
-    os.remove(addpath4('vins.txt'))
+    os.remove(addpath3('vins.txt'))
 except:
     print('vins.txt does not exist')
 
 try:
     pythonline = websites['ssh_proc'] + 'vin_data.txt'
-    copyline1 = f'scp {addpath4("vin_data.txt")} {pythonline} '
+    copyline1 = f'scp {addpath3("vin_data.txt")} {pythonline} '
     print(copyline1)
     os.system(copyline1)
 except:

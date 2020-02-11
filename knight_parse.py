@@ -1,14 +1,9 @@
-from CCC_system_setup import addpath3, addpath4, websites, usernames, passwords, mycompany, addpaths
-co = mycompany()
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import db, tunnel
-    from CCC_FELA_models import Orders, JO, People
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import db, tunnel
-    from CCC_OSLM_models import Orders, JO, People
+from CCC_system_setup import scac
+from remote_db_connect import db
+from models import Orders, JO, People
 import datetime
 import re
-from cronfuncs import d2s, dropupdate
+from cronfuncs import dropupdate
 
 def knight_parse(txtfile):
     longs = open(txtfile).read()
@@ -254,7 +249,7 @@ def knight_parse(txtfile):
             month='Z'
         # The type and company can be changed depending on who is calling
         jtype='T'
-        jcompany='F'
+        jcompany=scac[0]
         nextjo=jcompany+jtype+month+day2+year[3]+eval
         #print(nextjo, today)
 
@@ -299,7 +294,8 @@ def knight_parse(txtfile):
                                 Amount=obj.get('Amount'), Path=None, Original=obj.get('Original'), Description=obj.get("Description"),
                                 Chassis=obj.get('Chassis'), Detention=obj.get('Detention'), Storage=obj.get('Storage'), Release=obj.get('Release'),
                                 Shipper=obj.get('Shipper'), Type=obj.get('Type'), Time3=None, Bid=None, Lid=lid, Did=did, Label='', Dropblock1='',Dropblock2='',
-                                Commodity=None, Packing=None)
+                                Commodity=None, Packing=None,Links = None, Hstat=-1,Istat=0,Proof=None,Invoice=None,Gate=None,Package=None,Manifest=None,
+                                Pcache=None,Icache=None,Mcache=None,Pkcache=None,QBi=None)
 
 
 

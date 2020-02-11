@@ -9,15 +9,9 @@ import re
 import numpy as np
 from cronfuncs import newjo
 
-from CCC_system_setup import addpath3, addpath4, websites, usernames, passwords, mycompany, addpaths, imap_url
-co = mycompany()
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Orders, OverSeas
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Orders, OverSeas
-
+from CCC_system_setup import addpath2, addpath3, websites, usernames, passwords, imap_url, scac
+from remote_db_connect import tunnel, db
+from models import Orders, OverSeas
 
 #booking_p=re.compile('[159][0123456789]{8}')
 booking_p=re.compile("[159][0123456789]{8}|[E][BKG0123456789]{11}|[S][0123456789]{9}")
@@ -220,8 +214,8 @@ if 1==1:
         datefrom = (datetime.date.today() - datetime.timedelta(dayback)).strftime("%d-%b-%Y")
         print('Running GBook from...',datefrom)
 
-        att_dir=addpath4('emaildocs/globalbook')
-        txt_file=addpath4('emaildocs/global_bookings.txt')
+        att_dir=addpath3('emaildocs/globalbook')
+        txt_file=addpath3('emaildocs/global_bookings.txt')
 
         for username in usernamelist:
             con = imaplib.IMAP4_SSL(imap_url)
@@ -266,7 +260,7 @@ if 1==1:
                             if thisfile in line:
                                 line = thisdate+' '+thisfile+'\n'
                             filelines.append(line)
-                    shutil.copy(addpath4('emaildocs/globalbook/'+thisfile),addpath3('bookings/'+thisfile))
+                    shutil.copy(addpath3('emaildocs/globalbook/'+thisfile),addpath2('bookings/'+thisfile))
                     with open(txt_file,'w') as f:
                         for line in filelines:
                             f.write(line)
@@ -285,7 +279,7 @@ if 1==1:
                     print('Adding',thisdate,thisfile)
                     f.write(thisdate+' '+thisfile+'\n')
                     if gbook==1:
-                        shutil.copy(addpath4('emaildocs/globalbook/'+thisfile),addpath3('bookings/'+thisfile))
+                        shutil.copy(addpath3('emaildocs/globalbook/'+thisfile),addpath2('bookings/'+thisfile))
 #_____________________________________________________________________________________________________________
 # Subroutine for extracting new loads coming in from Knight
 #_____________________________________________________________________________________________________________
@@ -300,8 +294,8 @@ if 1==1:
             dayback=450
         datefrom = (datetime.date.today() - datetime.timedelta(dayback)).strftime("%d-%b-%Y")
         print(datefrom)
-        att_dir=addpath4('emaildocs/knightloads')
-        txt_file=addpath4('emaildocs/knight_loads.txt')
+        att_dir=addpath3('emaildocs/knightloads')
+        txt_file=addpath3('emaildocs/knight_loads.txt')
 
         for username in usernamelist:
             con = imaplib.IMAP4_SSL(imap_url)
@@ -346,7 +340,7 @@ if 1==1:
                             if thisfile in line:
                                 line = thisdate+' '+thisfile+'\n'
                             filelines.append(line)
-                    shutil.copy(addpath4('emaildocs/knightloads/'+thisfile),addpath3('orders/'+thisfile))
+                    shutil.copy(addpath3('emaildocs/knightloads/'+thisfile),addpath2('orders/'+thisfile))
                     with open(txt_file,'w') as f:
                         for line in filelines:
                             f.write(line)
@@ -365,7 +359,7 @@ if 1==1:
                     print('Adding',thisdate,thisfile)
                     f.write(thisdate+' '+thisfile+'\n')
                     if kjob==1:
-                        shutil.copy(addpath4('emaildocs/knightloads/'+thisfile),addpath3('orders/'+thisfile))
+                        shutil.copy(addpath3('emaildocs/knightloads/'+thisfile),addpath2('orders/'+thisfile))
 
 
 
@@ -416,7 +410,7 @@ if 1==1:
 
 
         try:
-            with open(addpath4('emaildocs/global_jobs.txt')) as f:
+            with open(addpath3('emaildocs/global_jobs.txt')) as f:
                 longs=f.read()
             f.close()
         except:
@@ -427,7 +421,7 @@ if 1==1:
         if gjob==2:
             ot='w'
 
-        with open(addpath4('emaildocs/global_jobs.txt'),ot) as f:
+        with open(addpath3('emaildocs/global_jobs.txt'),ot) as f:
             for book in bookings:
                 b=book[0]
                 d1=book[1].strftime('%Y-%m-%d')
@@ -443,7 +437,7 @@ if 1==1:
                         print('Adding',b,d1,d2)
                         f.write(b+' '+d1+' '+d2+'\n')
                         sdate=getdate.strftime('%Y-%m-%d')
-                        jtype='T'
+                        jtype=scac[0]+'T'
                         nextjo=newjo(jtype,sdate)
                         load='G'+nextjo[-5:]
                         order='G'+nextjo[-5:]

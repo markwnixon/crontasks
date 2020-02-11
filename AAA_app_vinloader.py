@@ -9,7 +9,7 @@ from random import randint
 from statistics import mean
 import os
 
-from CCC_system_setup import mycompany, usernames, passwords, websites, addpath2, from_phone
+from CCC_system_setup import addpath1, from_phone
 
 sid = os.environ['TWILIO_ACCOUNT_SID']
 token = os.environ['TWILIO_AUTH_TOKEN']
@@ -17,13 +17,8 @@ print(sid)
 print(token)
 print(from_phone)
 
-co = mycompany()
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Autos
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Autos
+from remote_db_connect import tunnel, db
+from models import Autos
 
 from twilio.rest import Client
 
@@ -188,8 +183,9 @@ try:
     sessionph = vlist[0]
     vlist.remove(sessionph)
 except IOError:
+    longs = ''
     vlist = []
-    file1 = open(addpath2('whatsapp/vinrun.txt'), 'a+')
+    file1 = open(addpath1('whatsapp/vinrun.txt'), 'a+')
     file1.write('Error in opening incoming/vins.txt\n')
     file1.close()
 
@@ -198,7 +194,7 @@ for vin in vlist:
 
     now = datetime.datetime.now()
     date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
-    file1 = open(addpath2('whatsapp/vinrun.txt'), 'a+')
+    file1 = open(addpath1('whatsapp/vinrun.txt'), 'a+')
     file1.write('At '+date_time+' running task for VIN:'+vin+'\n')
     file1.close()
 
@@ -222,7 +218,7 @@ for vin in vlist:
             db.session.add(input)
             db.session.commit()
 
-        file1 = open(addpath2('vinrun.txt'), 'a+')
+        file1 = open(addpath1('vinrun.txt'), 'a+')
         output = f'VIN:{vin} Year:{year} Make:{make} Model:{model} Weight:{weight} Price:{price} Msg:{error}\n'
         tw_output = f'*{vin}*\nYear: *{year}*\nMake: *{make}*\nModel: *{model}*\nWeight: *{weight}*\nPrice: *{price}*\nMsg: _{error}_\n'
         file1.write(output)

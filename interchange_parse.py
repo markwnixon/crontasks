@@ -1,14 +1,8 @@
 import datetime
 import re
 
-from CCC_system_setup import mycompany
-co = mycompany()
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Interchange
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Interchange
+from remote_db_connect import tunnel, db
+from models import Interchange
 
 
 def interparse(inpath, infile, imfile):

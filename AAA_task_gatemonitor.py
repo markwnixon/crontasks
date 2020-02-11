@@ -9,15 +9,9 @@ from pyvirtualdisplay import Display
 from selenium import webdriver
 import pdfkit
 
-from CCC_system_setup import addpath4, websites, usernames, passwords, mycompany
-co = mycompany()
-
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Interchange
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Interchange
+from CCC_system_setup import addpath3, websites, usernames, passwords
+from remote_db_connect import tunnel, db
+from models import Interchange
 
 printif = 0
 
@@ -39,7 +33,7 @@ def gatescraper(printif):
     password = passwords['gate']
     print('username,password=',username,password)
 
-    outpath = addpath4('interchange/')
+    outpath = addpath3('interchange/')
     print('Entering Firefox') if printif == 1 else 1
     yesterday = datetime.strftime(datetime.now() - timedelta(5), '%m/%d/%Y')
     todaystr = datetime.strftime(datetime.now() - timedelta(4), '%m/%d/%Y')
@@ -199,7 +193,7 @@ def gatescraper(printif):
                     db.session.commit()
 
                     pdfkit.from_string(con_data, outpath+viewfile)
-                    outpath = addpath4('interchange/')
+                    outpath = addpath3('interchange/')
                     newfile = outpath + viewfile
                     copyline = f'scp {newfile} {websites["ssh_data"]+"vinterchange"}'
                     print('copyline=',copyline)

@@ -1,13 +1,7 @@
 import datetime
 
-from CCC_system_setup import addpath3, addpath4, websites, usernames, passwords, mycompany, addpaths
-co = mycompany()
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import db, tunnel
-    from CCC_FELA_models import JO, Drops
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import db, tunnel
-    from CCC_OSLM_models import JO, Drops
+from remote_db_connect import db
+from models import JO, Drops
 
 today = datetime.date.today()
 
@@ -66,7 +60,6 @@ def d1s(instr):
         outstr = instr
     return outstr
 
-
 def newjo(jtype,sdate):
     dt = datetime.datetime.strptime(sdate, '%Y-%m-%d')
     year= str(dt.year)
@@ -82,13 +75,12 @@ def newjo(jtype,sdate):
         month='Y'
     if month=='12':
         month='Z'
-    if jtype=='H':
-        nextjo='HM'+month+day2+year[3]+eval
-    else:
-        nextjo='F'+jtype+month+day2+year[3]+eval
+
+    nextjo = jtype+month+day2+year[3]+eval
     input2 = JO(jo=nextjo, nextid=0, date=sdate, status=1)
     db.session.add(input2)
     lv.nextid=nextid+1
+    db.session.commit()
     return nextjo
 
 def dropupdate(dropblock):

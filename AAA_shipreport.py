@@ -1,23 +1,14 @@
 from pyvirtualdisplay import Display
 from selenium import webdriver
 
-#import bs4
-#from urllib.request import urlopen as ureq
-from bs4 import BeautifulSoup as soup
 import datetime
 import time
 import operator
 
 from email_reports import emailshipreport
 
-from CCC_system_setup import mycompany
-co = mycompany()
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Bookings, OverSeas, Bills
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Bookings, OverSeas
+from remote_db_connect import tunnel, db
+from models import Bookings, OverSeas, Bills
 
 today=datetime.date.today()
 fromday=today-datetime.timedelta(days=60)

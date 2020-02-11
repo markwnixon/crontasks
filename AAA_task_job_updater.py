@@ -4,15 +4,9 @@ from bs4 import BeautifulSoup as soup
 from datetime import datetime, timedelta
 
 
-from CCC_system_setup import addpath4, websites, usernames, passwords, mycompany
-co = mycompany()
-
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Interchange, Orders, OverSeas
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Interchange, Orders
+from CCC_system_setup import scac
+from remote_db_connect import tunnel, db
+from models import Interchange, Orders, OverSeas
 
 printif = 0
 
@@ -68,7 +62,7 @@ for jdat in jdata:
     print(f'Global Job {jdat.Booking} and {jdat.Container} with Status {jdat.Status}')
 
     #First see if there is an Overseas container matching to Global Job:
-    if co == 'FELA':
+    if scac == 'FELA':
         odat = OverSeas.query.filter( (OverSeas.PuDate > lbdate) & (OverSeas.Booking == bk) | (OverSeas.Container == con) ).first()
         if odat is not None:
             # Have a duplicate with overseas booking or container: delete the Global Job

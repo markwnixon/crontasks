@@ -16,15 +16,9 @@ from pyvirtualdisplay import Display
 from selenium import webdriver
 from scrapers import vinscraper
 
-from CCC_system_setup import addpath2, websites, usernames, passwords, mycompany, addpaths
-co = mycompany()
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Autos, Accounts, People
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Autos, Accounts, People
-
+from CCC_system_setup import addpath1, websites, usernames, passwords, addpaths
+from remote_db_connect import tunnel, db
+from models import Autos, Accounts, People
 
 class Cars:
 
@@ -249,8 +243,8 @@ if 1 == 1:
         print('Running Dispatch from...', datefrom)
         usernamelist = [usernames['infh']]
         password = passwords['infh']
-        #att_dir = addpath2('alldocs/emailextracted/dispatch')
-        #txt_file = addpath2('alldocs/autocompares/dispatch.txt')
+        #att_dir = addpath1('alldocs/emailextracted/dispatch')
+        #txt_file = addpath1('alldocs/autocompares/dispatch.txt')
         dispatch_links = []
         dispatch_subjs = []
         dispatch_dates = []
@@ -284,7 +278,7 @@ if 1 == 1:
                         print('Bad decode on', getdate)
 
 
-    txt_file=addpath2('tmp/dispatches.txt')
+    txt_file=addpath1('tmp/dispatches.txt')
     print('txt_file=',txt_file)
     print('Initial Orderlist: ',orderlist)
     if dispatch==2:
@@ -325,7 +319,7 @@ if len(dispatch_links)>0:
     username = usernames['disp']
     password = passwords['disp']
     paths = addpaths()
-    #outpath = addpath2('dispatch/')
+    #outpath = addpath1('dispatch/')
 
     print('Entering Firefox')
     yesterday = datetime.datetime.strftime(datetime.datetime.now() - timedelta(2), '%m/%d/%Y')

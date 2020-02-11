@@ -1,22 +1,13 @@
 import time
 import datetime
-import os
 
 from pyvirtualdisplay import Display
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from random import randint
 
-from statistics import mean
-from CCC_system_setup import mycompany, usernames, passwords, websites
-
-co = mycompany()
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Chassis, Interchange
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Chassis, Interchange
+from CCC_system_setup import usernames, passwords, websites
+from remote_db_connect import tunnel, db
+from models import Chassis, Interchange
 
 from selenium.webdriver.common.action_chains import ActionChains
 

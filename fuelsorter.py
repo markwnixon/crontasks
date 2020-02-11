@@ -1,17 +1,12 @@
-from CCC_system_setup import addpath4, websites, usernames, passwords, mycompany, addpaths, scac, companydata
-if scac == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Bills,People
-elif scac == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Bills, People
-
+from CCC_system_setup import addpath3
+from remote_db_connect import tunnel, db
+from models import Bills,People
 
 import datetime
 import subprocess
 import re
 from PyPDF2 import PdfFileReader, PdfFileWriter
-from viewfuncs import nodollar
+from cronfuncs import nodollar
 
 date_y4=re.compile(r'\d{2}[/-]\d{1,2}[/-]\d{4}')
 fuel_d4=re.compile(r'[a]\d{1,3}[.]\d{4}[a]')
@@ -58,7 +53,7 @@ def getdata(nline,input,plines):
 
 
 def fuelsort(thisdate,testpdf,nbill):
-    s=addpath4('emaildocs/msfleet/')
+    s=addpath3('emaildocs/msfleet/')
     #for file in os.listdir(s):
     if 1==1:
         #fname=thisfile.replace('.pdf','')

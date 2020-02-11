@@ -26,21 +26,11 @@ print(today) if printif == 1 else 1
 
 #response = requests.post("https://qws.quartix.com/v2/api/auth", params=parameters)
 
-from CCC_system_setup import addpath3, addpath4, websites, usernames, passwords, mycompany, addpaths, imap_url, quartix_customer_id, quartix_app
-co = mycompany()
-
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Trucklog, Drivers, Driverlog, Portlog, Interchange
-    uname = usernames['quartix']
-    password = passwords['quartix']
-
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Trucklog, Drivers, Driverlog, Portlog, Interchange
-    uname = usernames['quartix']
-    password = passwords['quartix']
-
+from CCC_system_setup import usernames, passwords, quartix_customer_id, quartix_app
+from remote_db_connect import tunnel, db
+from models import Trucklog, Drivers, Driverlog, Portlog, Interchange
+uname = usernames['quartix']
+password = passwords['quartix']
 
 def driver_find(tdate,unit,driverid):
     #if tdate < datetime.date(2019, 7, 9) and unit=='435':

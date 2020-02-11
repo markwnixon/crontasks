@@ -1,9 +1,9 @@
-#from runmain import db
-from CCC_system_setup import scac, purpose
+from CCC_system_setup import purpose
 if purpose == 'webapp':
     from runmain import db
 elif purpose == 'script':
     from remote_db_connect import db
+
 
 class class8(object):
     'An Automated Workflow and Accounting Software Package for Logistics'

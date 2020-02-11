@@ -5,14 +5,9 @@ import imaplib, email
 import datetime
 import numpy as np
 
-from CCC_system_setup import addpath4, websites, usernames, passwords, mycompany, addpaths, imap_url
-co = mycompany()
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Autos
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Autos
+from CCC_system_setup import addpath3, usernames, passwords, imap_url
+from remote_db_connect import tunnel, db
+from models import Autos
 
 
 from fuelsorter import fuelsort
@@ -191,8 +186,8 @@ if 1==1:
 
         datefrom = (datetime.date.today() - datetime.timedelta(dayback)).strftime("%d-%b-%Y")
         print('Running Fleet from...',datefrom)
-        att_dir=addpath4('emaildocs/msfleet')
-        txt_file=addpath4('emaildocs/fleet.txt')
+        att_dir=addpath3('emaildocs/msfleet')
+        txt_file=addpath3('emaildocs/fleet.txt')
 
         for username in usernamelist:
             con = imaplib.IMAP4_SSL(imap_url)
@@ -246,8 +241,8 @@ if 1==1:
                     newfile=newfile+'.pdf'
                     print('Adding',thisdate,thisfile)
                     f.write(thisdate+' '+thisfile+'\n')
-                    newfile=addpath4('emaildocs/msfleet/'+newfile)
-                    shutil.copy(addpath4('emaildocs/msfleet/'+thisfile),newfile)
+                    newfile=addpath3('emaildocs/msfleet/'+newfile)
+                    shutil.copy(addpath3('emaildocs/msfleet/'+thisfile),newfile)
                     fuelsort(thisdate,newfile,nbills)
 
 tunnel.stop()
