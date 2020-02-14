@@ -2,7 +2,7 @@ import datetime
 from datetime import timedelta
 today = datetime.datetime.today()
 print(today)
-cutoff = datetime.datetime.now() - timedelta(180)
+cutoff = datetime.datetime.now() - timedelta(21)
 
 from remote_db_connect import tunnel, db
 from models import Interchange, DriverAssign, Vehicles, Trucklog
