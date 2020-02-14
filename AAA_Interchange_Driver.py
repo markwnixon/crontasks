@@ -1,51 +1,60 @@
-import requests
-import json
 import datetime
-from math import sqrt
-from cronfuncs import dropupdate, d1s, d2s
-
-
+from datetime import timedelta
 today = datetime.datetime.today()
-#today = today.date()
 print(today)
+cutoff = datetime.datetime.now() - timedelta(180)
 
-from CCC_system_setup import addpath3, addpath4, websites, usernames, passwords, mycompany, addpaths, imap_url, quartix_customer_id, quartix_app
-co = mycompany()
+from remote_db_connect import tunnel, db
+from models import Interchange, DriverAssign, Vehicles, Trucklog
 
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Trucklog, Drivers, Driverlog, Interchange, FELVehicles, Portlog
-    uname = usernames['quartix']
-    password = passwords['quartix']
-
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Trucklog, Drivers, Driverlog, Interchange, Portlog
-    uname = usernames['quartix']
-    password = passwords['quartix']
-
-cutoff = datetime.date(2019,8,16)
-idata = Interchange.query.filter( (Interchange.Path != 'V') & (Interchange.Date > cutoff) ).all()
+idata = Interchange.query.filter(Interchange.Date > cutoff).all()
 for idat in idata:
     idate = idat.Date
     tn = idat.TRUCK_NUMBER
-    trk = FELVehicles.query.filter(FELVehicles.Plate == tn).first()
+    trk = Vehicles.query.filter(Vehicles.Plate == tn).first()
     if trk is not None:
         unit = trk.Unit
+        if unit is not None:
+            adat = DriverAssign.query.filter( (DriverAssign.Date==idate) & (DriverAssign.UnitStart == unit) ).first()
+            if adat is not None:
+                print(adat.Driver)
+                idat.DRIVER = adat.Driver
+            else:
+                idat.DRIVER = 'NAY'
+        else:
+            idat.DRIVER = 'NAY'
     else:
-        print(idat.CONTAINER, 'No Unit')
-        unit = 'NAY'
+        idat.DRIVER = 'NAY'
 
-    ddata = Driverlog.query.filter( (Driverlog.Date == idate) & (Driverlog.Truck == unit) ).all()
-    if len(ddata) == 1:
-        ddat = ddata[0]
-        print(idat.CONTAINER, unit, ddat.Driver)
-        idat.Path = 'V'
-        idat.DRIVER = ddat.Driver
-        db.session.commit()
+db.session.commit()
+
+idata = Interchange.query.filter( (Interchange.Date > cutoff) & (Interchange.DRIVER == 'NAY') ).all()
+for idat in idata:
+    idate = idat.Date
+    tn = idat.TRUCK_NUMBER
+    trk = Vehicles.query.filter(Vehicles.Plate == tn).first()
+    if trk is not None:
+        unit = trk.Unit
+        if unit is not None:
+            adat = Trucklog.query.filter( (Trucklog.Date==idate) & (Trucklog.Unit == unit) ).first()
+            if adat is not None:
+                d1 = adat.DriverStart
+                d2 = adat.DriverEnd
+                if d1 is None:
+                    driver = d2
+                else:
+                    driver = d1
+                print('Second Set:',driver)
+                idat.DRIVER = driver
+            else:
+                idat.DRIVER = 'NAY'
+        else:
+            idat.DRIVER = 'NAY'
     else:
-        for ddat in ddata:
-            print('**',idat.CONTAINER, unit, ddat.Driver)
+        idat.DRIVER = 'NAY'
+
+db.session.commit()
+
 
 tunnel.stop()
 
