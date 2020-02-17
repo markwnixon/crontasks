@@ -1,9 +1,8 @@
 from CCC_system_setup import purpose
 if purpose == 'webapp':
     from runmain import db
-elif purpose == 'script':
+else:
     from remote_db_connect import db
-
 
 class class8(object):
     'An Automated Workflow and Accounting Software Package for Logistics'
@@ -511,8 +510,8 @@ class People(db.Model):
     Email = db.Column('Email', db.String(50))
     Associate1 = db.Column('Associate1', db.String(50))
     Associate2 = db.Column('Associate2', db.String(50))
-    Temp1 = db.Column('Temp1', db.String(50))
-    Temp2 = db.Column('Temp2', db.String(50))
+    Temp1 = db.Column('Temp1', db.String(200))
+    Temp2 = db.Column('Temp2', db.String(200))
     Date1 = db.Column('Date1', db.DateTime)
     Date2 = db.Column('Date2', db.DateTime)
     Original = db.Column('Original', db.String(200))
