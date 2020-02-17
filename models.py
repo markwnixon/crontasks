@@ -36,6 +36,71 @@ class ChalkBoard(db.Model):
         self.creator = creator
         self.comments = comments
 
+class IEroll(db.Model):
+    __tablename__ = 'ieroll'
+    id = db.Column('id', db.Integer, primary_key=True)
+    Name = db.Column('Name', db.String(50))
+    Category = db.Column('Category', db.String(45))
+    Subcategory = db.Column('Subcategory', db.String(45))
+    Type = db.Column('Type', db.String(45))
+    Co = db.Column('Co', db.String(2))
+    C1 = db.Column('C1', db.String(20))
+    C2 = db.Column('C2', db.String(20))
+    C3 = db.Column('C3', db.String(20))
+    C4 = db.Column('C4', db.String(20))
+    C5 = db.Column('C5', db.String(20))
+    C6 = db.Column('C6', db.String(20))
+    C7 = db.Column('C7', db.String(20))
+    C8 = db.Column('C8', db.String(20))
+    C9 = db.Column('C9', db.String(20))
+    C10 = db.Column('C10', db.String(20))
+    C11 = db.Column('C11', db.String(20))
+    C12 = db.Column('C12', db.String(20))
+    C13 = db.Column('C13', db.String(20))
+    C14 = db.Column('C14', db.String(20))
+    C15 = db.Column('C15', db.String(20))
+    C16 = db.Column('C16', db.String(20))
+    C17 = db.Column('C17', db.String(20))
+    C18 = db.Column('C18', db.String(20))
+    C19 = db.Column('C19', db.String(20))
+    C20 = db.Column('C20', db.String(20))
+    C21 = db.Column('C21', db.String(20))
+    C22 = db.Column('C22', db.String(20))
+    C23 = db.Column('C23', db.String(20))
+    C24 = db.Column('C24', db.String(20))
+
+    def __init__(self, Name, Category, Subcategory, Type, Co, C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12,
+                 C13, C14, C15, C16, C17, C18, C19, C20, C21, C22, C23, C24):
+        self.Name = Name
+        self.Category = Category
+        self.Subcategory = Subcategory
+        self.Type = Type
+        self.Co = Co
+        self.C1  = C1
+        self.C2  = C2
+        self.C3  = C3
+        self.C4  = C4
+        self.C5  = C5
+        self.C6  = C6
+        self.C7  = C7
+        self.C8  = C8
+        self.C9  = C9
+        self.C10  = C10
+        self.C11  = C11
+        self.C12  = C12
+        self.C13  = C13
+        self.C14  = C14
+        self.C15  = C15
+        self.C16  = C16
+        self.C17  = C17
+        self.C18  = C18
+        self.C19  = C19
+        self.C20  = C20
+        self.C21  = C21
+        self.C22  = C22
+        self.C23  = C23
+        self.C24  = C24
+
 
 class Chassis(db.Model):
     __tablename__ = 'chassis'
