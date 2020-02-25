@@ -15,10 +15,10 @@ prev12 = []
 year12 = []
 dfr = []
 dto = []
-nmonths = 12
+nmonths = 24
 for ix in range(nmonths+1):
     if mon < 1:
-        mon = 6
+        mon = 12
         yer = yer-1
     prev12.append(mon)
     year12.append(yer)
@@ -63,7 +63,7 @@ def correct(company):
 
 
 
-if 1 == 1:
+if 1 == 2:
     pidlist = []
     #First must fix duplicate companies if such has been entered:
     bdata = Bills.query.filter(Bills.bType == 'Expense').all()
@@ -93,7 +93,7 @@ if 1 == 1:
     db.session.commit()
 
 # Fix any company drops for bills
-if 1 == 1:
+if 1 == 2:
     bdata = Bills.query.filter(Bills.Co == None).all()
     for bdat in bdata:
         print(bdat.id)
@@ -114,8 +114,8 @@ if 1 == 2:
             divtotal = 0.00
             divco = divdat.Co
 
-            bdata = Bills.query.filter( (Bills.bDate >= df) & (Bills.bDate < dt) & (Bills.Co == divco) ).all()
-            pidlist = []
+            bdata = Bills.query.filter( (Bills.bDate >= df) & (Bills.bDate < dt) & (Bills.Co == divco) & (Bills.bType == 'Expense') ).all()
+            company_list = []
             for bdat in bdata:
                 pid = bdat.Pid
                 if pid is not None:
@@ -123,41 +123,75 @@ if 1 == 2:
                     if cdat is not None:
                         company = cdat.Company
                         if company is not None:
-                            company = company.replace('  ',' ')
-                            company = company.upper()
-                            if company not in pidlist:
-                                pidlist.append(company)
+                            if company not in company_list:
+                                company_list.append(company)
                         else:
                             print(f'Company with id {pid} does not exist')
                     else:
                         print(f'Pid {pid} does not exist from Bill {bdat.id}')
-
                 else:
                     print(f'Bill {bdat.id} has no vendor reference')
 
 
-            if 1 == 2:
-                for company in pidlist:
+            if 1 == 1:
+                for company in company_list:
                     tot = 0.00
-                    pdata = People.query.filter(People.Company.like(company)).all()
+                    gtot = 0.00
+                    pdata = People.query.filter(People.Company == company).all()
                     for pdat in pdata:
                         pid = pdat.id
-                        if 1 == 1:
-                            bpdata = Bills.query.filter((Bills.bDate >= df) & (Bills.bDate < dt) & (Bills.Co == divco) & (Bills.Pid == pid)).all()
-                            for bpdat in bpdata:
-                                tot = tot + float(bpdat.bAmount)
+                        bpdata = Bills.query.filter((Bills.bDate >= df) & (Bills.bDate < dt) & (Bills.Co == divco) & (Bills.bType == 'Expense') & (Bills.Pid == pid)).all()
+                        for bpdat in bpdata:
+                            bamt = float(bpdat.bAmount)
+                            tot = tot + bamt
+                            jo = bpdat.Jo
+                            bcat = bpdat.bSubcat
+                            bsub = bpdat.bAccount
+                            gdat = Gledger.query.filter( (Gledger.Tcode == jo) & (Gledger.Type == 'ED') ).first()
+                            if gdat is not None:
+                                gamt = float(gdat.Debit)/100.0
+                                gtot = gtot + gamt
+                                if int(bamt) != int(gamt):
+                                    print(f'Gledger amt is {gamt} while Bill Amount is {bamt}')
+                            else:
+                                print(f'Bill {jo} for {company} and amount {bamt} is not recorded')
 
-                    idat = Broll.query.filter( (Broll.Name == company) & (Broll.Co == divco) ).first()
-                    if idat is None:
-                        input = Broll(Name=company, Category=None, Subcategory=None,Type=None,Co=divco, C1=None, C2 = None,
+
+                    idatB = Broll.query.filter( (Broll.Name == company) & (Broll.Co == divco) & (Broll.Type == 'Expense-B') ).first()
+                    if idatB is None:
+                        input = Broll(Name=company, Category=bcat, Subcategory=bsub,Type='Expense-B',Co=divco, Tot = 0, C1=None, C2 = None,
                                        C3=None,C4=None,C5=None,C6=None,C7=None,C8=None,C9=None,C10=None,C11=None,C12=None,C13=None,C14=None,C15=None,
                                        C16=None,C17=None,C18=None,C19=None,C20=None,C21=None,C22=None,C23=None,C24=None)
                         db.session.add(input)
                         db.session.commit()
-                        idat = Broll.query.filter( (Broll.Name == company) & (Broll.Co == divco) ).first()
-                    setattr(idat, f'C{ix}', d2s(tot))
+                        idatB = Broll.query.filter( (Broll.Name == company) & (Broll.Co == divco) & (Broll.Type == 'Expense-B') ).first()
 
+                    setattr(idatB, f'C{ix}', d2s(tot))
 
-        #db.session.commit()
+                    idatG = Broll.query.filter( (Broll.Name == company) & (Broll.Co == divco) & (Broll.Type == 'Expense-G') ).first()
+                    if idatG is None:
+                        input = Broll(Name=company, Category=bcat, Subcategory=bsub,Type='Expense-G',Co=divco, Tot=0, C1=None, C2 = None,
+                                       C3=None,C4=None,C5=None,C6=None,C7=None,C8=None,C9=None,C10=None,C11=None,C12=None,C13=None,C14=None,C15=None,
+                                       C16=None,C17=None,C18=None,C19=None,C20=None,C21=None,C22=None,C23=None,C24=None)
+                        db.session.add(input)
+                        db.session.commit()
+                        idatG = Broll.query.filter( (Broll.Name == company) & (Broll.Co == divco) & (Broll.Type == 'Expense-G') ).first()
+
+                    setattr(idatG, f'C{ix}', d2s(gtot))
+
+    db.session.commit()
+
+if 1 == 1:
+    idata = Broll.query.filter(Broll.Type == 'Expense-B').all()
+    for idat in idata:
+        tot = 0.00
+        for ix in range(1,25):
+            dat = getattr(idat, f'C{ix}')
+            if dat is not None:
+                tot = tot + float(dat)
+        itot = int(tot*100)
+        print(itot)
+        idat.Tot = itot
+    db.session.commit()
 
 tunnel.stop()

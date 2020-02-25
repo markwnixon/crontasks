@@ -109,6 +109,7 @@ class Broll(db.Model):
     Subcategory = db.Column('Subcategory', db.String(45))
     Type = db.Column('Type', db.String(45))
     Co = db.Column('Co', db.String(2))
+    Tot = db.Column('Tot', db.Integer)
     C1 = db.Column('C1', db.String(20))
     C2 = db.Column('C2', db.String(20))
     C3 = db.Column('C3', db.String(20))
@@ -134,13 +135,14 @@ class Broll(db.Model):
     C23 = db.Column('C23', db.String(20))
     C24 = db.Column('C24', db.String(20))
 
-    def __init__(self, Name, Category, Subcategory, Type, Co, C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12,
+    def __init__(self, Name, Category, Subcategory, Type, Co, Tot, C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12,
                  C13, C14, C15, C16, C17, C18, C19, C20, C21, C22, C23, C24):
         self.Name = Name
         self.Category = Category
         self.Subcategory = Subcategory
         self.Type = Type
         self.Co = Co
+        self.Tot = Tot
         self.C1  = C1
         self.C2  = C2
         self.C3  = C3
