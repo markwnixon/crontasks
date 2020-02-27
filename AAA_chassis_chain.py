@@ -13,7 +13,7 @@ cutoff = cutoff.date()
 #Attempt to Chain the Global Chassis
 
 gdata = Interchange.query.filter( (Interchange.CHASSIS == 'GBL Chassis') & (Interchange.TYPE.contains('out')) & (Interchange.Date > cutoff) ) .all()
-gdat = gdata[-1]
+gdat = gdata[-3]
 if gdat is not None:
     next_container = gdat.CONTAINER
     print(f'Starting with Global Chassis Container {next_container}')
@@ -29,7 +29,7 @@ if gdat is not None:
         if jdat is not None:
             print(f'{jdat.RELEASE} {jdat.CONTAINER} {jdat.Date} {jdat.Time}')
             jdat.CHASSIS = label
-            odat = Orders.query.filter((Orders.Container == next_container) & (Orders.Booking == jdat.RELEASE)).first()
+            odat = Orders.query.filter(Orders.Container == next_container).first()
             if odat is not None:
                 odat.BOL = label
 
