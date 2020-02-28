@@ -323,9 +323,9 @@ with Display():
                 #Sometimes website does not provide all the numbers in a container here.  Double check and get elsewhere
                 lcon = len(con)
                 if lcon < 11:
-                    idat = Interchange.query.filter(Interchange.RELEASE == booking).first()
+                    idat = Interchange.query.filter(Interchange.Release == booking).first()
                     if idat is not None:
-                        con = idat.CONTAINER
+                        con = idat.Container
                     else:
                         con = None
 

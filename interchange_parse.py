@@ -59,7 +59,7 @@ def interparse(inpath, infile, imfile):
     thistime = '00:01'
     container = 'NFI'
 
-    ilist = ['TRUCK NUMBER', 'CHASSIS', 'RELEASE', 'SEALS', 'GROSS WT', 'CARGO WT', 'SIZE/TYPE']
+    ilist = ['TRUCK NUMBER', 'Chassis', 'Release', 'Seals', 'GROSS WT', 'CARGO WT', 'SIZE/Type']
     obj = {}
     for i in ilist:
         obj.update({i: 'NFI'})
@@ -110,11 +110,11 @@ def interparse(inpath, infile, imfile):
 
     # Search for things that are the keywords:
     driverlist = ['Ghanem', 'Davis', 'Alameh', 'Tibbs', 'Khoder']
-    obj.update({'DRIVER': 'NFI'})
+    obj.update({'Driver': 'NFI'})
     for i in driverlist:
         match = re.search(i.lower(), ss)
         if match:
-            obj.update({'DRIVER': i})
+            obj.update({'Driver': i})
 
     print(obj)
 
@@ -123,7 +123,7 @@ def interparse(inpath, infile, imfile):
     else:
         thisdate = today
 
-    chassis = obj.get("CHASSIS")
+    chassis = obj.get("Chassis")
     if chassis == 'NFI':
         chassis = 'OWN'
 
@@ -137,10 +137,10 @@ def interparse(inpath, infile, imfile):
     idat = Interchange.query.filter(Interchange.Original == imfile).first()
     if idat is None:
             # Check to see if this file is in database already
-        input = Interchange(CONTAINER=container, TRUCK_NUMBER=trucknum, DRIVER=driver, CHASSIS=chassis,
-                            Date=thisdate, RELEASE=obj.get("RELEASE"), GROSS_WT=obj.get("GROSS WT"), SEALS=obj.get("SEALS"),
-                            CONTYPE=obj.get("SIZE/TYPE"), CARGO_WT=obj.get("CARGO WT"),
-                            Time=thistime, Status='AAAAAA', Original=imfile, Path='NFI', TYPE=typedef, Jo='NAY', Company='NAY')
+        input = Interchange(Container=container, TruckNumber=trucknum, Driver=driver, Chassis=chassis,
+                            Date=thisdate, Release=obj.get("Release"), GrossWt=obj.get("GROSS WT"), Seals=obj.get("Seals"),
+                            ConType=obj.get("SIZE/Type"), CargoWt=obj.get("CARGO WT"),
+                            Time=thistime, Status='AAAAAA', Original=imfile, Path='NFI', Type=typedef, Jo='NAY', Company='NAY', Other=None)
         # if missing is None:
         print('Data is being added to database: interchange')
         db.session.add(input)

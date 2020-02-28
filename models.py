@@ -250,40 +250,40 @@ class Compliance(db.Model):
 class Interchange(db.Model):
     __tablename__ = 'interchange'
     id = db.Column('id', db.Integer, primary_key=True)
-    CONTAINER = db.Column('CONTAINER', db.String(25))
-    TRUCK_NUMBER = db.Column('TRUCK NUMBER', db.String(25))
-    DRIVER = db.Column('DRIVER', db.String(25))
-    CHASSIS = db.Column('CHASSIS', db.String(25))
+    Container = db.Column('Container', db.String(25))
+    TruckNumber = db.Column('TRUCK NUMBER', db.String(25))
+    Driver = db.Column('Driver', db.String(25))
+    Chassis = db.Column('Chassis', db.String(25))
     Date = db.Column('Date', db.DateTime)
-    RELEASE = db.Column('RELEASE', db.String(25))
-    GROSS_WT = db.Column('GROSS WT', db.String(25))
-    SEALS = db.Column('SEALS', db.String(25))
-    CONTYPE = db.Column('SCALE WT', db.String(25))
-    CARGO_WT = db.Column('CARGO WT', db.String(25))
+    Release = db.Column('Release', db.String(25))
+    GrossWt = db.Column('GROSS WT', db.String(25))
+    Seals = db.Column('Seals', db.String(25))
+    ConType = db.Column('SCALE WT', db.String(25))
+    CargoWt = db.Column('CARGO WT', db.String(25))
     Time = db.Column('Time', db.String(25))
     Status = db.Column('Status', db.String(25))
     Original = db.Column('Original', db.String(50))
     Path = db.Column('Path', db.String(50))
-    TYPE = db.Column('TYPE', db.String(25))
+    Type = db.Column('Type', db.String(25))
     Jo = db.Column('Jo', db.String(25))
     Company = db.Column('Company', db.String(50))
 
-    def __init__(self, CONTAINER, TRUCK_NUMBER, DRIVER, CHASSIS, Date, RELEASE, GROSS_WT, SEALS, CONTYPE, CARGO_WT, Time, Status, Original, Path, TYPE, Jo, Company):
-        self.CONTAINER = CONTAINER
-        self.TRUCK_NUMBER = TRUCK_NUMBER
-        self.DRIVER = DRIVER
-        self.CHASSIS = CHASSIS
+    def __init__(self, Container, TruckNumber, Driver, Chassis, Date, Release, GrossWt, Seals, ConType, CargoWt, Time, Status, Original, Path, Type, Jo, Company):
+        self.Container = Container
+        self.TruckNumber = TruckNumber
+        self.Driver = Driver
+        self.Chassis = Chassis
         self.Date = Date
-        self.RELEASE = RELEASE
-        self.GROSS_WT = GROSS_WT
-        self.SEALS = SEALS
-        self.CONTYPE = CONTYPE
-        self.CARGO_WT = CARGO_WT
+        self.Release = Release
+        self.GrossWt = GrossWt
+        self.Seals = Seals
+        self.ConType = ConType
+        self.CargoWt = CargoWt
         self.Time = Time
         self.Status = Status
         self.Original = Original
         self.Path = Path
-        self.TYPE = TYPE
+        self.Type = Type
         self.Jo = Jo
         self.Company = Company
 
@@ -1050,6 +1050,36 @@ class Income(db.Model):
         self.Account = Account
         self.Pid = Pid
         self.Description = Description
+        self.Amount = Amount
+        self.Ref = Ref
+        self.Date = Date
+        self.Original = Original
+        self.From = From
+        self.Bank = Bank
+        self.Date2 = Date2
+        self.Depositnum = Depositnum
+
+class Deposits(db.Model):
+    __tablename__ = 'deposits'
+    id = db.Column('id', db.Integer, primary_key=True)
+    Jo = db.Column('Jo', db.String(25))
+    Account = db.Column('Account', db.String(99))
+    Pid = db.Column('Pid', db.Integer)
+    Total = db.Column('Total', db.String(25))
+    Amount = db.Column('Amount', db.String(25))
+    Ref = db.Column('Ref', db.String(25))
+    Date = db.Column('Date', db.DateTime)
+    Original = db.Column('Original', db.String(99))
+    From = db.Column('From', db.String(45))
+    Bank = db.Column('Bank', db.String(45))
+    Date2 = db.Column('Date2', db.DateTime)
+    Depositnum = db.Column('Depositnum', db.String(45))
+
+    def __init__(self, Jo, Account, Pid, Total, Amount, Ref, Date, Original, From, Bank, Date2, Depositnum):
+        self.Jo = Jo
+        self.Account = Account
+        self.Pid = Pid
+        self.Total = Total
         self.Amount = Amount
         self.Ref = Ref
         self.Date = Date

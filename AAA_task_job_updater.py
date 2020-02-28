@@ -8,6 +8,7 @@ from CCC_system_setup import scac
 from remote_db_connect import tunnel, db
 from models import Interchange, Orders, OverSeas
 
+
 printif = 0
 
 runat = datetime.now()
@@ -42,9 +43,9 @@ for jdat in jdata:
     if con == 'TBD':
         bk = jdat.Booking
         if len(bk) > 7:
-            idat = Interchange.query.filter( (Interchange.RELEASE == bk) & (Interchange.Date > lbdate) ).first()
+            idat = Interchange.query.filter( (Interchange.Release == bk) & (Interchange.Date > lbdate) ).first()
             if idat is not None:
-                jdat.Container = idat.CONTAINER
+                jdat.Container = idat.Container
                 db.session.commit()
 
 #Make sure there are no doubled up Global Jobs
@@ -73,7 +74,7 @@ for jdat in jdata:
             db.session.commit()
 
             #Now refranchise the Interchange Tickets just in Case they have Global Label:
-            idata = Interchange.query.filter( ((Interchange.CONTAINER == con) | (Interchange.RELEASE == bk)) & (Interchange.Date > lbdate) ).all()
+            idata = Interchange.query.filter( ((Interchange.Container == con) | (Interchange.Release == bk)) & (Interchange.Date > lbdate) ).all()
             for idat in idata:
                 idat.Jo = odat.Jo
                 idat.Company = odat.BillTo
@@ -89,24 +90,24 @@ for jdat in jdata:
         db.session.commit()
 
         # Now refranchise the Interchange Tickets just in Case they have Global Label:
-        idata = Interchange.query.filter(((Interchange.CONTAINER == con) | (Interchange.RELEASE == bk)) & (Interchange.Date > lbdate)).all()
+        idata = Interchange.query.filter(((Interchange.Container == con) | (Interchange.Release == bk)) & (Interchange.Date > lbdate)).all()
         for idat in idata:
             idat.Jo = tdat.Jo
             idat.Company = tdat.Shipper
             db.session.commit()
 
 # Match up the containers that can be matched up IN to OUT matching
-idata = Interchange.query.filter( (Interchange.TYPE.contains('Out') & (Interchange.Date > lbdate)) ).all()
+idata = Interchange.query.filter( (Interchange.Type.contains('Out') & (Interchange.Date > lbdate)) ).all()
 for idat in idata:
-    con = idat.CONTAINER
+    con = idat.Container
     if len(con) < 9:
         con = 'XXX'
-    bk = idat.RELEASE
+    bk = idat.Release
     if len(bk) < 6:
         bk = 'YYY'
     sta = idat.Status
-    print(f'Container {idat.CONTAINER} has Type {idat.TYPE} and Status {idat.Status}')
-    imat = Interchange.query.filter( ((Interchange.CONTAINER == con) | (Interchange.RELEASE == bk)) & (Interchange.TYPE.contains('In')) & (Interchange.Date > lbdate) ).first()
+    print(f'Container {idat.Container} has Type {idat.Type} and Status {idat.Status}')
+    imat = Interchange.query.filter( ((Interchange.Container == con) | (Interchange.Release == bk)) & (Interchange.Type.contains('In')) & (Interchange.Date > lbdate) ).first()
     if imat is not None:
         imat.Status = 'IO'
         idat.Status = 'IO'
@@ -133,7 +134,7 @@ jdata = Orders.query.filter((Orders.Hstat < 2) & (Orders.Date > lbdate)).all()
 for jdat in jdata:
     con, bk = checkon(jdat.Container,jdat.Booking)
     stat = jdat.Hstat
-    idat = Interchange.query.filter( ((Interchange.CONTAINER == con) | (Interchange.RELEASE == bk)) & (Interchange.TYPE.contains('Out')) & (Interchange.Date > lbdate) ).first()
+    idat = Interchange.query.filter( ((Interchange.Container == con) | (Interchange.Release == bk)) & (Interchange.Type.contains('Out')) & (Interchange.Date > lbdate) ).first()
     if idat is not None:
         istat = idat.Status
         if istat == 'IO':
@@ -149,16 +150,16 @@ for jdat in jdata:
 jdata = Orders.query.filter( (Orders.Hstat < 4) & (Orders.Date > lbdate)).all()
 for jdat in jdata:
     con, bk = checkon(jdat.Container, jdat.Booking)
-    idat = Interchange.query.filter(((Interchange.CONTAINER == con) | (Interchange.RELEASE == bk)) & (Interchange.TYPE.contains('Out')) & (Interchange.Date > lbdate)).first()
+    idat = Interchange.query.filter(((Interchange.Container == con) | (Interchange.Release == bk)) & (Interchange.Type.contains('Out')) & (Interchange.Date > lbdate)).first()
     if idat is not None:
         #print(f'Match to truck job {idat.Order} and {idat.Container}')
-        jdat.Container = idat.CONTAINER
-        jdat.Type = idat.CONTYPE
+        jdat.Container = idat.Container
+        jdat.Type = idat.ConType
         jdat.Date = idat.Date
         idat.Company = jdat.Shipper
         idat.Jo = jdat.Jo
 
-        imat = Interchange.query.filter(((Interchange.CONTAINER == con) | (Interchange.RELEASE == bk)) & (Interchange.TYPE.contains('In')) & (Interchange.Date > lbdate)).first()
+        imat = Interchange.query.filter(((Interchange.Container == con) | (Interchange.Release == bk)) & (Interchange.Type.contains('In')) & (Interchange.Date > lbdate)).first()
         if imat is not None:
             jdat.Date2 = imat.Date
             imat.Jo = jdat.Jo

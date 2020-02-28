@@ -11,7 +11,7 @@ from models import Interchange, DriverAssign, Vehicles, Trucklog
 idata = Interchange.query.filter(Interchange.Date > cutoff).all()
 for idat in idata:
     idate = idat.Date
-    tn = idat.TRUCK_NUMBER
+    tn = idat.TruckNumber
     trk = Vehicles.query.filter(Vehicles.Plate == tn).first()
     if trk is not None:
         unit = trk.Unit
@@ -19,20 +19,20 @@ for idat in idata:
             adat = DriverAssign.query.filter( (DriverAssign.Date==idate) & (DriverAssign.UnitStart == unit) ).first()
             if adat is not None:
                 print(adat.Driver)
-                idat.DRIVER = adat.Driver
+                idat.Driver = adat.Driver
             else:
-                idat.DRIVER = 'NAY'
+                idat.Driver = 'NAY'
         else:
-            idat.DRIVER = 'NAY'
+            idat.Driver = 'NAY'
     else:
-        idat.DRIVER = 'NAY'
+        idat.Driver = 'NAY'
 
 db.session.commit()
 
-idata = Interchange.query.filter( (Interchange.Date > cutoff) & (Interchange.DRIVER == 'NAY') ).all()
+idata = Interchange.query.filter( (Interchange.Date > cutoff) & (Interchange.Driver == 'NAY') ).all()
 for idat in idata:
     idate = idat.Date
-    tn = idat.TRUCK_NUMBER
+    tn = idat.TruckNumber
     trk = Vehicles.query.filter(Vehicles.Plate == tn).first()
     if trk is not None:
         unit = trk.Unit
@@ -46,13 +46,13 @@ for idat in idata:
                 else:
                     driver = d1
                 print('Second Set:',driver)
-                idat.DRIVER = driver
+                idat.Driver = driver
             else:
-                idat.DRIVER = 'NAY'
+                idat.Driver = 'NAY'
         else:
-            idat.DRIVER = 'NAY'
+            idat.Driver = 'NAY'
     else:
-        idat.DRIVER = 'NAY'
+        idat.Driver = 'NAY'
 
 db.session.commit()
 

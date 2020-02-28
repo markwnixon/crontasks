@@ -35,8 +35,8 @@ for tday in range(1,numcalday):
     xdate = datetime.datetime(thisyear, 1, 1) + timedelta(tday)
     xdate = xdate.date()
     print(xdate)
-    outs = Interchange.query.filter( (Interchange.Date == xdate) & (Interchange.TYPE.contains('Out')) ).all()
-    ins = Interchange.query.filter( (Interchange.Date == xdate) & (Interchange.TYPE.contains('In')) ).all()
+    outs = Interchange.query.filter( (Interchange.Date == xdate) & (Interchange.Type.contains('Out')) ).all()
+    ins = Interchange.query.filter( (Interchange.Date == xdate) & (Interchange.Type.contains('In')) ).all()
     netout = len(outs) - len(ins) + obase
     print(xdate,netout)
 
@@ -63,19 +63,19 @@ for month in range(1,13):
         mtamt = mtamt + amt
 
     numdays = 0
-    condata = Interchange.query.filter( (Interchange.Date >= xdfrom) & (Interchange.Date <= xdto) & (Interchange.TYPE.contains('Out')) ).all()
+    condata = Interchange.query.filter( (Interchange.Date >= xdfrom) & (Interchange.Date <= xdto) & (Interchange.Type.contains('Out')) ).all()
     for cd in condata:
-        condata2 = Interchange.query.filter( (Interchange.Date >= xdfrom) & (Interchange.Date <= xdret) & (Interchange.CONTAINER == cd.CONTAINER) & (Interchange.TYPE.contains('In')) ).first()
+        condata2 = Interchange.query.filter( (Interchange.Date >= xdfrom) & (Interchange.Date <= xdret) & (Interchange.Container == cd.Container) & (Interchange.Type.contains('In')) ).first()
         if condata2 is not None:
             d1 = cd.Date
             d2 = condata2.Date
             mydays = d2 - d1
             mydays = (mydays.days) + 1
             if mydays > 6:
-                print(mydays,cd.CONTAINER)
+                print(mydays,cd.Container)
             numdays = numdays + mydays
         else:
-            print(f'Container {cd.CONTAINER} no return match')
+            print(f'Container {cd.Container} no return match')
     numc = len(condata)
 
     idata = Invoices.query.filter( (Invoices.Date >= xdfrom) & (Invoices.Date <= xdto) & (Invoices.Service == 'Chassis Fees') ).all()
@@ -86,9 +86,9 @@ for month in range(1,13):
         miamt = miamt + amt
 
     jdol = 0.0
-    jdata = Interchange.query.filter( (Interchange.Date >= xdfrom) & (Interchange.Date <= xdto) & ( (Interchange.CHASSIS.contains('jay')) | (Interchange.Company.contains('Jays')) )  & (Interchange.TYPE.contains('In')) ).all()
+    jdata = Interchange.query.filter( (Interchange.Date >= xdfrom) & (Interchange.Date <= xdto) & ( (Interchange.Chassis.contains('jay')) | (Interchange.Company.contains('Jays')) )  & (Interchange.Type.contains('In')) ).all()
     for jdat in jdata:
-        jout = Interchange.query.filter( (Interchange.CONTAINER == jdat.CONTAINER) & (Interchange.TYPE.contains('Out')) ).first()
+        jout = Interchange.query.filter( (Interchange.Container == jdat.Container) & (Interchange.Type.contains('Out')) ).first()
         d1 = jdat.Date
         d2 = jout.Date
         mydays = d1 - d2
