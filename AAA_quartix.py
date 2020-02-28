@@ -115,13 +115,13 @@ def insert_portdata(datehere,portstart,portstop,porttime,custtime,thisunit,portm
             except:
                 dt_time = datetime.datetime.strptime(datehere_s, "%d-%b-%Y")
             print('idat',time,dt_time) if printif == 1 else 1
-            type = idat.TYPE
+            type = idat.Type
 
             if dt_time >= pcheck and dt_time <= portstop:
                 if 'In' in type:
-                    cin = idat.CONTAINER
+                    cin = idat.Container
                 elif 'Out' in type:
-                    cout = idat.CONTAINER
+                    cout = idat.Container
 
         print(f'Adding to Portlog for Date:{datehere} in Unit:{thisunit}') if printlog == 1 else 1
         input = Portlog(Date=datehere,Unit=thisunit,Driver=None,GPSin=portstart,GPSout=portstop,PortTime=d2s(portdec),CustTime=d2s(custdec),ConIn=cin,ConOut=cout,Status='0',Portmiles=d2s(portmiles))

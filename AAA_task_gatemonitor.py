@@ -134,13 +134,13 @@ def gatescraper(printif):
                 mytime = mytimedt.strftime('%H:%M')
                 print('mytime =', mytime) if printif == 1 else 1
                 print('cutoff =',cutoff) if printif == 1 else 1
-                idat = Interchange.query.filter( (Interchange.CONTAINER == thiscon) & (Interchange.TYPE == movetyp) & (Interchange.Date > cutoff) ).first()
+                idat = Interchange.query.filter( (Interchange.Container == thiscon) & (Interchange.Type == movetyp) & (Interchange.Date > cutoff) ).first()
                 if idat is None:
 
                     contype = f'{cr[4]} {cr[5]} {cr[6]}'
-                    input = Interchange(CONTAINER=thiscon, TRUCK_NUMBER='NAY', DRIVER='NAY', CHASSIS=cr[8],
-                                        Date=mydate, RELEASE=cr[11], GROSS_WT='NAY', SEALS='NAY', CONTYPE=contype, CARGO_WT='NAY',
-                                        Time=mytime, Status='AAAAAA', Original='NAY', Path=cr[7], TYPE=movetyp, Jo='NAY', Company='NAY')
+                    input = Interchange(Container=thiscon, TruckNumber='NAY', Driver='NAY', Chassis=cr[8],
+                                        Date=mydate, Release=cr[11], GrossWt='NAY', Seals='NAY', ConType=contype, CargoWt='NAY',
+                                        Time=mytime, Status='AAAAAA', Original='NAY', Path=cr[7], Type=movetyp, Jo='NAY', Company='NAY', Other=None)
                     db.session.add(input)
                     db.session.commit()
                     print(f'***Adding {thiscon} {movetyp} on {mydate} at {mytime} to database')
@@ -159,7 +159,7 @@ def gatescraper(printif):
                 conset = {}
                 con_data = browser.page_source
                 page_soup = soup(con_data, 'html.parser')
-                keys = ['TRUCK NUMBER:', 'CHASSIS:','SCALE WT:', 'GROSS WT:', 'CARGO WT:', 'SEALS:']
+                keys = ['TRUCK NUMBER:', 'Chassis:','SCALE WT:', 'GROSS WT:', 'CARGO WT:', 'Seals:']
                 namelist = page_soup.findAll('span', {'class': 'info-item-label'})
                 itemlist = page_soup.findAll('span', {'class': 'info-item-value'})
                 for key in keys:
@@ -175,7 +175,7 @@ def gatescraper(printif):
                                 print('Not valid:', key, item) if printif == 1 else 1
 
                 idat = Interchange.query.filter(
-                    (Interchange.CONTAINER == thiscon) & (Interchange.TYPE == movetyp)).first()
+                    (Interchange.Container == thiscon) & (Interchange.Type == movetyp)).first()
 
                 if idat is not None:
 
@@ -183,11 +183,11 @@ def gatescraper(printif):
                     type = type.replace(' ', '_')
                     viewfile = thiscon + '_' + type + '.pdf'
 
-                    idat.CHASSIS = conset.get("CHASSIS")
-                    idat.TRUCK_NUMBER = conset.get("TRUCK_NUMBER")
-                    idat.GROSS_WT = conset.get("GROSS_WT")
-                    idat.CARGO_WT = conset.get("CARGO_WT")
-                    idat.SEALS = conset.get("SEALS")
+                    idat.Chassis = conset.get("Chassis")
+                    idat.TruckNumber = conset.get("TruckNumber")
+                    idat.GrossWt = conset.get("GrossWt")
+                    idat.CargoWt = conset.get("CargoWt")
+                    idat.Seals = conset.get("Seals")
                     idat.Original = viewfile
 
                     db.session.commit()
