@@ -31,7 +31,7 @@ if gdat is not None:
             jdat.Chassis = label
             odat = Orders.query.filter((Orders.Container == next_container) & (Orders.Booking == jdat.Release)).first()
             if odat is not None:
-                odat.BOL = label
+                odat.Chassis = label
 
             kdat = Interchange.query.filter((Interchange.Date == jdat.Date) & (Interchange.Time == jdat.Time) & (Interchange.Type.contains('out'))).first()
             if kdat is not None:
@@ -59,6 +59,9 @@ if gdat is not None:
             print('chassis none')
         elif 'OWN' in chassis or 'Own' in chassis or 'FELA' in chassis or 'NONUM' in chassis or 'NONE' in chassis:
             idat.Chassis = 'FELA020'
+            odat = Orders.query.filter((Orders.Container == idat.Container) & (Orders.Booking == idat.Release)).first()
+            if odat is not None:
+                odat.Chassis = 'FELA020'
     db.session.commit()
 
 #Clean up our 40' chassis
@@ -75,6 +78,9 @@ if gdat is not None:
             print('chassis none')
         elif 'OWN' in chassis or 'Own' in chassis or 'FELA' in chassis or 'NONUM' in chassis or 'NONE' in chassis:
             idat.Chassis = 'FELA001'
+            odat = Orders.query.filter((Orders.Container == idat.Container) & (Orders.Booking == idat.Release)).first()
+            if odat is not None:
+                odat.Chassis = 'FELA001'
     db.session.commit()
 
 tunnel.stop()

@@ -251,15 +251,15 @@ class Interchange(db.Model):
     __tablename__ = 'interchange'
     id = db.Column('id', db.Integer, primary_key=True)
     Container = db.Column('Container', db.String(25))
-    TruckNumber = db.Column('TRUCK NUMBER', db.String(25))
+    TruckNumber = db.Column('TruckNumber', db.String(25))
     Driver = db.Column('Driver', db.String(25))
     Chassis = db.Column('Chassis', db.String(25))
     Date = db.Column('Date', db.DateTime)
     Release = db.Column('Release', db.String(25))
-    GrossWt = db.Column('GROSS WT', db.String(25))
+    GrossWt = db.Column('GrossWt', db.String(25))
     Seals = db.Column('Seals', db.String(25))
-    ConType = db.Column('SCALE WT', db.String(25))
-    CargoWt = db.Column('CARGO WT', db.String(25))
+    ConType = db.Column('ConType', db.String(25))
+    CargoWt = db.Column('CargoWt', db.String(25))
     Time = db.Column('Time', db.String(25))
     Status = db.Column('Status', db.String(25))
     Original = db.Column('Original', db.String(50))
@@ -267,8 +267,9 @@ class Interchange(db.Model):
     Type = db.Column('Type', db.String(25))
     Jo = db.Column('Jo', db.String(25))
     Company = db.Column('Company', db.String(50))
+    Other = db.Column('Other', db.String(50))
 
-    def __init__(self, Container, TruckNumber, Driver, Chassis, Date, Release, GrossWt, Seals, ConType, CargoWt, Time, Status, Original, Path, Type, Jo, Company):
+    def __init__(self, Container, TruckNumber, Driver, Chassis, Date, Release, GrossWt, Seals, ConType, CargoWt, Time, Status, Original, Path, Type, Jo, Company, Other):
         self.Container = Container
         self.TruckNumber = TruckNumber
         self.Driver = Driver
@@ -286,6 +287,22 @@ class Interchange(db.Model):
         self.Type = Type
         self.Jo = Jo
         self.Company = Company
+        self.Other = Other
+
+class StreetTurns(db.Model):
+    __tablename__ = 'streetturns'
+    id = db.Column('id', db.Integer, primary_key=True)
+    Container = db.Column('Container', db.String(25))
+    BookingTo = db.Column('BookingTo', db.String(25))
+    Date = db.Column('Date', db.DateTime)
+    Status = db.Column('Status', db.Integer)
+
+    def __init__(self, Container, BookingTo, Date, Status):
+        self.Container = Container
+        self.BookingTo = BookingTo
+        self.Date = Date
+        self.Status = Status
+
 
 class LastMessage(db.Model):
     __tablename__='lastmessage'
