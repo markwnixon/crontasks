@@ -206,4 +206,4 @@ def gatescraper(printif):
 
 gatescraper(printif)
 tunnel.stop()
-sys.exit('Gatescraping completed and interchange insert executed...')
+#sys.exit('Gatescraping completed and interchange insert executed...')
