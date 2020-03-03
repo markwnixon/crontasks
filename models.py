@@ -1106,6 +1106,34 @@ class Deposits(db.Model):
         self.Date2 = Date2
         self.Depositnum = Depositnum
 
+class Reconciliations(db.Model):
+    __tablename__ = 'reconciliations'
+    id = db.Column('id', db.Integer, primary_key=True)
+    Account = db.Column('Account', db.String(45))
+    Rdate = db.Column('Rdate', db.DateTime)
+    Bbal = db.Column('Bbal', db.String(45))
+    Ebal = db.Column('Ebal', db.String(45))
+    Deposits = db.Column('Deposits', db.String(45))
+    Withdraws = db.Column('Withdraws', db.String(45))
+    Servicefees = db.Column('Servicefees', db.String(45))
+    DepositList = db.Column('DepositList', db.String(300))
+    WithdrawList = db.Column('WithdrawList', db.String(300))
+    Status = db.Column('Status', db.Integer)
+    Diff = db.Column('Diff', db.String(45))
+
+    def __init__(self, Account, Rdate, Bbal, Ebal, Deposits, Withdraws, Servicefees, DepositList, WithdrawList, Status, Diff):
+        self.Account = Account
+        self.Rdate = Rdate
+        self.Bbal = Bbal
+        self.Ebal = Ebal
+        self.Deposits = Deposits
+        self.Withdraws = Withdraws
+        self.Servicefees = Servicefees
+        self.DepositList = DepositList
+        self.WithdrawList = WithdrawList
+        self.Status = Status
+        self.Diff = Diff
+
 
 class Bills(db.Model):
     __tablename__ = 'bills'
