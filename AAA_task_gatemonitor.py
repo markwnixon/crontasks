@@ -36,7 +36,7 @@ def gatescraper(printif):
     outpath = addpath3('interchange/')
     print('Entering Firefox') if printif == 1 else 1
     yesterday = datetime.strftime(datetime.now() - timedelta(1), '%m/%d/%Y')
-    #todaystr = datetime.strftime(datetime.now() - timedelta(4), '%m/%d/%Y')
+    #todaystr = datetime.strftime(datetime.now() - timedelta(11), '%m/%d/%Y')
     today = datetime.today()
     cutoff = datetime.now() - timedelta(10)
     cutoff = cutoff.date()
@@ -159,18 +159,19 @@ def gatescraper(printif):
                 conset = {}
                 con_data = browser.page_source
                 page_soup = soup(con_data, 'html.parser')
-                keys = ['TruckNumber:', 'Chassis:','ConType:', 'GrossWt:', 'CargoWt:', 'Seals:']
+                keys = ['TRUCK NUMBER:', 'CHASSIS:', 'GROSS WT:', 'CARGO WT:', 'SEALS:']
+                labels = ['TruckNumber', 'Chassis', 'GrossWt', 'CargoWt', 'Seals']
                 namelist = page_soup.findAll('span', {'class': 'info-item-label'})
                 itemlist = page_soup.findAll('span', {'class': 'info-item-value'})
-                for key in keys:
+                for jx,key in enumerate(keys):
                     for j, name in enumerate(namelist):
                         thisname = name.text.strip()
                         if thisname == key:
                             item = itemlist[j].text.strip()
                             if len(item) > 1:
-                                newkey = key.replace(':', '').replace(' ', '_')
+                                newkey = labels[jx]
                                 conset.update({newkey: item})
-                                print(key, item) if printif == 1 else 1
+                                print(key, item)
                             else:
                                 print('Not valid:', key, item) if printif == 1 else 1
 
