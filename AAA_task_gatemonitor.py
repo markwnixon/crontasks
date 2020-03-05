@@ -159,7 +159,7 @@ def gatescraper(printif):
                 conset = {}
                 con_data = browser.page_source
                 page_soup = soup(con_data, 'html.parser')
-                keys = ['TRUCK NUMBER:', 'Chassis:','SCALE WT:', 'GROSS WT:', 'CARGO WT:', 'Seals:']
+                keys = ['TruckNumber:', 'Chassis:','ConType:', 'GrossWt:', 'CargoWt:', 'Seals:']
                 namelist = page_soup.findAll('span', {'class': 'info-item-label'})
                 itemlist = page_soup.findAll('span', {'class': 'info-item-value'})
                 for key in keys:
