@@ -1134,6 +1134,29 @@ class Reconciliations(db.Model):
         self.Status = Status
         self.Diff = Diff
 
+class Adjusting(db.Model):
+    __tablename__ = 'adjusting'
+    id = db.Column('id', db.Integer, primary_key=True)
+    Jo = db.Column('Jo', db.String(45))
+    Date = db.Column('Date', db.DateTime)
+    Mop = db.Column('Mop', db.Integer)
+    Moa = db.Column('Moa', db.Integer)
+    Asset = db.Column('Asset', db.String(45))
+    Expense = db.Column('Expense', db.String(45))
+    Amtp = db.Column('Amtp', db.String(45))
+    Amta= db.Column('Amta', db.String(45))
+    Status = db.Column('Status', db.Integer)
+
+    def __init__(self, Jo, Date, Mop, Moa, Asset, Expense, Amtp, Amta, Status):
+        self.Jo = Jo
+        self.Date = Date
+        self. Mop = Mop
+        self. Moa = Moa
+        self.Asset = Asset
+        self.Expense = Expense
+        self.Amtp = Amtp
+        self.Amta = Amta
+        self.Status = Status
 
 class Bills(db.Model):
     __tablename__ = 'bills'
