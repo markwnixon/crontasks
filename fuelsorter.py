@@ -264,7 +264,8 @@ def fuelsort(thisdate,testpdf,nbill):
             input = Bills(Jo=nextjo, Pid=aid, Company=company, Memo='Weekly Fuel Bill', Description='Weekly Fuel Bill '+thisdate, bAmount=amount, Status='Paid', Cache=0, Original=filebase,
                              Ref='', bDate=sdate, pDate=sdate, pAmount=amount, pMulti=None, pAccount='FEL CitiBank', bAccount = 'Fuel', bType='Expense',
                              bCat='Direct', bSubcat='Trucking', Link=billno, User='mark', Co='F', Temp1='', Temp2='', Recurring=0, dDate=sdate,pAmount2='0.00', pDate2=None,
-                             Code1 = None, Code2=None, CkCache=0, QBi=0)
+                             Code1 = None, Code2=None, CkCache=0, QBi=0, iflag = 0, PmtList=None,
+                             PacctList=None, RefList=None, MemoList=None, PdateList=None, CheckList=None)
 
 
             db.session.add(input)
