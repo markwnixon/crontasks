@@ -1335,10 +1335,11 @@ class Drivers(db.Model):
     Addr2= db.Column('Addr2', db.String(45))
     TwicExp= db.Column('TwicExp', db.String(45))
     TwicNum= db.Column('TwicNum', db.String(45))
+    DLState = db.Column('DLState', db.String(45))
 
 
     def __init__(self, Name, Truck, Tag, Email, Path, Phone, Start, End, Tagid, Cdl, Twic, Record, Med, Pin, DLnum, DLexp,
-                 DOB, Addr1, Addr2, TwicExp, TwicNum):
+                 DOB, Addr1, Addr2, TwicExp, TwicNum, DLState):
         self.Name = Name
         self.Truck = Truck
         self.Tag = Tag
@@ -1360,4 +1361,5 @@ class Drivers(db.Model):
         self.Addr2 = Addr2
         self.TwicExp = TwicExp
         self.TwicNum = TwicNum
+        self.DLState = DLState
         
