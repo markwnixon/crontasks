@@ -1139,6 +1139,7 @@ class Adjusting(db.Model):
     id = db.Column('id', db.Integer, primary_key=True)
     Jo = db.Column('Jo', db.String(45))
     Date = db.Column('Date', db.DateTime)
+    DateEnd = db.Column('DateEnd', db.DateTime)
     Mop = db.Column('Mop', db.Integer)
     Moa = db.Column('Moa', db.Integer)
     Asset = db.Column('Asset', db.String(45))
@@ -1147,7 +1148,7 @@ class Adjusting(db.Model):
     Amta= db.Column('Amta', db.String(45))
     Status = db.Column('Status', db.Integer)
 
-    def __init__(self, Jo, Date, Mop, Moa, Asset, Expense, Amtp, Amta, Status):
+    def __init__(self, Jo, Date, Mop, Moa, Asset, Expense, Amtp, Amta, Status, DateEnd):
         self.Jo = Jo
         self.Date = Date
         self. Mop = Mop
@@ -1157,6 +1158,7 @@ class Adjusting(db.Model):
         self.Amtp = Amtp
         self.Amta = Amta
         self.Status = Status
+        self.DateEnd = DateEnd
 
 class Bills(db.Model):
     __tablename__ = 'bills'
@@ -1184,7 +1186,7 @@ class Bills(db.Model):
     User = db.Column('User', db.String(25))
     Co = db.Column('Co', db.String(9))
     Temp1 = db.Column('Temp1', db.String(50))
-    Temp2 = db.Column('Temp2', db.String(50))
+    Temp2 = db.Column('Temp2', db.String(200))
     Recurring = db.Column('Recurring', db.Integer)
     dDate = db.Column('dDate', db.DateTime)
     pAmount2 = db.Column('pAmount2', db.String(20))
@@ -1193,8 +1195,15 @@ class Bills(db.Model):
     Code2 = db.Column('Code2', db.String(45))
     CkCache = db.Column('CkCache', db.Integer)
     QBi = db.Column('QBi', db.Integer)
+    iflag = db.Column('iflag', db.Integer)
+    PmtList= db.Column('PmtList', db.String(200))
+    PacctList = db.Column('PacctList', db.String(200))
+    RefList = db.Column('RefList', db.String(200))
+    MemoList = db.Column('MemoList', db.String(200))
+    PdateList = db.Column('PdateList', db.String(200))
+    CheckList = db.Column('CheckList', db.String(200))
 
-    def __init__(self, Jo, Pid, Company, Memo, Description, bAmount, Status, Cache, Original, Ref, bDate, pDate, pAmount, pMulti, pAccount, bAccount, bType, bCat, bSubcat, Link, User, Co, Temp1, Temp2, Recurring, dDate, pAmount2, pDate2, Code1, Code2, CkCache, QBi):
+    def __init__(self, Jo, Pid, Company, Memo, Description, bAmount, Status, Cache, Original, Ref, bDate, pDate, pAmount, pMulti, pAccount, bAccount, bType, bCat, bSubcat, Link, User, Co, Temp1, Temp2, Recurring, dDate, pAmount2, pDate2, Code1, Code2, CkCache, QBi, iflag, PmtList, PacctList, RefList, MemoList, PdateList, CheckList):
         self.Jo = Jo
         self.Pid = Pid
         self.Company = Company
@@ -1227,6 +1236,13 @@ class Bills(db.Model):
         self.Code2 = Code2
         self.CkCache = CkCache
         self.QBi = QBi
+        self.iflag = iflag
+        self.PmtList = PmtList
+        self.PacctList = PacctList
+        self.RefList = RefList
+        self.MemoList = MemoList
+        self.PdateList = PdateList
+        self.CheckList = CheckList
 
     def Bal(self):
         try:
