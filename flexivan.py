@@ -43,7 +43,8 @@ def bills_insert(co, datedt, datedue, invonum, invoamt, status):
                          Ref='', bDate=datedt, pDate=None, pAmount='0.00', pMulti=None, pAccount='FEL Citibank',
                          bAccount='Equipment Rental', bType='Expensse',
                          bCat='Direct', bSubcat='Trucking', Link=None, User='Robot', Co='F', Temp1=None, Temp2=None,
-                         Recurring=0, dDate=datedue, pAmount2='0.00', pDate2=None)
+                         Recurring=0, dDate=datedue, pAmount2='0.00', pDate2=None,iflag = 0, PmtList=None,
+                             PacctList=None, RefList=None, MemoList=None, PdateList=None, CheckList=None, MethList=None)
         db.session.add(input)
         db.session.commit()
         # Now change the bill number:

@@ -41,6 +41,47 @@ for (df,dt) in zip(dfr,dto):
         divtotal = 0.00
         divco = divdat.Co
         divname = divdat.Name
+
+        #Collect the G-A Expenses for the Div
+        gatotal = 0.0
+        adata = Accounts.query.filter((Accounts.Type == 'Expense') & (Accounts.Category == 'G-A')).all()
+        for adat in adata:
+            total = 0
+            expname = adat.Name
+            thiscat = adat.Category
+            thissub = adat.Subcategory
+            gdata = Gledger.query.filter( (Gledger.Date >= df) & (Gledger.Date < dt) & (Gledger.Account == expname) ).all()
+            for gdat in gdata:
+                total = total + gdat.Debit
+            print(f'Total Expenses for Account {expname} {ix} {df} to {dt} is {d2s(total)}')
+            idat = IEroll.query.filter( (IEroll.Name == adat.Name) & (IEroll.Co == adat.Co) ).first()
+            if idat is None:
+                input = IEroll(Name=adat.Name, Category=adat.Category, Subcategory=adat.Subcategory,Type=adat.Type,Co=adat.Co, C1=None, C2 = None,
+                               C3=None,C4=None,C5=None,C6=None,C7=None,C8=None,C9=None,C10=None,C11=None,C12=None,C13=None,C14=None,C15=None,
+                               C16=None,C17=None,C18=None,C19=None,C20=None,C21=None,C22=None,C23=None,C24=None)
+                db.session.add(input)
+                db.session.commit()
+                idat = IEroll.query.filter( (IEroll.Name == adat.Name) & (IEroll.Co == adat.Co) ).first()
+            setattr(idat, f'C{ix}', d2s(total/100.))
+            gatotal = gatotal + total / 100.
+
+        ganame = f'{divco} G-A Expense Totals'
+        print(f'Total G-A Expenses for Company {divname} {ix} {df} to {dt} is {d2s(gatotal)}')
+
+        #G-A Totals
+        gdat = IEroll.query.filter( (IEroll.Name == ganame) & (IEroll.Co == divco) ).first()
+        if gdat is None:
+            input = IEroll(Name=ganame, Category=thiscat, Subcategory=thissub,Type='Expense',Co=divco, C1=None, C2 = None,
+                           C3=None,C4=None,C5=None,C6=None,C7=None,C8=None,C9=None,C10=None,C11=None,C12=None,C13=None,C14=None,C15=None,
+                           C16=None,C17=None,C18=None,C19=None,C20=None,C21=None,C22=None,C23=None,C24=None)
+            db.session.add(input)
+            db.session.commit()
+            gdat = IEroll.query.filter( (IEroll.Name == ganame) & (IEroll.Co == divco) ).first()
+        setattr(gdat,f'C{ix}',d2s(gatotal))
+
+        divtotal = divtotal + gatotal
+
+        # Now Get the focus area direct expenses
         fdata = Focusareas.query.filter(Focusareas.Co == divco).all()
         for fdat in fdata:
             foctotal = 0.00
