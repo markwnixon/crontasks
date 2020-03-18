@@ -49,7 +49,7 @@ for jdat in jdata:
                 db.session.commit()
 
 #Make sure there are no doubled up Global Jobs
-jdata = Orders.query.filter( (Orders.Shipper == 'Global Business Link') & (Orders.Hstat < 3) & (Orders.Date > lbdate)).all()
+jdata = Orders.query.filter( (Orders.Shipper == 'Global Business Link') & (Orders.Date > lbdate)).all()
 for jdat in jdata:
 
     bk = jdat.Booking
@@ -64,21 +64,22 @@ for jdat in jdata:
 
     #First see if there is an Overseas container matching to Global Job:
     if scac == 'FELA':
-        odat = OverSeas.query.filter( (OverSeas.PuDate > lbdate) & (OverSeas.Booking == bk) | (OverSeas.Container == con) ).first()
+        odat = OverSeas.query.filter( (OverSeas.PuDate > lbdate) & (OverSeas.Booking == bk) ).first()
         if odat is not None:
             # Have a duplicate with overseas booking or container: delete the Global Job
             print(f'Have Global duplicate with OverSeas {bk} | {con}')
             killid = jdat.id
             print(f'Have Global duplicate with Order {bk} | {con}')
-            Orders.query.filter(Orders.id == killid).delete()
-            db.session.commit()
+            #Orders.query.filter(Orders.id == killid).delete()
+            #db.session.commit()
 
-            #Now refranchise the Interchange Tickets just in Case they have Global Label:
-            idata = Interchange.query.filter( ((Interchange.Container == con) | (Interchange.Release == bk)) & (Interchange.Date > lbdate) ).all()
-            for idat in idata:
-                idat.Jo = odat.Jo
-                idat.Company = odat.BillTo
-                db.session.commit()
+            if 1 == 1:
+                #Now refranchise the Interchange Tickets just in Case they have Global Label:
+                idata = Interchange.query.filter( ((Interchange.Container == con) | (Interchange.Release == bk)) & (Interchange.Date > lbdate) ).all()
+                for idat in idata:
+                    idat.Jo = odat.Jo
+                    idat.Company = odat.BillTo
+                    db.session.commit()
 
     #Now see if there are trucking jobs of other companies that got mixed up with Global:
     tdat = Orders.query.filter( (Orders.id != jdat.id) & (Orders.Date > lbdate) & ((Orders.Booking == bk) | (Orders.Container == con)) ).first()
