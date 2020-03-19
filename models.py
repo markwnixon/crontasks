@@ -1202,8 +1202,9 @@ class Bills(db.Model):
     MemoList = db.Column('MemoList', db.String(200))
     PdateList = db.Column('PdateList', db.String(200))
     CheckList = db.Column('CheckList', db.String(200))
+    MethList = db.Column('MethList', db.String(200))
 
-    def __init__(self, Jo, Pid, Company, Memo, Description, bAmount, Status, Cache, Original, Ref, bDate, pDate, pAmount, pMulti, pAccount, bAccount, bType, bCat, bSubcat, Link, User, Co, Temp1, Temp2, Recurring, dDate, pAmount2, pDate2, Code1, Code2, CkCache, QBi, iflag, PmtList, PacctList, RefList, MemoList, PdateList, CheckList):
+    def __init__(self, Jo, Pid, Company, Memo, Description, bAmount, Status, Cache, Original, Ref, bDate, pDate, pAmount, pMulti, pAccount, bAccount, bType, bCat, bSubcat, Link, User, Co, Temp1, Temp2, Recurring, dDate, pAmount2, pDate2, Code1, Code2, CkCache, QBi, iflag, PmtList, PacctList, RefList, MemoList, PdateList, CheckList, MethList):
         self.Jo = Jo
         self.Pid = Pid
         self.Company = Company
@@ -1243,6 +1244,7 @@ class Bills(db.Model):
         self.MemoList = MemoList
         self.PdateList = PdateList
         self.CheckList = CheckList
+        self.MethList = MethList
 
     def Bal(self):
         try:
@@ -1253,11 +1255,7 @@ class Bills(db.Model):
             owe = float(self.bAmount)
         except:
             owe = 0.00
-        try:
-            paid2 = float(self.pAmount2)
-        except:
-            paid2 = 0.00
-        return nodollar(owe-paid-paid2)
+        return nodollar(owe-paid)
 
 
 
@@ -1374,11 +1372,10 @@ class Drivers(db.Model):
     Addr2= db.Column('Addr2', db.String(45))
     TwicExp= db.Column('TwicExp', db.String(45))
     TwicNum= db.Column('TwicNum', db.String(45))
-    DLState = db.Column('DLState', db.String(45))
 
 
     def __init__(self, Name, Truck, Tag, Email, Path, Phone, Start, End, Tagid, Cdl, Twic, Record, Med, Pin, DLnum, DLexp,
-                 DOB, Addr1, Addr2, TwicExp, TwicNum, DLState):
+                 DOB, Addr1, Addr2, TwicExp, TwicNum):
         self.Name = Name
         self.Truck = Truck
         self.Tag = Tag
@@ -1400,5 +1397,4 @@ class Drivers(db.Model):
         self.Addr2 = Addr2
         self.TwicExp = TwicExp
         self.TwicNum = TwicNum
-        self.DLState = DLState
         
