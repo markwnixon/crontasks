@@ -946,10 +946,11 @@ class Vehicles(db.Model):
     Odometer = db.Column('Odometer', db.String(25))
     Owner = db.Column('Owner', db.String(50))
     Status = db.Column('Status', db.String(25))
+    Transponder = db.Column('Transponder', db.String(45))
     ServStr = db.Column('StartedService', db.Date)
     ServStp = db.Column('StoppedService', db.Date)
 
-    def __init__(self, Unit, Year, Make, Model, Color, VIN, Title, Plate, EmpWeight, GrossWt, DOTNum, ExpDate, Odometer, Owner, Status, ServStr, ServStp):
+    def __init__(self, Unit, Year, Make, Model, Color, VIN, Title, Plate, EmpWeight, GrossWt, DOTNum, ExpDate, Odometer, Owner, Status, Transponder, ServStr, ServStp):
         self.Unit = Unit
         self.Year = Year
         self.Make = Make
@@ -965,6 +966,7 @@ class Vehicles(db.Model):
         self.Owner = Owner
         self.Odometer = Odometer
         self.Status = Status
+        self.Transponder = Transponder
         self.ServStr = ServStr
         self.ServStp = ServStp
 
@@ -1352,49 +1354,57 @@ class Drivers(db.Model):
     __tablename__ = 'drivers'
     id = db.Column('id', db.Integer, primary_key=True)
     Name = db.Column('Name', db.String(50))
-    Truck = db.Column('Truck', db.String(9))
-    Tag = db.Column('Tag', db.String(9))
-    Email = db.Column('Email', db.String(50))
-    Path = db.Column('Path', db.String(50))
-    Phone = db.Column('Phone', db.String(25))
-    Start = db.Column('Start',db.DateTime)
-    End = db.Column('End', db.DateTime)
-    Tagid = db.Column('Tagid', db.String(25))
-    Cdl = db.Column('Cdl', db.String(45))
-    Twic= db.Column('Twic', db.String(45))
-    Record = db.Column('Record', db.String(45))
-    Med= db.Column('Med', db.String(45))
-    Pin= db.Column('Pin', db.String(45))
-    DLnum= db.Column('DLnum', db.String(45))
-    DLexp= db.Column('DLexp', db.String(45))
-    DOB= db.Column('DOB', db.String(45))
     Addr1= db.Column('Addr1', db.String(45))
     Addr2= db.Column('Addr2', db.String(45))
-    TwicExp= db.Column('TwicExp', db.String(45))
-    TwicNum= db.Column('TwicNum', db.String(45))
+    Phone = db.Column('Phone', db.String(25))
+    Email = db.Column('Email', db.String(50))
+    Truck = db.Column('Truck', db.String(9))
+    Tag = db.Column('Tag', db.String(9))
+    ScanCDL = db.Column('ScanCDL', db.String(50))
+    ScanMed = db.Column('ScanMed', db.String(50))
+    ScanMVR = db.Column('ScanMVR', db.String(50))
+    ScanTwic = db.Column('ScanTwic', db.String(50))
+    JobStart = db.Column('JobStart',db.DateTime)
+    JobEnd = db.Column('JobEnd', db.DateTime)
+    Tagid = db.Column('Tagid', db.String(25))
+    Pin = db.Column('Pin', db.String(45))
+    CDLnum = db.Column('CDLnum', db.String(45))
+    CDLstate = db.Column('CDLstate', db.String(20))
+    CDLissue = db.Column('CDLissue', db.DateTime)
+    CDLexpire = db.Column('CDLexpire', db.DateTime)
+    DOB = db.Column('DOB', db.DateTime)
+    MedExpire = db.Column('MedExpire', db.DateTime)
+    TwicExpire = db.Column('TwicExpire', db.DateTime)
+    TwicNum = db.Column('TwicNum', db.String(45))
+    PreScreen = db.Column('PreScreen', db.DateTime)
+    LastTested = db.Column('LastTested', db.DateTime)
 
 
-    def __init__(self, Name, Truck, Tag, Email, Path, Phone, Start, End, Tagid, Cdl, Twic, Record, Med, Pin, DLnum, DLexp,
-                 DOB, Addr1, Addr2, TwicExp, TwicNum):
+    def __init__(self, Name, Addr1, Addr2, Phone, Email, Truck, Tag, ScanCDL, ScanMed, ScanMVR, ScanTwic, JobStart,
+                 JobEnd, Tagid, Pin, CDLnum, CDLstate, CDLissue, CDLexpire, DOB, MedExpire, TwicExpire, TwicNum,
+                 PreScreen, LastTested):
         self.Name = Name
-        self.Truck = Truck
-        self.Tag = Tag
-        self.Email = Email
-        self.Path = Path
-        self.Phone = Phone
-        self.Start = Start
-        self.End = End
-        self.Tagid = Tagid
-        self.Cdl = Cdl
-        self.Twic = Twic
-        self.Record = Record
-        self.Med = Med
-        self.Pin = Pin
-        self.DLnum = DLnum
-        self.DLexp = DLexp
-        self.DOB = DOB
         self.Addr1 = Addr1
         self.Addr2 = Addr2
-        self.TwicExp = TwicExp
+        self.Phone = Phone
+        self.Email = Email
+        self.Truck = Truck
+        self.Tag = Tag
+        self.ScanCDL = ScanCDL
+        self.ScanMed = ScanMed
+        self.ScanMVR = ScanMVR
+        self.ScanTwic = ScanTwic
+        self.JobStart = JobStart
+        self.JobEnd = JobEnd
+        self.Tagid = Tagid
+        self.Pin = Pin
+        self.CDLnun = CDLnum
+        self.CDLstate = CDLstate
+        self.CDLissue = CDLissue
+        self.CDLexpire = CDLexpire
+        self.DOB = DOB
+        self.MedExpire = MedExpire
+        self.TwicExpire = TwicExpire
         self.TwicNum = TwicNum
-        
+        self.PreScreen = PreScreen
+        self.LastTested = LastTested

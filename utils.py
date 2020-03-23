@@ -21,3 +21,7 @@ def d1s(instr):
     except:
         outstr = instr
     return outstr
+
+def avg(in1,in2):
+    out=(in1+in2)/2
+    return out
