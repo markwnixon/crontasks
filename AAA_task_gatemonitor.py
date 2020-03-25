@@ -27,7 +27,7 @@ print(' ')
 # enddates=['4/9/2019','4/10/2019','4/11/2019','4/12/2019','4/13/2019']#5pm
 
 
-def gatescraper(printif):
+def gatescraper(printif, dayback):
 
     username = usernames['gate']
     password = passwords['gate']
@@ -35,12 +35,12 @@ def gatescraper(printif):
 
     outpath = addpath3('interchange/')
     print('Entering Firefox') if printif == 1 else 1
-    yesterday = datetime.strftime(datetime.now() - timedelta(1), '%m/%d/%Y')
-    #todaystr = datetime.strftime(datetime.now() - timedelta(1), '%m/%d/%Y')
+    yesterday = datetime.strftime(datetime.now() - timedelta(dayback+1), '%m/%d/%Y')
+    todaystr = datetime.strftime(datetime.now() - timedelta(dayback), '%m/%d/%Y')
     today = datetime.today()
-    cutoff = datetime.now() - timedelta(10)
+    cutoff = datetime.now() - timedelta(30)
     cutoff = cutoff.date()
-    todaystr = datetime.today().strftime('%m/%d/%Y')
+    #todaystr = datetime.today().strftime('%m/%d/%Y')
     startdate = yesterday
     enddate = todaystr
     consets = []
@@ -204,7 +204,10 @@ def gatescraper(printif):
         browser.quit()
     return
 
+dayback = 1
+for ix in range(dayback+1):
+    gohere = dayback - ix
+    gatescraper(printif, gohere)
 
-gatescraper(printif)
 tunnel.stop()
 #sys.exit('Gatescraping completed and interchange insert executed...')
