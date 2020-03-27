@@ -13,7 +13,10 @@ cutoff = cutoff.date()
 #Attempt to Chain the Global Chassis
 
 gdata = Interchange.query.filter( (Interchange.Chassis == 'GBL Chassis') & (Interchange.Type.contains('out')) & (Interchange.Date > cutoff) ) .all()
-gdat = gdata[-1]
+try:
+    gdat = gdata[-1]
+except:
+    gdat = None
 if gdat is not None:
     next_container = gdat.Container
     print(f'Starting with Global Chassis Container {next_container}')
@@ -48,7 +51,10 @@ if gdat is not None:
 #Clean up our 20' chassis
 
 gdata = Interchange.query.filter( (Interchange.Chassis == 'FELA020') & (Interchange.Type.contains('out')) & (Interchange.Date > cutoff) ) .all()
-gdat = gdata[-1]
+try:
+    gdat = gdata[-1]
+except:
+    gdat = None
 if gdat is not None:
     lookback = gdat.Date
     idata = Interchange.query.filter( (Interchange.ConType.contains('20')) & (Interchange.Date >= lookback) ).all()
@@ -67,7 +73,10 @@ if gdat is not None:
 #Clean up our 40' chassis
 
 gdata = Interchange.query.filter( (Interchange.Chassis == 'FELA001') & (Interchange.Type.contains('out')) & (Interchange.Date > cutoff) ) .all()
-gdat = gdata[-1]
+try:
+    gdat = gdata[-1]
+except:
+    gdat = None
 if gdat is not None:
     lookback = gdat.Date
     idata = Interchange.query.filter( (Interchange.ConType.contains('40')) & (Interchange.Date >= lookback) ).all()
