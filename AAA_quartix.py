@@ -34,11 +34,11 @@ password = passwords['quartix']
 
 def driver_find(tdate,unit,driverid):
     driver = 'NAY'
-    ddat = Drivers.query.filter((Drivers.Start <= tdate) & (Drivers.End >= tdate) & (Drivers.Tagid == driverid)).first()
+    ddat = Drivers.query.filter((Drivers.JobStart <= tdate) & (Drivers.JobEnd >= tdate) & (Drivers.Tagid == driverid)).first()
     if ddat is not None:
         driver = ddat.Name
     else:
-        ddat = Drivers.query.filter( (Drivers.Start <= tdate) & (Drivers.End >= tdate) & (Drivers.Truck == unit)).first()
+        ddat = Drivers.query.filter( (Drivers.JobStart <= tdate) & (Drivers.JObEnd >= tdate) & (Drivers.Truck == unit)).first()
         if ddat is not None:
             driver = ddat.Name
     return driver
@@ -482,7 +482,7 @@ for jback in range(delta+1):
     didlist = []
     drlist = []
     # Date id tags began
-    ddata = Drivers.query.filter((Drivers.Start <= datehere) & (Drivers.End >= datehere)).all()
+    ddata = Drivers.query.filter((Drivers.JobStart <= datehere) & (Drivers.JobEnd >= datehere)).all()
     for dat in ddata:
         driver = dat.Name
         did = dat.Tagid
