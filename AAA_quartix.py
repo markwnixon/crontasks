@@ -38,7 +38,7 @@ def driver_find(tdate,unit,driverid):
     if ddat is not None:
         driver = ddat.Name
     else:
-        ddat = Drivers.query.filter( (Drivers.JobStart <= tdate) & (Drivers.JObEnd >= tdate) & (Drivers.Truck == unit)).first()
+        ddat = Drivers.query.filter( (Drivers.JobStart <= tdate) & (Drivers.JobEnd >= tdate) & (Drivers.Truck == unit)).first()
         if ddat is not None:
             driver = ddat.Name
     return driver

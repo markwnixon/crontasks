@@ -946,11 +946,12 @@ class Vehicles(db.Model):
     Odometer = db.Column('Odometer', db.String(25))
     Owner = db.Column('Owner', db.String(50))
     Status = db.Column('Status', db.String(25))
-    Transponder = db.Column('Transponder', db.String(45))
+    Ezpassxponder = db.Column('Transponder', db.String(45))
+    Portxponder = db.Column('Transponder', db.String(45))
     ServStr = db.Column('StartedService', db.Date)
     ServStp = db.Column('StoppedService', db.Date)
 
-    def __init__(self, Unit, Year, Make, Model, Color, VIN, Title, Plate, EmpWeight, GrossWt, DOTNum, ExpDate, Odometer, Owner, Status, Transponder, ServStr, ServStp):
+    def __init__(self, Unit, Year, Make, Model, Color, VIN, Title, Plate, EmpWeight, GrossWt, DOTNum, ExpDate, Odometer, Owner, Status, Ezpassxponder, Portxponder, ServStr, ServStp):
         self.Unit = Unit
         self.Year = Year
         self.Make = Make
@@ -966,7 +967,8 @@ class Vehicles(db.Model):
         self.Owner = Owner
         self.Odometer = Odometer
         self.Status = Status
-        self.Transponder = Transponder
+        self.Ezpassxponder = Ezpassxponder
+        self.Portxponder = Portxponder
         self.ServStr = ServStr
         self.ServStp = ServStp
 

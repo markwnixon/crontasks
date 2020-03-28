@@ -12,6 +12,8 @@ from page_merger import pagemerger,pagemergermp
 import shutil
 from utils import avg
 from PyPDF2 import PdfFileReader, PdfFileWriter
+import subprocess
+from models import Vehicles
 
 def reportmaker(type,ddata):
 
@@ -43,8 +45,10 @@ def reportmaker(type,ddata):
         file4 = addpath1(f'reports/hos.pdf')
         report_background(file2,'hos')
         report_headers(file3,'hos')
-        report_contents(file4,ddata,'hos')
-        docref=pagemerger([file1,file2,file3,file4])
+        pages,multioutput = report_contents(file4,ddata,'hos')
+
+        if len(pages) > 1:
+            docref=pagemergermp([file1,file2,file3,file4], pages, multioutput)
 
     return docref
 
@@ -108,6 +112,7 @@ def report_headers(file3, item):
     c.drawCentredString(rtm - 112.5, dateline + bump, 'Created')
     c.drawCentredString(rtm - 37.7, dateline + bump, 'Type')
 
+    vdat = Vehicles.query.filter(Vehicles.DOTNum != None).first()
     dh = 13
     top = level1 - dh
     lft = ltm + bump * 3
@@ -115,7 +120,7 @@ def report_headers(file3, item):
     header[0] = f'This Report Page is the {item.upper()}'
     header[1] = 'Information List for'
     header[2] = f'{cdata[0]}'
-    header[3] = ''
+    header[3] = f'DOT #{vdat.DOTNum}'
     header[4] = ''
     for ix in header:
         c.drawString(lft, top, ix)
@@ -173,11 +178,14 @@ def report_contents(file4,ddata,item):
 
     #Main Items Listing
     c.setFont('Helvetica-Bold',14,leading=None)
-    if item == 'drivers': c.drawString(45,550,'Active Driver Data')
-    if item == 'trucks': c.drawString(45,550,'Active Tractor Data')
-    if item == 'hos': c.drawString(45, 550, f'Hours of Service For Driver {ddata[0].Driver} Last 30 Days')
+    mid = int(ltm+rtm)/2
+    if item == 'drivers': c.drawCentredString(mid,535,'Active Driver Data')
+    if item == 'trucks': c.drawCentredString(mid,535,'Active DOT Truck Data')
+    if item == 'hos': c.drawCentredString(mid,535, f'Hours of Service For Driver Last 30 Days')
+    c.line(ltm, 550, rtm, 550)
+    c.line(ltm, 530, rtm, 530)
     c.setFont('Helvetica', 10, leading=None)
-    top = n2-dh
+    top = 510
     leftw1 = ltm+10
     leftw2 = ltm+120
     leftw3 = ltm+320
@@ -235,14 +243,41 @@ def report_contents(file4,ddata,item):
         c.drawString(leftw1, top, f"   {'Start Timestamp'}       {'Unit Start'}      {'End Timestamp'}       {'Unit End'}      {'Hours on Duty'}     {'Total Miles'}     {'Air Miles'}")
         top = top - dl * .9
         for dd in reversed(ddata):
-            c.drawString(leftw1, top, f'{dd.StartStamp}')
-            c.drawString(160, top, f'{dd.UnitStart}')
-            c.drawString(195, top, f'{dd.EndStamp}')
-            c.drawString(310, top, f'{dd.UnitStop}')
-            c.drawString(375, top, f'{dd.Hours}')
-            c.drawString(440, top, f'{dd.Miles}')
-            c.drawString(495, top, f'{dd.Radius}')
+            duty_hours = dd.Shift
+            try:
+                hrs = float(duty_hours)
+            except:
+                hrs = 0.0
+            if hrs > 12.0 and hrs < 12.25: hrs = 12.0
+
+            airmiles = dd.Rdist
+            try:
+                airmiles = float(airmiles)
+            except:
+                airmiles = 0.0
+
+            logmiles = dd.Distance
+            try:
+                logmiles = float(logmiles)
+            except:
+                logmiles = 0.0
+
+            if hrs > 1.0:
+                if hrs > 12.0 or airmiles > 100:
+                    exempt = 'Paper Log'
+                else:
+                    exempt = '100 mile exemption'
+
+            c.drawString(leftw1, top, f'{dd.GPSin}')
+            c.drawString(160, top, f'{dd.Unit}')
+            c.drawString(195, top, f'{dd.GPSout}')
+            c.drawString(310, top, f'{dd.Unit}')
+            c.drawString(375, top, f'{dd.Shift}')
+            c.drawString(440, top, f'{dd.Distance}')
+            c.drawString(495, top, f'{dd.Rdist}')
             top = top - dl*.7
+            c.drawString(leftw1, top, f'Started: {dd.Locationstart}')
+            top = top - dl* 1.5
 
             if top < n3:
                 c.showPage()
@@ -254,6 +289,8 @@ def report_contents(file4,ddata,item):
                 c = canvas.Canvas(newfile, pagesize=letter)
                 pages.append(newfile)
 
+
+
     c.showPage()
     c.save()
 
@@ -261,7 +298,7 @@ def report_contents(file4,ddata,item):
         pdfcommand=['pdfunite']
         for page in pages:
             pdfcommand.append(page)
-        multioutput=addpath(f'reports/multioutput'+'.pdf')
+        multioutput=addpath1(f'reports/multioutput'+'.pdf')
         pdfcommand.append(multioutput)
         tes=subprocess.check_output(pdfcommand)
     else:
@@ -370,7 +407,7 @@ def pagemergermp(filelist, pages, multioutput):
         if j == 0:
             firstfile = filelist[0]
         else:
-            firstfile = addpath(f'reports/temp'+str(j-1)+'.pdf')
+            firstfile = addpath1(f'reports/temp'+str(j-1)+'.pdf')
 
         reader = PdfFileReader(open(firstfile, 'rb'))
         first_page = reader.getPage(0)
@@ -387,9 +424,9 @@ def pagemergermp(filelist, pages, multioutput):
         writer.addPage(sup_page)
 
         if j == lfs-1:
-            outfile = addpath(f'reports/report.pdf')
+            outfile = addpath1(f'reports/reportx.pdf')
         else:
-            outfile = addpath(f'reports/temp'+str(j)+'.pdf')
+            outfile = addpath1(f'reports/temp'+str(j)+'.pdf')
 
         print('lfs and j are:', j, lfs)
         print('firstfile=', firstfile)
@@ -405,7 +442,8 @@ def pagemergermp(filelist, pages, multioutput):
     # Now place the mulitpage content on this file for each page and assemble
     newpages = []
     for j, page in enumerate(pages):
-        reader = PdfFileReader(open(outfile, 'rb'))
+        print('outfilehere=', firstfile)
+        reader = PdfFileReader(open(firstfile, 'rb'))
         first_page = reader.getPage(0)
 
         sup_reader = PdfFileReader(open(multioutput, 'rb'))
@@ -415,7 +453,7 @@ def pagemergermp(filelist, pages, multioutput):
         writer = PdfFileWriter()
         writer.addPage(sup_page)
 
-        newoutfile = addpath2('multipage'+str(j)+'.pdf')
+        newoutfile = addpath1('reports/multipage'+str(j)+'.pdf')
         with open(newoutfile, 'wb') as f:
             writer.write(f)
 
@@ -424,12 +462,13 @@ def pagemergermp(filelist, pages, multioutput):
 
     pdfcommand = ['pdfunite']
     for page in newpages:
+        print('page is:',page)
         pdfcommand.append(page)
-    newmultioutput = addpath(f'reports/newmultioutput'+'.pdf')
+    newmultioutput = addpath1(f'reports/newmultioutput'+'.pdf')
     pdfcommand.append(newmultioutput)
     tes = subprocess.check_output(pdfcommand)
 
     docref = f'reports/report.pdf'
-    shutil.move(newmultioutput, addpath(docref))
+    shutil.copy(newmultioutput, addpath1(docref))
 
     return docref

@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 from CCC_system_setup import scac, addpath1
 from remote_db_connect import tunnel, db
-from models import Drivers, Vehicles, DriverAssign
+from models import Drivers, Vehicles, DriverAssign, Trucklog
 from cron_report_maker import reportmaker
+from utils import d2s, d1s
 import shutil
 from PyPDF2 import PdfFileMerger
 from PyPDF2 import PdfFileReader, PdfFileWriter
@@ -28,11 +29,13 @@ def mergerbook(pdfs,bookmarks):
         output_pdf_file.close()
 
 
-printif = 0
+printif = 1
 
 runat = datetime.now()
 today = runat.date()
 lookback = runat - timedelta(30)
+cut60 = runat - timedelta(60)
+cut90 = runat - timedelta(90)
 lbdate = lookback.date()
 print(' ')
 print('________________________________________________________')
@@ -40,15 +43,21 @@ print(f'This sequence run at {runat} with look back to {lbdate}')
 print('________________________________________________________')
 print(' ')
 
+
 dnames = []
 ddata = Drivers.query.filter(Drivers.JobEnd > today).all()
 for dd in ddata:
     dnames.append(dd.Name)
     print(f'Creating profile for {dd.Name}')
 
-tdata = Vehicles.query.all()
+tdata = Vehicles.query.filter(Vehicles.DOTNum != None).all()
 for td in tdata:
     print(f'Creating profile for {td.Unit}')
+
+summarypage = addpath1('reports/summary.pdf')
+docref = reportmaker('summary',sumdata)
+shutil.move(docref, fd)
+
 
 fd = addpath1('reports/driverlist.pdf')
 #Makes a list of the drivers and a 1-page summary for each driver
@@ -64,39 +73,70 @@ bookmarks = ['Driver List','Trucks List']
 
 fhose = []
 for dname in dnames:
-    drvassign = DriverAssign.query.filter( (DriverAssign.Driver == dname) & (DriverAssign.Hours != None )).all()
-    drvassign = drvassign[-30:]
-    for drv in drvassign:
-        print(drv.Driver,drv.Date)
-    fhos = addpath1(f'reports/hos_{dname}.pdf')
-    fhose.append(fhos)
-    docref = reportmaker('hos', drvassign)
-    shutil.move(docref, fhos)
-    drv_leader = f'reports/{dname}.pdf'
-    drv_leader = drv_leader.replace(' ','_')
-    drv_leader = addpath1(drv_leader)
-    pdfs.append(drv_leader)
-    pdfs.append(fhos)
-    bookmarks.append(f'{dname}')
-    bookmarks.append(f'{dname} Hours of Service')
+    tlogs = Trucklog.query.filter( (Trucklog.DriverStart == dname) & (Trucklog.Date > cut60 )).all()
+    try:
+        #get last 30 times in truck
+        tlogs = tlogs[-30:]
+    except:
+        print('Tlogs shorter than 30')
 
+    for tlog in reversed(tlogs):
+        duty_hours = tlog.Shift
+        try:
+            hrs = float(duty_hours)
+        except:
+            hrs = 0.0
+        if hrs > 12.0 and hrs < 12.25: hrs = 12.0
 
-print(pdfs)
-print(bookmarks)
+        airmiles = tlog.Rdist
+        try:
+            airmiles = float(airmiles)
+        except:
+            airmiles = 0.0
 
-bookmark = 1
-#Assemble the full report
-if bookmark == 0:
+        logmiles = tlog.Distance
+        try:
+            logmiles = float(logmiles)
+        except:
+            logmiles = 0.0
 
-    merger = PdfFileMerger()
-    for pdf in pdfs:
-        merger.append(pdf)
+        if hrs > 1.0:
+            if hrs > 12.0 or airmiles > 100:
+                exempt = 'Paper Log'
+            else:
+                exempt = '100 mile exemption'
+            print(tlog.Date,tlog.DriverStart,tlog.Unit,tlog.Tag,tlog.GPSin,tlog.GPSout,d2s(hrs),exempt)
 
-    merger.write(addpath1('reports/fmcsa.pdf'))
-    merger.close()
+    if printif == 1:
+        fhos = addpath1(f'reports/hos_{dname}.pdf')
+        fhose.append(fhos)
+        docref = reportmaker('hos', tlogs)
+        shutil.move(docref, fhos)
+        drv_leader = f'reports/{dname}_Summary.pdf'
+        drv_leader = drv_leader.replace(' ','_')
+        drv_leader = addpath1(drv_leader)
+        pdfs.append(drv_leader)
+        pdfs.append(fhos)
+        bookmarks.append(f'{dname}')
+        bookmarks.append(f'{dname} Hours of Service')
 
-else:
-    mergerbook(pdfs,bookmarks)
+if printif == 1:
+    print(pdfs)
+    print(bookmarks)
+
+    bookmark = 1
+    #Assemble the full report
+    if bookmark == 0:
+
+        merger = PdfFileMerger()
+        for pdf in pdfs:
+            merger.append(pdf)
+
+        merger.write(addpath1('reports/fmcsa.pdf'))
+        merger.close()
+
+    else:
+        mergerbook(pdfs,bookmarks)
 
 
 
