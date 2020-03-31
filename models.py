@@ -21,6 +21,24 @@ class users(db.Model):
     password = db.Column(db.String(100))
     register_date = db.Column(db.DateTime)
 
+class KeyInfo(db.Model):
+    __tablename__ = 'keyinformation'
+    id = db.Column('id', db.Integer, primary_key=True)
+    Type = db.Column('Type', db.String(45))
+    Name = db.Column('Name', db.String(45))
+    Description = db.Column('Description', db.String(400))
+    Person = db.Column('Person', db.String(45))
+    Phone = db.Column('Phone', db.String(45))
+    Email = db.Column('Email', db.String(45))
+
+    def __init__(self, Type, Name, Description, Person, Phone, Email):
+        self.Type = Type
+        self.Name = Name
+        self.Description = Description
+        self.Person = Person
+        self.Phone = Phone
+        self.Email = Email
+
 
 class ChalkBoard(db.Model):
     __tablename__ = 'chalkboard'
@@ -168,6 +186,21 @@ class Broll(db.Model):
         self.C23  = C23
         self.C24  = C24
 
+class Tolls(db.Model):
+    __tablename__ = 'tolls'
+    id = db.Column('id', db.Integer, primary_key=True)
+    Date = db.Column('Date', db.DateTime)
+    Datetm = db.Column('Datetm', db.DateTime)
+    Plaza = db.Column('Plaza', db.String(25))
+    Amount = db.Column('Amount', db.String(25))
+    Unit = db.Column('Unit', db.String(25))
+
+    def __init__(self, Date, Datetm, Plaza, Amount, Unit):
+        self.Date = Date
+        self.Datetm = Datetm
+        self.Plaza = Plaza
+        self.Amount = Amount
+        self.Unit = Unit
 
 class Chassis(db.Model):
     __tablename__ = 'chassis'
@@ -887,7 +920,6 @@ class Autos(db.Model):
         self.Hjo = Hjo
 
 
-
 class Bookings(db.Model):
     __tablename__ = 'bookings'
     id = db.Column('id', db.Integer, primary_key=True)
@@ -946,8 +978,8 @@ class Vehicles(db.Model):
     Odometer = db.Column('Odometer', db.String(25))
     Owner = db.Column('Owner', db.String(50))
     Status = db.Column('Status', db.String(25))
-    Ezpassxponder = db.Column('Transponder', db.String(45))
-    Portxponder = db.Column('Transponder', db.String(45))
+    Ezpassxponder = db.Column('Ezpassxponder', db.String(45))
+    Portxponder = db.Column('Portxponder', db.String(45))
     ServStr = db.Column('StartedService', db.Date)
     ServStp = db.Column('StoppedService', db.Date)
 

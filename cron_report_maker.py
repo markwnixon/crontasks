@@ -7,13 +7,14 @@ from reportlab.lib.units import inch
 import csv
 import math
 import datetime
-from CCC_system_setup import myoslist, addpath1, addtxt, bankdata, scac, logoi, companydata
+from CCC_system_setup import myoslist, addpath1, addtxt, bankdata, scac, logoi, companydata, websites, addpath3
 from page_merger import pagemerger,pagemergermp
 import shutil
-from utils import avg
+from utils import avg, parseline
 from PyPDF2 import PdfFileReader, PdfFileWriter
 import subprocess
-from models import Vehicles
+from models import Vehicles, Interchange
+import os
 
 def reportmaker(type,ddata):
 
@@ -26,6 +27,13 @@ def reportmaker(type,ddata):
     c.drawImage(logoi, 185, 680, mask='auto')
     c.showPage()
     c.save()
+
+    if type=='summary':
+        file4 = addpath1(f'reports/summary.pdf')
+        report_background(file2,'summary')
+        report_headers(file3,'summary')
+        report_contents(file4,ddata,'summary')
+        docref=pagemerger([file1,file2,file3,file4])
 
     if type=='driverlist':
         file4 = addpath1(f'reports/driverlist.pdf')
@@ -45,10 +53,11 @@ def reportmaker(type,ddata):
         file4 = addpath1(f'reports/hos.pdf')
         report_background(file2,'hos')
         report_headers(file3,'hos')
-        pages,multioutput = report_contents(file4,ddata,'hos')
+        pages,multioutput,valpdfs = report_contents(file4,ddata,'hos')
 
         if len(pages) > 1:
             docref=pagemergermp([file1,file2,file3,file4], pages, multioutput)
+        return docref, valpdfs
 
     return docref
 
@@ -179,17 +188,40 @@ def report_contents(file4,ddata,item):
     #Main Items Listing
     c.setFont('Helvetica-Bold',14,leading=None)
     mid = int(ltm+rtm)/2
+    if item == 'summary': c.drawCentredString(mid, 535, 'Introduction')
     if item == 'drivers': c.drawCentredString(mid,535,'Active Driver Data')
     if item == 'trucks': c.drawCentredString(mid,535,'Active DOT Truck Data')
-    if item == 'hos': c.drawCentredString(mid,535, f'Hours of Service For Driver Last 30 Days')
+    if item == 'hos': c.drawCentredString(mid,535, f'Hours of Service For Driver {ddata[0].DriverStart} Last 30 Drive Days')
     c.line(ltm, 550, rtm, 550)
     c.line(ltm, 530, rtm, 530)
     c.setFont('Helvetica', 10, leading=None)
     top = 510
     leftw1 = ltm+10
-    leftw2 = ltm+120
+    leftw2 = ltm+110
     leftw3 = ltm+320
     leftw4 = ltm+490
+    if item == 'summary':
+        presents = ['overview', 'focus', 'truckstart', 'logging', 'rod', 'maintenance', 'testing', 'accidents']
+        for present in presents:
+            for dd in ddata:
+                if dd.Type == present:
+                    c.drawString(leftw1,top, dd.Type.title())
+                    slist = parseline(dd.Description,90)
+                    for sl in slist:
+                        c.drawString(leftw2, top, sl)
+                        top = top - dl*.9
+                    top = top - dl*.5
+
+                    if top<n3:
+                        c.showPage()
+                        c.save()
+                        page=page+1
+                        base=file4.replace('.pdf','')
+                        newfile=base+'page'+str(page)+'.pdf'
+                        top = n2-dh
+                        c=canvas.Canvas(newfile, pagesize=letter)
+                        pages.append(newfile)
+
     if item == 'drivers':
         for dd in ddata:
             c.drawString(leftw1,top, dd.Name)
@@ -226,7 +258,7 @@ def report_contents(file4,ddata,item):
             top = top - dl
             c.drawString(leftw2, top, f'MD Title: {dd.Title}  EmptyWt: {dd.EmpWeight}  GrossWt: {dd.GrossWt}')
             top = top - dl
-            c.drawString(leftw2, top, f'EzPass Transponder:  {dd.Transponder}  Port Transponer:')
+            c.drawString(leftw2, top, f'EzPass Transponder:  {dd.Ezpassxponder}  Port Transponer:  {dd.Portxponder}')
             top = top - dl * 2
 
             if top < n3:
@@ -240,8 +272,13 @@ def report_contents(file4,ddata,item):
                 pages.append(newfile)
 
     if item == 'hos':
-        c.drawString(leftw1, top, f"   {'Start Timestamp'}       {'Unit Start'}      {'End Timestamp'}       {'Unit End'}      {'Hours on Duty'}     {'Total Miles'}     {'Air Miles'}")
+        top = 530
+        leftw1 = ltm + 10
+        leftw2 = ltm + 170
+        leftw3 = ltm + 220
+        c.setFont('Helvetica', 10, leading=None)
         top = top - dl * .9
+        valpdfs = []
         for dd in reversed(ddata):
             duty_hours = dd.Shift
             try:
@@ -264,20 +301,68 @@ def report_contents(file4,ddata,item):
 
             if hrs > 1.0:
                 if hrs > 12.0 or airmiles > 100:
-                    exempt = 'Paper Log'
+                    if hrs > 12.0 and airmiles < 100:  exempt = 'Paper Log  **Shift hours exceed 12.0**'
+                    if hrs < 12.0 and airmiles > 100:  exempt = 'Paper Log **Airmiles exceed 100.0**'
+                    if hrs > 12.0 and airmiles > 100:  exempt = 'Paper Log  **Shift hours exceed 12.0 and Airmiles exceed 100.0**'
                 else:
                     exempt = '100 mile exemption'
 
-            c.drawString(leftw1, top, f'{dd.GPSin}')
-            c.drawString(160, top, f'{dd.Unit}')
-            c.drawString(195, top, f'{dd.GPSout}')
-            c.drawString(310, top, f'{dd.Unit}')
-            c.drawString(375, top, f'{dd.Shift}')
-            c.drawString(440, top, f'{dd.Distance}')
-            c.drawString(495, top, f'{dd.Rdist}')
-            top = top - dl*.7
-            c.drawString(leftw1, top, f'Started: {dd.Locationstart}')
-            top = top - dl* 1.5
+            thisdate = dd.GPSin
+            thisdate = thisdate.date()
+            c.drawString(leftw1, top, f'Shift Start: {dd.GPSin}')
+            c.drawString(leftw2, top, f'Unit {dd.Unit}')
+            c.drawString(leftw3, top, f'{dd.Locationstart}')
+            top = top - dl * .7
+            c.drawString(leftw1, top, f'Shift End : {dd.GPSout}')
+            c.drawString(leftw2, top, f'Unit {dd.Unit}')
+            c.drawString(leftw3, top, f'{dd.Locationstop}')
+            top = top - dl * .7
+            c.drawString(leftw1, top, f'Duty Hours/Miles: {hrs} / {dd.Distance}')
+            c.drawString(leftw2, top, f'Farthest Dist/Loc:{dd.Rdist} / {dd.Rloc}')
+            top = top - dl * .7
+            c.drawString(leftw1, top, f'Logging: {exempt}')
+            top = top - dl* 1.2
+
+            tdat = Vehicles.query.filter(Vehicles.Unit == dd.Unit).first()
+            plate = tdat.Plate
+            valticket = Interchange.query.filter( (Interchange.Date == thisdate) & (Interchange.TruckNumber == plate)).all()
+            first = 0
+            last = 0
+            for ix, val in enumerate(valticket):
+                if ix == 0:
+                    tlist = val.Time.split(':')
+                    firsttime = int(tlist[0])
+                    lasttime = firsttime
+                else:
+                    tlist = val.Time.split(':')
+                    thistime = int(tlist[0])
+                    if thistime < firsttime:
+                        first = ix
+                        firsttime = thistime
+                    elif thistime >= lasttime:
+                        last = ix
+                        lasttime = thistime
+
+            for ix, val in enumerate(valticket):
+
+                if ix == first or ix == last:
+                    placefile = addpath3(f'interchange/{val.Original}')
+
+                    if os.path.isfile(placefile):
+                        print(f'Have interchange ticket for {thisdate} {plate}')
+                    else:
+                        pythonline = websites['ssh_data'] + f'vinterchange/{val.Original}'
+                        placefile = addpath3(f'interchange/{val.Original}')
+                        copyline1 = f'scp {pythonline} {placefile}'
+                        print(copyline1)
+                        os.system(copyline1)
+
+                    if ix == first: placefile1 = placefile
+                    if ix == last: placefile2 = placefile
+
+            blendfile = addpath3(f'interchange/BLEND_{val.Original}')
+            blendticks(placefile1,placefile2, blendfile)
+            valpdfs.append(blendfile)
 
             if top < n3:
                 c.showPage()
@@ -287,6 +372,10 @@ def report_contents(file4,ddata,item):
                 newfile = base + 'page' + str(page) + '.pdf'
                 top = n2 - dh
                 c = canvas.Canvas(newfile, pagesize=letter)
+                c.drawCentredString(mid, 535, f'Hours of Service For Driver {dd.DriverStart} Last 30 Drive Days (cont.)')
+                c.line(ltm, 550, rtm, 550)
+                c.line(ltm, 530, rtm, 530)
+                c.setFont('Helvetica', 10, leading=None)
                 pages.append(newfile)
 
 
@@ -304,7 +393,10 @@ def report_contents(file4,ddata,item):
     else:
         multioutput=''
 
-    return pages,multioutput
+    if item == 'hos':
+        return pages, multioutput, valpdfs
+    else:
+        return pages, multioutput
 
 def pagemerger(filelist):
 
@@ -472,3 +564,28 @@ def pagemergermp(filelist, pages, multioutput):
     shutil.copy(newmultioutput, addpath1(docref))
 
     return docref
+
+def blendticks(gfile1,gfile2,outfile):
+
+    reader1 = PdfFileReader(open(gfile1, 'rb'))
+    p1 = reader1.getPage(0)
+
+    reader2 = PdfFileReader(open(gfile2, 'rb'))
+    p2 = reader2.getPage(0)
+    #p2.cropBox.lowerLeft = (50,400)
+    #p2.cropBox.upperRight = (600,700)
+
+    #offset_x = p2.mediaBox[2]
+    offset_x = 0
+    offset_y = -280
+
+    # add second page to first one
+    p1.mergeTranslatedPage(p2, offset_x, offset_y, expand=False)
+    p1.cropBox.lowerLeft = (50,250)
+    p1.cropBox.upperRight = (550,800)
+
+    output = PdfFileWriter()
+    output.addPage(p1)
+
+    with open(outfile, "wb") as out_f:
+        output.write(out_f)

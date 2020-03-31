@@ -1,3 +1,7 @@
+from CCC_system_setup import scac, mycompany, usernames, passwords, websites
+from remote_db_connect import tunnel, db
+from models import Tolls, Vehicles
+
 import time
 import datetime
 import os
@@ -11,20 +15,9 @@ from random import randint
 from pytesseract import image_to_string
 from PIL import Image
 
-from statistics import mean
-from CCC_system_setup import mycompany, usernames, passwords, websites
-
-co = mycompany()
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Tolls, Vehicles
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Tolls
-
-tdata = Vehicles.query.filter(Vehicles.Transponder != None).all()
+tdata = Vehicles.query.filter(Vehicles.Ezpassxponder != None).all()
 for tdat in tdata:
-    print(tdat.Unit, tdat.Transponder)
+    print(tdat.Unit, tdat.Ezpassxponder)
 
 
 printif = 0
@@ -73,12 +66,13 @@ with Display():
 
     # Select a tolls cutoff date
     # Uncomment these lines as needed to search way back:
-    #startdate = datetime.datetime(2019, 1, 1)
-    #enddate = startdate + datetime.timedelta(7)
+    #startdate = datetime.datetime(2020, 1, 1)
+    #enddate = startdate + datetime.timedelta(7)message
 
     #Use these lines for daily updates script
     enddate = datetime.datetime.today()
-    startdate = enddate - datetime.timedelta(4)
+    startdate = enddate - datetime.timedelta(7)
+
     if enddate > datetime.datetime.today():
         enddate = datetime.datetime.today()
     sdate, edate = startdate.date(), enddate.date()
@@ -88,7 +82,7 @@ with Display():
 
         for tdat in tdata:
             unit = tdat.Unit
-            tran = tdat.Transponder
+            tran = tdat.Ezpassxponder
 
             # Default for website is posting date.  Have to use posting date for daily updates
             # Because it takes so long for some transaction to post

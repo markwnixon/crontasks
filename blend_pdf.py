@@ -2,8 +2,6 @@ from PyPDF2 import PdfFileReader, PdfFileWriter, PdfFileMerger
 from PyPDF2.pdf import PageObject
 from CCC_system_setup import addpath, addpath2, addtxt, scac
 
-g1 =
-
 def blendticks(g1,g2):
     cnum = g1.split('_')[0]
     if len(cnum) == 11:

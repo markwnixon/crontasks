@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from CCC_system_setup import scac, addpath1
 from remote_db_connect import tunnel, db
-from models import Drivers, Vehicles, DriverAssign, Trucklog
+from models import Drivers, Vehicles, DriverAssign, Trucklog, KeyInfo
 from cron_report_maker import reportmaker
 from utils import d2s, d1s
 import shutil
@@ -54,10 +54,10 @@ tdata = Vehicles.query.filter(Vehicles.DOTNum != None).all()
 for td in tdata:
     print(f'Creating profile for {td.Unit}')
 
-summarypage = addpath1('reports/summary.pdf')
+sumdata = KeyInfo.query.all()
+sp = addpath1('reports/summary.pdf')
 docref = reportmaker('summary',sumdata)
-shutil.move(docref, fd)
-
+shutil.move(docref, sp)
 
 fd = addpath1('reports/driverlist.pdf')
 #Makes a list of the drivers and a 1-page summary for each driver
@@ -68,8 +68,8 @@ ft = addpath1('reports/trucklist.pdf')
 docref = reportmaker('trucklist',tdata)
 shutil.move(docref, ft)
 
-pdfs = [fd,ft]
-bookmarks = ['Driver List','Trucks List']
+pdfs = [sp, fd, ft]
+bookmarks = ['Introduction', 'Driver List','Trucks List']
 
 fhose = []
 for dname in dnames:
@@ -110,15 +110,25 @@ for dname in dnames:
     if printif == 1:
         fhos = addpath1(f'reports/hos_{dname}.pdf')
         fhose.append(fhos)
-        docref = reportmaker('hos', tlogs)
+        docref, valpdfs = reportmaker('hos', tlogs)
         shutil.move(docref, fhos)
         drv_leader = f'reports/{dname}_Summary.pdf'
         drv_leader = drv_leader.replace(' ','_')
         drv_leader = addpath1(drv_leader)
         pdfs.append(drv_leader)
         pdfs.append(fhos)
+
+        #Assemble the proofs:
+        merger = PdfFileMerger()
+        pfile = addpath1(f'reports/{dname}_proofs.pdf')
+        for val in valpdfs:
+            merger.append(val)
+        merger.write(pfile)
+        merger.close()
+        pdfs.append(pfile)
         bookmarks.append(f'{dname}')
         bookmarks.append(f'{dname} Hours of Service')
+        bookmarks.append(f'{dname} HOS Support Docs')
 
 if printif == 1:
     print(pdfs)
