@@ -6,17 +6,20 @@ from reportlab.platypus import Image
 from reportlab.lib.units import inch
 import csv
 import math
-import datetime
+from datetime import datetime, timedelta
 from CCC_system_setup import myoslist, addpath1, addtxt, bankdata, scac, logoi, companydata, websites, addpath3
 from page_merger import pagemerger,pagemergermp
 import shutil
 from utils import avg, parseline
 from PyPDF2 import PdfFileReader, PdfFileWriter
 import subprocess
-from models import Vehicles, Interchange
+from models import Vehicles, Interchange, Tolls, KeyInfo, Drivers, Trucklog
 import os
 
-def reportmaker(type,ddata):
+runat = datetime.now()
+today = runat.date()
+
+def reportmaker(fp, type):
 
     file1=addpath1(f'reports/pagestart.pdf')
     file2=addpath1(f'reports/background.pdf')
@@ -28,39 +31,51 @@ def reportmaker(type,ddata):
     c.showPage()
     c.save()
 
-    if type=='summary':
-        file4 = addpath1(f'reports/summary.pdf')
-        report_background(file2,'summary')
-        report_headers(file3,'summary')
-        report_contents(file4,ddata,'summary')
-        docref=pagemerger([file1,file2,file3,file4])
+    if type=='introduction':
+        report_background(file2,'introduction')
+        report_headers(file3,'introduction')
+        report_contents(fp,'introduction')
+        docref=pagemerger([file1,file2,file3,fp])
 
-    if type=='driverlist':
+    if type=='driver_list':
         file4 = addpath1(f'reports/driverlist.pdf')
         report_background(file2,'drivers')
         report_headers(file3,'drivers')
-        report_contents(file4,ddata,'drivers')
-        docref=pagemerger([file1,file2,file3,file4])
+        report_contents(fp,'drivers')
+        docref=pagemerger([file1,file2,file3,fp])
 
-    if type=='trucklist':
+    if type=='truck_list':
         file4 = addpath1(f'reports/trucklist.pdf')
         report_background(file2,'trucks')
         report_headers(file3,'trucks')
-        report_contents(file4,ddata,'trucks')
-        docref=pagemerger([file1,file2,file3,file4])
-
-    if type=='hos':
-        file4 = addpath1(f'reports/hos.pdf')
-        report_background(file2,'hos')
-        report_headers(file3,'hos')
-        pages,multioutput,valpdfs = report_contents(file4,ddata,'hos')
-
-        if len(pages) > 1:
-            docref=pagemergermp([file1,file2,file3,file4], pages, multioutput)
-        return docref, valpdfs
+        report_contents(fp,'trucks')
+        docref=pagemerger([file1,file2,file3,fp])
 
     return docref
 
+def subreportmaker(fp, type, each, subtype):
+
+    file1=addpath1(f'reports/pagestart.pdf')
+    file2=addpath1(f'reports/background.pdf')
+    file3=addpath1(f'reports/headers.pdf')
+
+    c=canvas.Canvas(file1, pagesize=letter)
+    c.setLineWidth(1)
+    c.drawImage(logoi, 185, 680, mask='auto')
+    c.showPage()
+    c.save()
+
+    if subtype == 'hos' or subtype == 'hosval':
+        report_background(file2,subtype)
+        report_headers(file3,subtype)
+        pages, multioutput = subreport_contents(fp,type,each,subtype)
+        if len(pages) > 1:
+            docref=pagemergermp([file1,file2,file3,fp], pages, multioutput)
+        else:
+            docref = pagemerger([file1, file2, file3, fp])
+        return docref
+    else:
+        return None
 
 
 
@@ -100,8 +115,8 @@ def report_background(file2,item):
 
 def report_headers(file3, item):
     cdata = companydata()
-    today = datetime.datetime.today().strftime('%m/%d/%Y')
-    invodate = datetime.date.today().strftime('%m/%d/%Y')
+    today = datetime.today().strftime('%m/%d/%Y')
+    invodate = datetime.today().strftime('%m/%d/%Y')
     ltm, rtm, bump, tb, ctrall, left_ctr, right_ctr, dl, dh, tdl, hls, m1, m2, m3, m4, m5, m6, m7, n1, n2, n3 = reportsettings(
         1)
 
@@ -176,7 +191,7 @@ def reportsettings(squeeze):
     return ltm,rtm,bump,tb,ctrall,left_ctr,right_ctr,dl,dh,tdl,hls,m1,m2,m3,m4,m5,m6,m7,n1,n2,n3
 
 
-def report_contents(file4,ddata,item):
+def report_contents(file4,item):
 
     ltm,rtm,bump,tb,ctrall,left_ctr,right_ctr,dl,dh,tdl,hls,m1,m2,m3,m4,m5,m6,m7,n1,n2,n3=reportsettings(1)
 
@@ -188,10 +203,11 @@ def report_contents(file4,ddata,item):
     #Main Items Listing
     c.setFont('Helvetica-Bold',14,leading=None)
     mid = int(ltm+rtm)/2
-    if item == 'summary': c.drawCentredString(mid, 535, 'Introduction')
-    if item == 'drivers': c.drawCentredString(mid,535,'Active Driver Data')
+
+
+    if item == 'drivers':
+        c.drawCentredString(mid,535,'Active Driver Data')
     if item == 'trucks': c.drawCentredString(mid,535,'Active DOT Truck Data')
-    if item == 'hos': c.drawCentredString(mid,535, f'Hours of Service For Driver {ddata[0].DriverStart} Last 30 Drive Days')
     c.line(ltm, 550, rtm, 550)
     c.line(ltm, 530, rtm, 530)
     c.setFont('Helvetica', 10, leading=None)
@@ -200,7 +216,11 @@ def report_contents(file4,ddata,item):
     leftw2 = ltm+110
     leftw3 = ltm+320
     leftw4 = ltm+490
-    if item == 'summary':
+
+
+    if item == 'introduction':
+        c.drawCentredString(mid, 535, 'Introduction')
+        ddata = KeyInfo.query.all()
         presents = ['overview', 'focus', 'truckstart', 'logging', 'rod', 'maintenance', 'testing', 'accidents']
         for present in presents:
             for dd in ddata:
@@ -223,6 +243,7 @@ def report_contents(file4,ddata,item):
                         pages.append(newfile)
 
     if item == 'drivers':
+        ddata = Drivers.query.filter(Drivers.JobEnd > today).all()
         for dd in ddata:
             c.drawString(leftw1,top, dd.Name)
             c.drawString(leftw2, top, f'{dd.Addr1},  {dd.Addr2}')
@@ -250,6 +271,7 @@ def report_contents(file4,ddata,item):
                 pages.append(newfile)
 
     if item == 'trucks':
+        ddata = Vehicles.query.filter(Vehicles.DOTNum != None).all()
         for dd in ddata:
             c.drawString(leftw1, top, f'Unit #{dd.Unit}')
             c.drawString(leftw2, top, f'{dd.Year} {dd.Make} {dd.Model}  Place in Service:{dd.ServStr}')
@@ -271,98 +293,48 @@ def report_contents(file4,ddata,item):
                 c = canvas.Canvas(newfile, pagesize=letter)
                 pages.append(newfile)
 
-    if item == 'hos':
-        top = 530
-        leftw1 = ltm + 10
-        leftw2 = ltm + 170
-        leftw3 = ltm + 220
-        c.setFont('Helvetica', 10, leading=None)
-        top = top - dl * .9
-        valpdfs = []
-        for dd in reversed(ddata):
-            duty_hours = dd.Shift
-            try:
-                hrs = float(duty_hours)
-            except:
-                hrs = 0.0
-            if hrs > 12.0 and hrs < 12.25: hrs = 12.0
-
-            airmiles = dd.Rdist
-            try:
-                airmiles = float(airmiles)
-            except:
-                airmiles = 0.0
-
-            logmiles = dd.Distance
-            try:
-                logmiles = float(logmiles)
-            except:
-                logmiles = 0.0
-
-            if hrs > 1.0:
-                if hrs > 12.0 or airmiles > 100:
-                    if hrs > 12.0 and airmiles < 100:  exempt = 'Paper Log  **Shift hours exceed 12.0**'
-                    if hrs < 12.0 and airmiles > 100:  exempt = 'Paper Log **Airmiles exceed 100.0**'
-                    if hrs > 12.0 and airmiles > 100:  exempt = 'Paper Log  **Shift hours exceed 12.0 and Airmiles exceed 100.0**'
-                else:
-                    exempt = '100 mile exemption'
-
-            thisdate = dd.GPSin
-            thisdate = thisdate.date()
-            c.drawString(leftw1, top, f'Shift Start: {dd.GPSin}')
-            c.drawString(leftw2, top, f'Unit {dd.Unit}')
-            c.drawString(leftw3, top, f'{dd.Locationstart}')
-            top = top - dl * .7
-            c.drawString(leftw1, top, f'Shift End : {dd.GPSout}')
-            c.drawString(leftw2, top, f'Unit {dd.Unit}')
-            c.drawString(leftw3, top, f'{dd.Locationstop}')
-            top = top - dl * .7
-            c.drawString(leftw1, top, f'Duty Hours/Miles: {hrs} / {dd.Distance}')
-            c.drawString(leftw2, top, f'Farthest Dist/Loc:{dd.Rdist} / {dd.Rloc}')
-            top = top - dl * .7
-            c.drawString(leftw1, top, f'Logging: {exempt}')
-            top = top - dl* 1.2
-
-            tdat = Vehicles.query.filter(Vehicles.Unit == dd.Unit).first()
-            plate = tdat.Plate
-            valticket = Interchange.query.filter( (Interchange.Date == thisdate) & (Interchange.TruckNumber == plate)).all()
-            first = 0
-            last = 0
-            for ix, val in enumerate(valticket):
-                if ix == 0:
-                    tlist = val.Time.split(':')
-                    firsttime = int(tlist[0])
-                    lasttime = firsttime
-                else:
-                    tlist = val.Time.split(':')
-                    thistime = int(tlist[0])
-                    if thistime < firsttime:
-                        first = ix
-                        firsttime = thistime
-                    elif thistime >= lasttime:
-                        last = ix
-                        lasttime = thistime
-
-            for ix, val in enumerate(valticket):
-
-                if ix == first or ix == last:
-                    placefile = addpath3(f'interchange/{val.Original}')
-
-                    if os.path.isfile(placefile):
-                        print(f'Have interchange ticket for {thisdate} {plate}')
+            addtickets = 0
+            if addtickets == 1:
+                first = 0
+                last = 0
+                for ix, val in enumerate(valticket):
+                    if ix == 0:
+                        tlist = val.Time.split(':')
+                        firsttime = int(tlist[0])
+                        lasttime = firsttime
                     else:
-                        pythonline = websites['ssh_data'] + f'vinterchange/{val.Original}'
+                        tlist = val.Time.split(':')
+                        thistime = int(tlist[0])
+                        if thistime < firsttime:
+                            first = ix
+                            firsttime = thistime
+                        elif thistime >= lasttime:
+                            last = ix
+                            lasttime = thistime
+
+                for ix, val in enumerate(valticket):
+
+                    if ix == first or ix == last:
                         placefile = addpath3(f'interchange/{val.Original}')
-                        copyline1 = f'scp {pythonline} {placefile}'
-                        print(copyline1)
-                        os.system(copyline1)
 
-                    if ix == first: placefile1 = placefile
-                    if ix == last: placefile2 = placefile
+                        if os.path.isfile(placefile):
+                            print(f'Have interchange ticket for {thisdate} {plate}')
+                        else:
+                            pythonline = websites['ssh_data'] + f'vinterchange/{val.Original}'
+                            placefile = addpath3(f'interchange/{val.Original}')
+                            copyline1 = f'scp {pythonline} {placefile}'
+                            print(copyline1)
+                            os.system(copyline1)
 
-            blendfile = addpath3(f'interchange/BLEND_{val.Original}')
-            blendticks(placefile1,placefile2, blendfile)
-            valpdfs.append(blendfile)
+                        if ix == first: placefile1 = placefile
+                        if ix == last: placefile2 = placefile
+
+                blendfile = addpath3(f'interchange/BLEND_{val.Original}')
+                if os.path.isfile(blendfile):
+                    print('Have this blend file')
+                else:
+                    blendticks(placefile1,placefile2, blendfile)
+                valpdfs.append(blendfile)
 
             if top < n3:
                 c.showPage()
@@ -378,8 +350,6 @@ def report_contents(file4,ddata,item):
                 c.setFont('Helvetica', 10, leading=None)
                 pages.append(newfile)
 
-
-
     c.showPage()
     c.save()
 
@@ -391,12 +361,9 @@ def report_contents(file4,ddata,item):
         pdfcommand.append(multioutput)
         tes=subprocess.check_output(pdfcommand)
     else:
-        multioutput=''
+        multioutput=' '
 
-    if item == 'hos':
-        return pages, multioutput, valpdfs
-    else:
-        return pages, multioutput
+    return pages, multioutput
 
 def pagemerger(filelist):
 
@@ -589,3 +556,242 @@ def blendticks(gfile1,gfile2,outfile):
 
     with open(outfile, "wb") as out_f:
         output.write(out_f)
+
+def get_sections(rep):
+    if 'driver' in rep:
+        ddata = Drivers.query.filter(Drivers.JobEnd > today).all()
+        drivers = []
+        for dd in ddata:
+            drivers.append(dd.Name)
+        subreps = ['summary', 'mvr', 'hos', 'hosval']
+    return drivers, subreps
+
+def mergerbook(pdfs,bookmarks):
+    # merge page by page
+    output_pdf_stream = PdfFileWriter()
+    j = 0
+    for kx, pdf in enumerate(pdfs):
+        f = PdfFileReader(open(pdf, "rb"))
+        for i in range(f.numPages):
+            output_pdf_stream.addPage(f.getPage(i))
+            if i == 0:
+                output_pdf_stream.addBookmark(bookmarks[kx], j)
+            j = j + 1
+
+    # create output pdf file
+    ofile = addpath1('reports/fmcsa.pdf')
+    try:
+        output_pdf_file = open(ofile, "wb")
+        output_pdf_stream.write(output_pdf_file)
+    finally:
+        output_pdf_file.close()
+
+def make_each_sumover(rep,each,subrep):
+    if rep == 'driver_sections':
+        driver = each.replace(' ','_')
+        if subrep == 'summary':
+            fp = addpath1(f'reports/{driver}_Summary.pdf')
+            bm = f'{each}'
+        if subrep == 'mvr':
+            fp = addpath1(f'reports/{driver}_MVR.pdf')
+            bm = f'{each} MVR'
+        if subrep == 'hos':
+            fp = addpath1(f'reports/hos_{driver}.pdf')
+            bm = f'{each} Hours of Service'
+        if subrep == 'hosval':
+            fp = addpath1(f'reports/hos_val{driver}.pdf')
+            bm = f'{each} HOS Validation Data'
+
+    return fp, bm
+
+def subreport_contents(fp,rep,each,item):
+    cut60 = datetime.now() - timedelta(60)
+
+    ltm,rtm,bump,tb,ctrall,left_ctr,right_ctr,dl,dh,tdl,hls,m1,m2,m3,m4,m5,m6,m7,n1,n2,n3=reportsettings(1)
+
+    pages=[fp]
+    page=1
+    c=canvas.Canvas(fp, pagesize=letter)
+    c.setLineWidth(1)
+
+    #Main Items Listing
+
+    mid = int(ltm+rtm)/2
+    c.line(ltm, 550, rtm, 550)
+    c.line(ltm, 530, rtm, 530)
+
+    if rep == 'driver_sections':
+        driver = each
+        tlogs = Trucklog.query.filter((Trucklog.DriverStart == driver) & (Trucklog.Date > cut60)).all()
+        try:
+            # get last 30 times in truck
+            tlogs = tlogs[-30:]
+        except:
+            print('Tlogs shorter than 30')
+
+        if item == 'hos':
+            c.setFont('Helvetica-Bold', 14, leading=None)
+            c.drawCentredString(mid, 535,f'Hours of Service For Driver {each} Last 30 Drive Days')
+            c.setFont('Helvetica', 10, leading=None)
+            top = 530
+            leftw1 = ltm + 10
+            leftw2 = ltm + 170
+            leftw3 = ltm + 220
+            c.setFont('Helvetica', 10, leading=None)
+            top = top - dl * .9
+
+            for dd in reversed(tlogs):
+                duty_hours = dd.Shift
+                try:
+                    hrs = float(duty_hours)
+                except:
+                    hrs = 0.0
+                if hrs > 12.0 and hrs < 12.25: hrs = 12.0
+
+                airmiles = dd.Rdist
+                try:
+                    airmiles = float(airmiles)
+                except:
+                    airmiles = 0.0
+
+                logmiles = dd.Distance
+                try:
+                    logmiles = float(logmiles)
+                except:
+                    logmiles = 0.0
+
+                if hrs > 1.0:
+                    if hrs > 12.0 or airmiles > 100:
+                        if hrs > 12.0 and airmiles < 100:  exempt = 'Paper Log  **Shift hours exceed 12.0**'
+                        if hrs < 12.0 and airmiles > 100:  exempt = 'Paper Log **Airmiles exceed 100.0**'
+                        if hrs > 12.0 and airmiles > 100:  exempt = 'Paper Log  **Shift hours exceed 12.0 and Airmiles exceed 100.0**'
+                    else:
+                        exempt = '100 mile exemption'
+
+                thisdate = dd.GPSin
+                thisdate = thisdate.date()
+                c.drawString(leftw1, top, f'Shift Start: {dd.GPSin}')
+                c.drawString(leftw2, top, f'Unit {dd.Unit}')
+                c.drawString(leftw3, top, f'{dd.Locationstart}')
+                top = top - dl * .7
+                c.drawString(leftw1, top, f'Shift End : {dd.GPSout}')
+                c.drawString(leftw2, top, f'Unit {dd.Unit}')
+                c.drawString(leftw3, top, f'{dd.Locationstop}')
+                top = top - dl * .7
+                c.drawString(leftw1, top, f'Duty Hours/Miles: {hrs} / {dd.Distance}')
+                c.drawString(leftw2, top, f'Farthest Dist/Loc:{dd.Rdist} / {dd.Rloc}')
+                top = top - dl * .7
+                c.drawString(leftw1, top, f'Logging: {exempt}')
+                top = top - dl * 1.2
+
+                if top < n3:
+                    c.showPage()
+                    c.save()
+                    page = page + 1
+                    base = fp.replace('.pdf', '')
+                    newfile = base + 'page' + str(page) + '.pdf'
+                    top = n2 - dh
+                    c = canvas.Canvas(newfile, pagesize=letter)
+                    c.drawCentredString(mid, 535, f'HOS Data For Driver {each} (cont.) ')
+                    c.line(ltm, 550, rtm, 550)
+                    c.line(ltm, 530, rtm, 530)
+                    c.setFont('Helvetica', 10, leading=None)
+                    pages.append(newfile)
+
+        if item == 'hosval':
+            c.drawCentredString(mid, 535, f'HOS Validation Data For Driver {each}')
+            top = 510
+            leftw1 = ltm + 10
+            leftw2 = ltm + 70
+            leftw3 = ltm + 110
+            leftw4 = ltm + 190
+            leftw5 = ltm + 290
+
+            c.drawString(leftw1, top, f'Interchange Tickets from Port')
+            top = top - dl * .8
+            c.drawString(leftw1, top, f'Date')
+            c.drawString(leftw2, top, f'Time')
+            c.drawString(leftw3, top, f'Plate')
+            c.drawString(leftw4, top, f'Container')
+            c.drawString(leftw5, top, f'Gross Weight')
+            top = top - dl * .8
+            c.setFont('Helvetica', 10, leading=None)
+
+            for dd in reversed(tlogs):
+                thisdate = dd.GPSin
+                thisdate = thisdate.date()
+                tdat = Vehicles.query.filter(Vehicles.Unit == dd.Unit).first()
+                plate = tdat.Plate
+                valticket = Interchange.query.filter( (Interchange.Date == thisdate) & (Interchange.TruckNumber == plate)).all()
+
+                for val in valticket:
+                    c.drawString(leftw1, top, f'{val.Date}')
+                    c.drawString(leftw2, top, f'{val.Time}')
+                    c.drawString(leftw3, top, f'{val.TruckNumber}')
+                    c.drawString(leftw4, top, f'{val.Container}')
+                    c.drawString(leftw5, top, f'{val.GrossWt}')
+                    top = top - dl * .6
+                    if top < n3:
+                        c.showPage()
+                        c.save()
+                        page = page + 1
+                        base = fp.replace('.pdf', '')
+                        newfile = base + 'page' + str(page) + '.pdf'
+                        top = n2 - dh
+                        c = canvas.Canvas(newfile, pagesize=letter)
+                        c.drawCentredString(mid, 535, f'HOS Validation Data For Driver ')
+                        c.line(ltm, 550, rtm, 550)
+                        c.line(ltm, 530, rtm, 530)
+                        c.setFont('Helvetica', 10, leading=None)
+                        pages.append(newfile)
+
+            top = top - dl * .6
+            leftw1 = ltm + 10
+            leftw2 = ltm + 130
+            leftw3 = ltm + 180
+            leftw4 = ltm + 240
+            c.drawString(leftw1, top, f'Toll Plaza Data')
+            top = top - dl * .8
+            c.drawString(leftw1, top, f'Date/Time')
+            c.drawString(leftw2, top, f'Unit')
+            c.drawString(leftw3, top, f'Plaza')
+            c.drawString(leftw4, top, f'Amount')
+            top = top - dl * .8
+
+            for dd in reversed(tlogs):
+                tolldata = Tolls.query.filter((Tolls.Date == thisdate) & (Tolls.Unit == dd.Unit)).all()
+
+                for toll in tolldata:
+                    c.drawString(leftw1, top, f'{toll.Datetm}')
+                    c.drawString(leftw2, top, f'{toll.Unit}')
+                    c.drawString(leftw3, top, f'{toll.Plaza}')
+                    c.drawString(leftw4, top, f'{toll.Amount}')
+                    top = top - dl * .6
+                    if top < n3:
+                        c.showPage()
+                        c.save()
+                        page = page + 1
+                        base = fp.replace('.pdf', '')
+                        newfile = base + 'page' + str(page) + '.pdf'
+                        top = n2 - dh
+                        c = canvas.Canvas(newfile, pagesize=letter)
+                        c.drawCentredString(mid, 535, f'HOS Validation Data For Driver ')
+                        c.line(ltm, 550, rtm, 550)
+                        c.line(ltm, 530, rtm, 530)
+                        c.setFont('Helvetica', 10, leading=None)
+                        pages.append(newfile)
+
+        c.showPage()
+        c.save()
+
+        if len(pages)>1:
+            pdfcommand=['pdfunite']
+            for page in pages:
+                pdfcommand.append(page)
+            multioutput=addpath1(f'reports/multioutput'+'.pdf')
+            pdfcommand.append(multioutput)
+            tes=subprocess.check_output(pdfcommand)
+        else:
+            multioutput=' '
+
+        return pages, multioutput
