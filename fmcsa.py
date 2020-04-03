@@ -25,8 +25,8 @@ print('________________________________________________________')
 print(' ')
 
 pdfs,bookmarks = [], []
-report_sections = ['introduction', 'driver_list', 'truck_list', 'driver_sections']
-#report_sections = ['introduction', 'driver_list', 'truck_list', 'driver_sections', 'random_program_cert', 'list_of_drivers_random']
+#report_sections = ['introduction', 'driver_list', 'truck_list']
+report_sections = ['introduction', 'driver_list', 'truck_list', 'insurance', 'driver_sections', 'inspection_sections', 'drug_test_sections', 'random_program_cert', 'list_of_drivers_random' ]
 for rep in report_sections:
     if 'sections' in rep:
         sumover, subreps = get_sections(rep)
@@ -34,8 +34,9 @@ for rep in report_sections:
             for subrep in subreps:
                 fp, bm = make_each_sumover(rep,each,subrep)
                 fpstatic = fp.replace('reports/','reports/static/')
+                print(f'Looking for static file: {fpstatic}')
                 if os.path.isfile(fpstatic):
-                    pdfs.append(fp)
+                    pdfs.append(fpstatic)
                     bookmarks.append(bm)
                 else:
                     docref = subreportmaker(fp,rep,each,subrep)
@@ -47,10 +48,17 @@ for rep in report_sections:
     else:
         fp = addpath1(f'reports/{scac}_{rep.title()}.pdf')
         bm = rep.replace('_',' ')
-        pdfs.append(fp)
-        bookmarks.append(bm)
-        docref = reportmaker(fp,rep)
-        if docref is not None: shutil.move(docref,fp)
+        fpstatic = fp.replace('reports/', 'reports/static/')
+        print(f'Looking for static file: {fpstatic}')
+        if os.path.isfile(fpstatic):
+            pdfs.append(fpstatic)
+            bookmarks.append(bm.title())
+        else:
+            docref = reportmaker(fp, rep)
+            if docref is not None:
+                pdfs.append(fp)
+                bookmarks.append(bm.title())
+                shutil.move(docref,fp)
 
 mergerbook(pdfs,bookmarks)
 

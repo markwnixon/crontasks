@@ -14,6 +14,7 @@ from utils import avg, parseline
 from PyPDF2 import PdfFileReader, PdfFileWriter
 import subprocess
 from models import Vehicles, Interchange, Tolls, KeyInfo, Drivers, Trucklog
+from pdfmergers import pagemerger, pagemergermp
 import os
 
 runat = datetime.now()
@@ -30,6 +31,7 @@ def reportmaker(fp, type):
     c.drawImage(logoi, 185, 680, mask='auto')
     c.showPage()
     c.save()
+    docref = None
 
     if type=='introduction':
         report_background(file2,'introduction')
@@ -77,6 +79,17 @@ def subreportmaker(fp, type, each, subtype):
     else:
         return None
 
+def topcheck(fp,n2,dh,c,page,pages):
+    c.showPage()
+    c.save()
+    page = page + 1
+    base = fp.replace('.pdf', '')
+    newfile = base + 'page' + str(page) + '.pdf'
+    top = n2 - dh
+    c = canvas.Canvas(newfile, pagesize=letter)
+    pages.append(newfile)
+
+    return c,page,top,pages
 
 
 def report_background(file2,item):
@@ -92,9 +105,9 @@ def report_background(file2,item):
 
     # Date and JO boxes
     dateline = m1 + 8.2 * dl
-    c.rect(rtm - 150, m1 + 7 * dl, 150, 2 * dl, stroke=1, fill=0)
-    c.line(rtm - 150, dateline, rtm, dateline)
-    c.line(rtm - 75, m1 + 7 * dl, rtm - 75, m1 + 9 * dl)
+    c.rect(rtm - 100, m1 + 7 * dl, 100, 2 * dl, stroke=1, fill=0)
+    c.line(rtm - 100, dateline, rtm, dateline)
+    #c.line(rtm - 75, m1 + 7 * dl, rtm - 75, m1 + 9 * dl)
 
     # Explanation box
     ctm = 218
@@ -129,12 +142,12 @@ def report_headers(file3, item):
 
     c.setFont('Helvetica-Bold', 24, leading=None)
     c.drawCentredString(rtm - 75, dateline + 1.5 * dl, 'Report')
-
+Annual Inspection
     c.setFont('Helvetica-Bold', 12, leading=None)
     c.drawString(ltm + bump * 3, level1 + bump * 2, f'{item.upper()} Report')
     c.setFont('Helvetica', 12, leading=None)
-    c.drawCentredString(rtm - 112.5, dateline + bump, 'Created')
-    c.drawCentredString(rtm - 37.7, dateline + bump, 'Type')
+    c.drawCentredString(rtm - 50, dateline + bump, 'Created')
+    #c.drawCentredString(rtm - 37.7, dateline + bump, 'Type')
 
     vdat = Vehicles.query.filter(Vehicles.DOTNum != None).first()
     dh = 13
@@ -152,9 +165,9 @@ def report_headers(file3, item):
 
     x = avg(rtm - 75, rtm)
     y = dateline - dh - bump
-    c.drawCentredString(x, y, f'{item.upper()}')
+    #c.drawCentredString(x, y, f'{item.upper()}')
     x = avg(rtm - 75, rtm - 150)
-    c.drawCentredString(x, y, invodate)
+    c.drawCentredString(rtm-50, y, invodate)
 
     c.showPage()
     c.save()
@@ -231,16 +244,8 @@ def report_contents(file4,item):
                         c.drawString(leftw2, top, sl)
                         top = top - dl*.9
                     top = top - dl*.5
+                    if top < n3: c, page, top, pages = topcheck(file4, n2, dh, c, page, pages)
 
-                    if top<n3:
-                        c.showPage()
-                        c.save()
-                        page=page+1
-                        base=file4.replace('.pdf','')
-                        newfile=base+'page'+str(page)+'.pdf'
-                        top = n2-dh
-                        c=canvas.Canvas(newfile, pagesize=letter)
-                        pages.append(newfile)
 
     if item == 'drivers':
         ddata = Drivers.query.filter(Drivers.JobEnd > today).all()
@@ -260,15 +265,7 @@ def report_contents(file4,item):
             c.drawString(leftw2, top, f'Pre-Employment Screening: {dd.PreScreen}    Last Screening Completed: {dd.LastTested}')
             top=top-dl*2
 
-            if top<n3:
-                c.showPage()
-                c.save()
-                page=page+1
-                base=file4.replace('.pdf','')
-                newfile=base+'page'+str(page)+'.pdf'
-                top = n2-dh
-                c=canvas.Canvas(newfile, pagesize=letter)
-                pages.append(newfile)
+            if top < n3: c, page, top, pages = topcheck(file4, n2, dh, c, page, pages)
 
     if item == 'trucks':
         ddata = Vehicles.query.filter(Vehicles.DOTNum != None).all()
@@ -283,15 +280,7 @@ def report_contents(file4,item):
             c.drawString(leftw2, top, f'EzPass Transponder:  {dd.Ezpassxponder}  Port Transponer:  {dd.Portxponder}')
             top = top - dl * 2
 
-            if top < n3:
-                c.showPage()
-                c.save()
-                page = page + 1
-                base = file4.replace('.pdf', '')
-                newfile = base + 'page' + str(page) + '.pdf'
-                top = n2 - dh
-                c = canvas.Canvas(newfile, pagesize=letter)
-                pages.append(newfile)
+            if top < n3: c, page, top, pages = topcheck(file4, n2, dh, c, page, pages)
 
             addtickets = 0
             if addtickets == 1:
@@ -336,19 +325,6 @@ def report_contents(file4,item):
                     blendticks(placefile1,placefile2, blendfile)
                 valpdfs.append(blendfile)
 
-            if top < n3:
-                c.showPage()
-                c.save()
-                page = page + 1
-                base = file4.replace('.pdf', '')
-                newfile = base + 'page' + str(page) + '.pdf'
-                top = n2 - dh
-                c = canvas.Canvas(newfile, pagesize=letter)
-                c.drawCentredString(mid, 535, f'Hours of Service For Driver {dd.DriverStart} Last 30 Drive Days (cont.)')
-                c.line(ltm, 550, rtm, 550)
-                c.line(ltm, 530, rtm, 530)
-                c.setFont('Helvetica', 10, leading=None)
-                pages.append(newfile)
 
     c.showPage()
     c.save()
@@ -365,172 +341,7 @@ def report_contents(file4,item):
 
     return pages, multioutput
 
-def pagemerger(filelist):
 
-    lfs = len(filelist)-1
-    print('lfs has value:', lfs)
-
-    for j in range(lfs):
-
-        if j == 0:
-            firstfile = filelist[0]
-        else:
-            firstfile = addpath1(f'reports/temp'+str(j-1)+'.pdf')
-
-        reader = PdfFileReader(open(firstfile, 'rb'))
-        first_page = reader.getPage(0)
-
-        sup_reader = PdfFileReader(open(filelist[j+1], 'rb'))
-        sup_page = sup_reader.getPage(0)  # This is the first page, can pick any page of document
-
-    #translated_page = PageObject.createBlankPage(None, sup_page.mediaBox.getWidth(), sup_page.mediaBox.getHeight())
-    # translated_page.mergeScaledTranslatedPage(sup_page, 1, 0, 0)  # -400 is approximate mid-page
-    # translated_page.mergePage(invoice_page)
-        sup_page.mergePage(first_page)
-        writer = PdfFileWriter()
-    # writer.addPage(translated_page)
-        writer.addPage(sup_page)
-
-        if j == lfs-1:
-            outfile = addpath1(f'reports/report'+'.pdf')
-        else:
-            outfile = addpath1(f'reports/temp'+str(j)+'.pdf')
-
-        print('lfs and j are:', j, lfs)
-        print('firstfile=', firstfile)
-        print('supfile=', filelist[j+1])
-        print('outfile=', outfile)
-
-        with open(outfile, 'wb') as f:
-            writer.write(f)
-
-        f.close()
-
-    docref = f'reports/report.pdf'
-
-    return docref
-
-
-def pagemergerx(filelist, page):
-
-    lfs = len(filelist)-1
-    print('lfs has value:', lfs)
-
-    for j in range(lfs):
-
-        if j == 0:
-            firstfile = filelist[0]
-        else:
-            firstfile = addpath(f'reports/temp'+str(j-1)+'.pdf')
-
-        reader = PdfFileReader(open(firstfile, 'rb'))
-        first_page = reader.getPage(page)
-
-        sup_reader = PdfFileReader(open(filelist[j+1], 'rb'))
-        sup_page = sup_reader.getPage(0)  # This is the selected page, can pick any page of document
-
-    #translated_page = PageObject.createBlankPage(None, sup_page.mediaBox.getWidth(), sup_page.mediaBox.getHeight())
-    # translated_page.mergeScaledTranslatedPage(sup_page, 1, 0, 0)  # -400 is approximate mid-page
-    # translated_page.mergePage(invoice_page)
-        sup_page.mergePage(first_page)
-        writer = PdfFileWriter()
-    # writer.addPage(translated_page)
-        writer.addPage(sup_page)
-
-        if j == lfs-1:
-            outfile = addpath(f'reports/report'+'.pdf')
-        else:
-            outfile = addpath(f'reports/temp'+str(j)+'.pdf')
-
-        print('lfs and j are:', j, lfs)
-        print('firstfile=', firstfile)
-        print('supfile=', filelist[j+1])
-        print('outfile=', outfile)
-
-        with open(outfile, 'wb') as f:
-            writer.write(f)
-
-        f.close()
-
-    docref = f'reports/report'+'.pdf'
-    return docref
-
-
-def pagemergermp(filelist, pages, multioutput):
-
-    lfs = len(filelist)-1
-    print('lfs has value:', lfs)
-
-    for j in range(lfs):
-
-        if j == 0:
-            firstfile = filelist[0]
-        else:
-            firstfile = addpath1(f'reports/temp'+str(j-1)+'.pdf')
-
-        reader = PdfFileReader(open(firstfile, 'rb'))
-        first_page = reader.getPage(0)
-
-        sup_reader = PdfFileReader(open(filelist[j+1], 'rb'))
-        sup_page = sup_reader.getPage(0)  # This is the first page, can pick any page of document
-
-    #translated_page = PageObject.createBlankPage(None, sup_page.mediaBox.getWidth(), sup_page.mediaBox.getHeight())
-    # translated_page.mergeScaledTranslatedPage(sup_page, 1, 0, 0)  # -400 is approximate mid-page
-    # translated_page.mergePage(invoice_page)
-        sup_page.mergePage(first_page)
-        writer = PdfFileWriter()
-    # writer.addPage(translated_page)
-        writer.addPage(sup_page)
-
-        if j == lfs-1:
-            outfile = addpath1(f'reports/reportx.pdf')
-        else:
-            outfile = addpath1(f'reports/temp'+str(j)+'.pdf')
-
-        print('lfs and j are:', j, lfs)
-        print('firstfile=', firstfile)
-        print('supfile=', filelist[j+1])
-        print('outfile=', outfile)
-
-        with open(outfile, 'wb') as f:
-            writer.write(f)
-
-        f.close()
-
-    # This gives us the merges backdrop pdf file on which we will place the contents.
-    # Now place the mulitpage content on this file for each page and assemble
-    newpages = []
-    for j, page in enumerate(pages):
-        print('outfilehere=', firstfile)
-        reader = PdfFileReader(open(firstfile, 'rb'))
-        first_page = reader.getPage(0)
-
-        sup_reader = PdfFileReader(open(multioutput, 'rb'))
-        sup_page = sup_reader.getPage(j)
-
-        sup_page.mergePage(first_page)
-        writer = PdfFileWriter()
-        writer.addPage(sup_page)
-
-        newoutfile = addpath1('reports/multipage'+str(j)+'.pdf')
-        with open(newoutfile, 'wb') as f:
-            writer.write(f)
-
-        f.close()
-        newpages.append(newoutfile)
-
-    pdfcommand = ['pdfunite']
-    for page in newpages:
-        print('page is:',page)
-        pdfcommand.append(page)
-    newmultioutput = addpath1(f'reports/newmultioutput'+'.pdf')
-    pdfcommand.append(newmultioutput)
-    tes = subprocess.check_output(pdfcommand)
-
-    docref = f'reports/report.pdf'
-    shutil.copy(newmultioutput, addpath1(docref))
-
-    return docref
 
 def blendticks(gfile1,gfile2,outfile):
 
@@ -558,13 +369,26 @@ def blendticks(gfile1,gfile2,outfile):
         output.write(out_f)
 
 def get_sections(rep):
+    each = []
     if 'driver' in rep:
         ddata = Drivers.query.filter(Drivers.JobEnd > today).all()
-        drivers = []
         for dd in ddata:
-            drivers.append(dd.Name)
+            each.append(dd.Name)
         subreps = ['summary', 'mvr', 'hos', 'hosval']
-    return drivers, subreps
+
+    if 'inspection' in rep:
+        ddata = Vehicles.query.filter(Vehicles.Unit != None).all()
+        for dd in ddata:
+            each.append(dd.Unit)
+        subreps = ['inspection']
+
+    if 'drug' in rep:
+        ddata = Drivers.query.filter(Drivers.JobEnd > today).all()
+        for dd in ddata:
+            each.append(dd.Name)
+        subreps = ['ccf', 'results']
+
+    return each, subreps
 
 def mergerbook(pdfs,bookmarks):
     # merge page by page
@@ -601,6 +425,20 @@ def make_each_sumover(rep,each,subrep):
         if subrep == 'hosval':
             fp = addpath1(f'reports/hos_val{driver}.pdf')
             bm = f'{each} HOS Validation Data'
+
+    if rep == 'inspection_sections':
+        fp = addpath1(f'reports/Annual_Inspection_Unit_{each}.pdf')
+        bm = f'{each} Annual Inspection'
+
+    if rep == 'drug_test_sections':
+        driver = each.replace(' ', '_')
+        if subrep == 'ccf':
+            fp = addpath1(f'reports/{driver}_PreEmp_CCF.pdf')
+            bm = f'{each} PreEmployment CCF'
+        if subrep == 'results':
+            fp = addpath1(f'reports/{driver}_PreEmp_Results.pdf')
+            bm = f'{each} PreEmployment Results'
+
 
     return fp, bm
 
@@ -685,18 +523,11 @@ def subreport_contents(fp,rep,each,item):
                 top = top - dl * 1.2
 
                 if top < n3:
-                    c.showPage()
-                    c.save()
-                    page = page + 1
-                    base = fp.replace('.pdf', '')
-                    newfile = base + 'page' + str(page) + '.pdf'
-                    top = n2 - dh
-                    c = canvas.Canvas(newfile, pagesize=letter)
+                    c, page, top, pages = topcheck(fp, n2, dh, c, page, pages)
                     c.drawCentredString(mid, 535, f'HOS Data For Driver {each} (cont.) ')
                     c.line(ltm, 550, rtm, 550)
                     c.line(ltm, 530, rtm, 530)
                     c.setFont('Helvetica', 10, leading=None)
-                    pages.append(newfile)
 
         if item == 'hosval':
             c.drawCentredString(mid, 535, f'HOS Validation Data For Driver {each}')
@@ -731,19 +562,13 @@ def subreport_contents(fp,rep,each,item):
                     c.drawString(leftw4, top, f'{val.Container}')
                     c.drawString(leftw5, top, f'{val.GrossWt}')
                     top = top - dl * .6
+
                     if top < n3:
-                        c.showPage()
-                        c.save()
-                        page = page + 1
-                        base = fp.replace('.pdf', '')
-                        newfile = base + 'page' + str(page) + '.pdf'
-                        top = n2 - dh
-                        c = canvas.Canvas(newfile, pagesize=letter)
+                        c, page, top, pages = topcheck(fp, n2, dh, c, page, pages)
                         c.drawCentredString(mid, 535, f'HOS Validation Data For Driver ')
                         c.line(ltm, 550, rtm, 550)
                         c.line(ltm, 530, rtm, 530)
                         c.setFont('Helvetica', 10, leading=None)
-                        pages.append(newfile)
 
             top = top - dl * .6
             leftw1 = ltm + 10
@@ -759,7 +584,11 @@ def subreport_contents(fp,rep,each,item):
             top = top - dl * .8
 
             for dd in reversed(tlogs):
-                tolldata = Tolls.query.filter((Tolls.Date == thisdate) & (Tolls.Unit == dd.Unit)).all()
+                thisdate = dd.GPSin
+                thisdate = thisdate.date()
+                unit = dd.Unit
+                print(thisdate,unit)
+                tolldata = Tolls.query.filter((Tolls.Date == thisdate) & (Tolls.Unit == unit)).all()
 
                 for toll in tolldata:
                     c.drawString(leftw1, top, f'{toll.Datetm}')
@@ -767,19 +596,13 @@ def subreport_contents(fp,rep,each,item):
                     c.drawString(leftw3, top, f'{toll.Plaza}')
                     c.drawString(leftw4, top, f'{toll.Amount}')
                     top = top - dl * .6
+
                     if top < n3:
-                        c.showPage()
-                        c.save()
-                        page = page + 1
-                        base = fp.replace('.pdf', '')
-                        newfile = base + 'page' + str(page) + '.pdf'
-                        top = n2 - dh
-                        c = canvas.Canvas(newfile, pagesize=letter)
+                        c, page, top, pages = topcheck(fp, n2, dh, c, page, pages)
                         c.drawCentredString(mid, 535, f'HOS Validation Data For Driver ')
                         c.line(ltm, 550, rtm, 550)
                         c.line(ltm, 530, rtm, 530)
                         c.setFont('Helvetica', 10, leading=None)
-                        pages.append(newfile)
 
         c.showPage()
         c.save()
