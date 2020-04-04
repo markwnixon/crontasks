@@ -25,8 +25,8 @@ print('________________________________________________________')
 print(' ')
 
 pdfs,bookmarks = [], []
-#report_sections = ['introduction', 'driver_list', 'truck_list']
-report_sections = ['introduction', 'driver_list', 'truck_list', 'insurance', 'driver_sections', 'inspection_sections', 'drug_test_sections', 'random_program_cert', 'list_of_drivers_random' ]
+#report_sections = ['introduction', 'driver_list', 'truck_list', 'insurance', 'driver_sections', 'inspection_sections', 'random_program_cert']
+report_sections = ['introduction', 'driver_list', 'truck_list', 'insurance', 'driver_sections', 'inspection_sections', 'drug_test_sections', 'random_program_cert']
 for rep in report_sections:
     if 'sections' in rep:
         sumover, subreps = get_sections(rep)

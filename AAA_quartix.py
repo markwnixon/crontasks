@@ -32,6 +32,15 @@ from models import Trucklog, Drivers, Driverlog, Portlog, Interchange
 uname = usernames['quartix']
 password = passwords['quartix']
 
+def dectime(thistime):
+    strtime = str(thistime)
+    try:
+        (hr, min, sec) = strtime.split(':')
+        dec_time = round(float(int(hr) * 3600 + int(min) * 60 + int(sec)) / 3600.0, 2)
+    except:
+        dec_time = 0.00
+    return dec_time
+
 def driver_find(tdate,unit,driverid):
     driver = 'NAY'
     ddat = Drivers.query.filter((Drivers.JobStart <= tdate) & (Drivers.JobEnd >= tdate) & (Drivers.Tagid == driverid)).first()
@@ -215,6 +224,15 @@ for jback in range(delta+1):
     for jid, vid in enumerate(ids):
 
         thisunit = units[jid]
+        tag = vins[jid]
+        rdist = 0.0
+        rmax = 0.0
+        rlocmax = 'None'
+        timestart = None
+        timelast = None
+        location_start = ''
+        location_stop = ''
+        downtime = 0.
 
         #Define geolocation parameters:
         portbox = [39.243, -76.55376, 39.264, -76.52198]
@@ -260,7 +278,7 @@ for jback in range(delta+1):
             print(f'Trip No. {kdx}') if printif == 1 else 1
             routes = tset['Route']
 
-            for rout in routes:
+            for mdx, rout in enumerate(routes):
                 #print('###Route###',rout)
                 etype, head, dtnow = rout['EventType'], rout['Heading'], rout['EventDateTime']
                 if etype != 'Distance':
@@ -270,6 +288,36 @@ for jback in range(delta+1):
                 tstamp = dtnow[0:16]
                 timehere = datetime.datetime.strptime(tstamp, '%Y-%m-%dT%H:%M')
                 lat, lon = rout['Latitude'],   rout['Longitude']
+
+
+
+                if kdx==0 and mdx == 0:
+                    blat = lat
+                    blon = lon
+                    rmax = 0.0
+                    rlocmax = 'None'
+                    timestart = timehere
+                    timelast = timehere
+                    location_start = locat
+                    downtime = 0.0
+
+                if kdx > 0 and mdx == 0:
+                    timeoff = timehere - timelast
+                    rdist = linemiles([blat, blon, lat, lon])
+                    if rdist < 1.0:
+                        downtime = dectime(downtime) + dectime(timeoff)
+                    print(f'{kdx} {mdx} Event Type:{etype} Heading:{head} Timestamp:{timehere} Unit: {thisunit} Downtime:{downtime} Rdist:{rdist} {locat}')
+
+                else:
+                    timelast = timehere
+                    print(f'{kdx} {mdx} Event Type:{etype} Heading:{head} Timestamp:{timehere} Unit: {thisunit} Location:{locat}')
+                    if locat != 'None':
+                        rdist = linemiles([blat, blon, lat, lon])
+                        location_stop = locat.replace('Stopped with Ignition ON at ','')
+                        if rdist > rmax:
+                            rmax = rdist
+                            rlocmax = locat.replace('Stopped with Ignition ON at ','')
+                        #print(f'{kdx} {mdx} Time: {timehere} Lat:{lat} {blat} Lon:{lon} {blon} with distance:{rdist} {rmax} miles {rlocmax}')
 
                 if in_box(lat,lon,portbox):
                     #Now we look at the details within:
@@ -345,11 +393,35 @@ for jback in range(delta+1):
             porttime = last_box - portstart
             insert_portdata(datehere, portstart, last_box, porttime, custtime, thisunit, portmiles)
 
+        #Enter the truck log data for unit and date here:
+        if 'kdx' in locals() and rmax > 1.0:
+            print(kdx,mdx,datehere,tag,timelast,timestart)
+            tdat = Trucklog.query.filter((Trucklog.Date == datehere) & (Trucklog.Tag == tag)).first()
+            if tdat is None:
+                shift = str(timelast - timestart)
+                try:
+                    (hr, min, sec) = shift.split(':')
+                    shift_time = round(float( int(hr) * 3600 + int(min) * 60 + int(sec) )/3600.0, 2)
+                except:
+                    shift_time = 0
 
+                total_optime = shift_time - downtime
+                distance = dataret['Distance'] * .62137
+                if distance > 0:
+                    ostart, ostop = get_odometer(vid, distance)
+                else:
+                    ostart = 0
+                    ostop = 0
+                print(f'Adding to Trucklog for Date:{datehere} and Unit:{units[jid]}')
+                input = Trucklog(Date=datehere, Unit=units[jid], Tag=tag, GPSin=timestart, GPSout=timelast,
+                                 Shift=d2s(shift_time), Distance=d1s(distance),
+                                 Gotime=d2s(total_optime), Rdist=d2s(rmax), Rloc=rlocmax, Odomstart=str(ostart),
+                                 Odomstop=str(ostop), Odverify=None,
+                                 DriverStart=None, Maintrecord='None', Locationstart=location_start, DriverEnd=None,
+                                 Locationstop=location_stop, Maintid=None, Status='0')
+                db.session.add(input)
+                db.session.commit()
 
-
-
-                #print('***Route***',locat, timehere, lat, lon, geolat, geolon)
 
 
         print(dataret) if printif == 1 else 1
@@ -457,17 +529,24 @@ for jback in range(delta+1):
 
             di = d1s(distance)
 
+
             tdat = Trucklog.query.filter((Trucklog.Date == datehere) & (Trucklog.Tag == tag)).first()
-            if tdat is None:
-                print(f'Adding to Trucklog for Date:{datehere} and Unit:{units[jid]}') if printlog == 1 else 1
-                input = Trucklog(Date=datehere, Unit=units[jid], Tag = tag, GPSin=start_dt, GPSout=ended_dt, Shift=d2s(shift_time), Distance=di,
-                                 Gotime=d2s(total_optime), Rdist=d2s(rm_max), Rloc=loc_max, Odomstart=str(ostart), Odomstop=str(ostop), Odverify=None,
-                                 DriverStart=driver, Maintrecord='None', Locationstart=loc_start, DriverEnd=driver,
-                                 Locationstop=loc2, Maintid=str(driverid), Status='0')
-                db.session.add(input)
-                db.session.commit()
-            else:
-                print(f'Data Already Exists in Trucklog for Date:{datehere} and Unit:{units[jid]}') if printlog == 1 else 1
+            if tdat is not None:
+                tdat.DriverStart = driver
+                tdat.DriverEnd = driver
+                tdat.Maintid = str(driverid)
+
+            if 1 == 2:
+                if tdat is None:
+                    print(f'Adding to Trucklog for Date:{datehere} and Unit:{units[jid]}') if printlog == 1 else 1
+                    input = Trucklog(Date=datehere, Unit=units[jid], Tag = tag, GPSin=start_dt, GPSout=ended_dt, Shift=d2s(shift_time), Distance=di,
+                                     Gotime=d2s(total_optime), Rdist=d2s(rm_max), Rloc=loc_max, Odomstart=str(ostart), Odomstop=str(ostop), Odverify=None,
+                                     DriverStart=driver, Maintrecord='None', Locationstart=loc_start, DriverEnd=driver,
+                                     Locationstop=loc2, Maintid=str(driverid), Status='0')
+                    db.session.add(input)
+                    db.session.commit()
+                else:
+                    print(f'Data Already Exists in Trucklog for Date:{datehere} and Unit:{units[jid]}') if printlog == 1 else 1
 
             pdata = Portlog.query.filter( (Portlog.Date == datehere) & (Portlog.Unit == units[jid]) ).all()
             for pdat in pdata:

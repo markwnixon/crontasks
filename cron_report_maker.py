@@ -142,7 +142,6 @@ def report_headers(file3, item):
 
     c.setFont('Helvetica-Bold', 24, leading=None)
     c.drawCentredString(rtm - 75, dateline + 1.5 * dl, 'Report')
-Annual Inspection
     c.setFont('Helvetica-Bold', 12, leading=None)
     c.drawString(ltm + bump * 3, level1 + bump * 2, f'{item.upper()} Report')
     c.setFont('Helvetica', 12, leading=None)
@@ -386,6 +385,7 @@ def get_sections(rep):
         ddata = Drivers.query.filter(Drivers.JobEnd > today).all()
         for dd in ddata:
             each.append(dd.Name)
+        #subreps = ['ccf']
         subreps = ['ccf', 'results']
 
     return each, subreps
