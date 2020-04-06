@@ -9,9 +9,9 @@ import re
 import numpy as np
 from cronfuncs import newjo
 
-from CCC_system_setup import addpath2, addpath3, websites, usernames, passwords, imap_url, scac
+from CCC_system_setup import addpath2, addpath3, websites, usernames, passwords, imap_url, scac, companydata
 from remote_db_connect import tunnel, db
-from models import Orders, OverSeas
+from models import Orders, OverSeas, People, Drops
 
 #booking_p=re.compile('[159][0123456789]{8}')
 booking_p=re.compile("[159][0123456789]{8}|[E][BKG0123456789]{11}|[S][0123456789]{9}")
@@ -23,6 +23,8 @@ remit=0
 gjob=1
 gbook=0
 kjob=0
+cdata = companydata()
+tcode= cdata[10]
 # 0 means do not run, 1 means run normal, 2 means create new baseline
 #_____________________________________________________________________________________________________________
 # Subroutines to extract remittances coming in from Knight
@@ -433,11 +435,17 @@ if 1==1:
                 if gjob==1:
                     bdat=Orders.query.filter(Orders.Booking==b).first()
                     odat=OverSeas.query.filter(OverSeas.Booking==b).first()
+                    pdat = People.query.filter(People.Company == 'Global Business Link').first()
+                    bid = pdat.id
+                    ldat = Drops.query.filter(Drops.Entity == 'Global Business Link').first()
+                    lid = ldat.id
+                    ddat = Drops.query.filter(Drops.Entity == 'Baltimore Seagirt').first()
+                    did = ddat.id
                     if bdat is None and b not in longs and odat is None:
                         print('Adding',b,d1,d2)
                         f.write(b+' '+d1+' '+d2+'\n')
                         sdate=getdate.strftime('%Y-%m-%d')
-                        jtype=scac[0]+'T'
+                        jtype=tcode + 'T'
                         nextjo=newjo(jtype,sdate)
                         load='G'+nextjo[-5:]
                         order='G'+nextjo[-5:]
@@ -445,7 +453,7 @@ if 1==1:
                                         Container='TBD', Date=book[1], Driver=None, Company2='Baltimore Seagirt', Time=None, Date2=book[2], Time2=None,
                                         Seal=None, Pickup=None, Delivery=None, Amount='275.00', Path=None, Original=None,
                                         Description=None, Chassis=None, Detention='0', Storage='0', Release=0, Shipper='Global Business Link',
-                                        Type=None, Time3=None, Bid=167, Lid=36, Did=540, Label=None, Dropblock1='Global Business Link\n4000 Coolidge Ave K\nBaltimore, MD 21229',
+                                        Type=None, Time3=None, Bid=bid, Lid=lid, Did=did, Label=None, Dropblock1='Global Business Link\n4000 Coolidge Ave K\nBaltimore, MD 21229',
                                         Dropblock2='Baltimore Seagirt\n2600 Broening Hwy\nBaltimore, MD 21224',Commodity='Auto',Packing='Each',Links=None,
                                         Hstat=-1,Istat=-1,Proof=None,Invoice=None,Gate=None,Package=None,Manifest=None,Scache=0,Pcache=0,Icache=0,Mcache=0,Pkcache=0, QBi=0)
                         db.session.add(input)
