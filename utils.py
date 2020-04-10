@@ -46,3 +46,20 @@ def parseline(line,j):
             newline=word+' '
     outlines.append(newline)
     return outlines
+
+def hasinput(input):
+    if input is None:
+        return 0
+    elif isinstance(input,str):
+        input = input.strip()
+        if input == '' or input == 'None' or input == 'none' or input=='0':
+            return 0
+        else:
+            return 1
+    elif isinstance(input,int):
+        if input == 0:
+            return 0
+        else:
+            return 1
+    else:
+        return 1

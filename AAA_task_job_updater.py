@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from CCC_system_setup import scac
 from remote_db_connect import tunnel, db
 from models import Interchange, Orders, OverSeas
+from utils import hasinput
 
 
 printif = 0
@@ -26,11 +27,17 @@ print(' ')
 jdata = Orders.query.filter( (~Orders.Status.endswith('3')) & (Orders.Date > lbdate) & (Orders.Release == 0) ).all()
 for jdat in jdata:
     bk = jdat.Booking
-    bk = bk.upper()
+    if hasinput(bk):
+        bk = bk.upper()
+        bk = bk.strip()
+    else:
+        bk = ''
     con = jdat.Container
-    con = con.upper()
-    bk = bk.strip()
-    con = con.strip()
+    if hasinput(con):
+        con = con.upper()
+        con = con.strip()
+    else:
+        con = ''
     jdat.Booking = bk
     jdat.Container = con
     jdat.Release = 1
@@ -42,6 +49,7 @@ for jdat in jdata:
     con = jdat.Container
     if con == 'TBD':
         bk = jdat.Booking
+        if not hasinput(bk): bk = ''
         if len(bk) > 7:
             idat = Interchange.query.filter( (Interchange.Release == bk) & (Interchange.Date > lbdate) ).first()
             if idat is not None:
@@ -117,6 +125,8 @@ for idat in idata:
     db.session.commit()
 
 def checkon(con,bk):
+    if not hasinput(con): con = ''
+    if not hasinput(bk): bk = ''
     if con == 'TBD' or len(con) < 9:
         retcon = 'XXX'
     else:
