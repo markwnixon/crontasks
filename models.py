@@ -425,6 +425,7 @@ class Orders(db.Model):
     Pickup = db.Column('Pickup', db.String(50))
     Delivery = db.Column('Delivery', db.String(50))
     Amount = db.Column('Amount', db.String(50))
+    InvoTotal = db.Column('InvoTotal', db.String(45))
     Date = db.Column('Date', db.DateTime)
     Time = db.Column('Time', db.String(20))
     Date2 = db.Column('Date2', db.DateTime)
@@ -465,7 +466,7 @@ class Orders(db.Model):
                  Delivery, Amount, Date, Time, Date2, Time2, Time3, Path, Original, Description, Chassis,
                  Detention, Storage, Release, Company2, Seal, Shipper, Type, Bid, Lid, Did, Label, Dropblock1,
                  Dropblock2, Commodity, Packing, Links, Hstat, Istat, Proof, Invoice, Gate, Package, Manifest,
-                 Scache, Pcache, Icache, Mcache, Pkcache, QBi):
+                 Scache, Pcache, Icache, Mcache, Pkcache, QBi, InvoTotal):
         self.Status = Status
         self.Jo = Jo
         self.Load = Load
@@ -479,6 +480,7 @@ class Orders(db.Model):
         self.Pickup = Pickup
         self.Delivery = Delivery
         self.Amount = Amount
+        self.InvoTotal = InvoTotal
         self.Date = Date
         self.Time = Time
         self.Date2 = Date2
@@ -918,6 +920,7 @@ class Autos(db.Model):
         self.Ncars = Ncars
         self.Orderid = Orderid
         self.Hjo = Hjo
+
 
 
 class Bookings(db.Model):

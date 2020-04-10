@@ -295,7 +295,7 @@ def knight_parse(txtfile):
                                 Chassis=obj.get('Chassis'), Detention=obj.get('Detention'), Storage=obj.get('Storage'), Release=obj.get('Release'),
                                 Shipper=obj.get('Shipper'), Type=obj.get('Type'), Time3=None, Bid=None, Lid=lid, Did=did, Label='', Dropblock1='',Dropblock2='',
                                 Commodity=None, Packing=None,Links = None, Hstat=-1,Istat=0,Proof=None,Invoice=None,Gate=None,Package=None,Manifest=None,
-                                Pcache=None,Icache=None,Mcache=None,Pkcache=None,QBi=None)
+                                Pcache=None,Icache=None,Mcache=None,Pkcache=None,QBi=None,InvoTotal=obj.get('Amount'))
 
 
 

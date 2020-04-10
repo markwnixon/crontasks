@@ -14,14 +14,17 @@ prev12 = []
 year12 = []
 dfr = []
 dto = []
-nmonths = 24
+monlabel = []
+nmonths = 12
 for ix in range(nmonths+1):
     if mon < 1:
         mon = 12
         yer = yer-1
     prev12.append(mon)
     year12.append(yer)
-    print(date(yer,mon,1))
+    monthname = date(1900, mon, 1).strftime('%b')
+    monlabel.append(f'{monthname} {str(yer)}')
+    print(date(yer,mon,1), monthname)
     dfr.append(date(yer,mon,1))
     mon = mon - 1
 
@@ -31,11 +34,24 @@ print(prev12)
 print(year12)
 print(dfr)
 print(dto)
+def writemonth(mo):
+    idat = IEroll.query.filter( IEroll.Name == 'MonthLabel' ).first()
+    if idat is None:
+        input = IEroll(Name='MonthLabel', Category=None, Subcategory=None, Type=None, Co=None,
+                       C1=None, C2=None,
+                       C3=None, C4=None, C5=None, C6=None, C7=None, C8=None, C9=None, C10=None, C11=None, C12=None,
+                       C13=None, C14=None, C15=None,
+                       C16=None, C17=None, C18=None, C19=None, C20=None, C21=None, C22=None, C23=None, C24=None)
+        db.session.add(input)
+        db.session.commit()
+        idat = IEroll.query.filter(IEroll.Name == 'MonthLabel').first()
+    setattr(idat, f'C{ix}', mo)
 
 ix = 0
 for (df,dt) in zip(dfr,dto):
     ix += 1
     print(df, dt)
+    writemonth(monlabel[ix])
     divdata = Divisions.query.all()
     for divdat in divdata:
         divtotal = 0.00
