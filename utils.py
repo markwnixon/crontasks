@@ -63,3 +63,10 @@ def hasinput(input):
             return 1
     else:
         return 1
+
+def stripper(input):
+    try:
+        new = input.strip()
+    except:
+        new = ''
+    return new

@@ -1,11 +1,6 @@
-import requests
-import json
+from remote_db_connect import tunnel, db
 import datetime
-import calendar
-from math import sqrt
-from cronfuncs import dropupdate, d1s, d2s
-from datetime import timedelta
-
+from models import Orders
 
 daybackfrom = 50
 daybackto = 0
@@ -16,16 +11,6 @@ printif = 0
 today = datetime.datetime.today()
 #today = today.date()
 print(today) if printif == 1 else 1
-
-from CCC_system_setup import co
-
-if co == 'FELA':
-    from CCC_FELA_remote_db_connect import tunnel, db
-    from CCC_FELA_models import Orders, Interchange
-
-elif co == 'OSLM':
-    from CCC_OSLM_remote_db_connect import tunnel, db
-    from CCC_OSLM_models import Orders, Interchange
 
 odata = Orders.query.filter(Orders.Shipper == 'Global Business Link').order_by(Orders.Date).all()
 

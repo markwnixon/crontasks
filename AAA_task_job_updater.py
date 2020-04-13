@@ -171,6 +171,7 @@ for jdat in jdata:
         jdat.Container = idat.Container
         jdat.Type = idat.ConType
         jdat.Date = idat.Date
+        if jdat.Istat == -1: jdat.Istat = 0
         idat.Company = jdat.Shipper
         idat.Jo = jdat.Jo
 

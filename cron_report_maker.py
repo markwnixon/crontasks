@@ -97,6 +97,7 @@ def report_background(file2,item):
     c.setLineWidth(1)
     ltm, rtm, bump, tb, ctrall, left_ctr, right_ctr, dl, dh, tdl, hls, m1, m2, m3, m4, m5, m6, m7, n1, n2, n3 = reportsettings(1)
 
+    n3 = n3 - 20
     fulllinesat = [n3]
 
     q1 = ltm + 180
@@ -198,6 +199,7 @@ def reportsettings(squeeze):
     m7=hls-27*dl
     n1=550
     n2=n1-dl
+    #bottom margin
     n3=hls-27*dl
 
     return ltm,rtm,bump,tb,ctrall,left_ctr,right_ctr,dl,dh,tdl,hls,m1,m2,m3,m4,m5,m6,m7,n1,n2,n3
@@ -372,7 +374,8 @@ def get_sections(rep):
     if 'driver' in rep:
         ddata = Drivers.query.filter(Drivers.JobEnd > today).all()
         for dd in ddata:
-            each.append(dd.Name)
+            #Only include drivers requested
+            if dd.Pin == '1': each.append(dd.Name)
         subreps = ['summary', 'mvr', 'hos', 'hosval']
 
     if 'inspection' in rep:
@@ -384,7 +387,8 @@ def get_sections(rep):
     if 'drug' in rep:
         ddata = Drivers.query.filter(Drivers.JobEnd > today).all()
         for dd in ddata:
-            each.append(dd.Name)
+            #Only include drivers requested
+            if dd.Pin == '1': each.append(dd.Name)
         #subreps = ['ccf']
         subreps = ['ccf', 'results']
 
@@ -460,10 +464,11 @@ def subreport_contents(fp,rep,each,item):
 
     if rep == 'driver_sections':
         driver = each
-        tlogs = Trucklog.query.filter((Trucklog.DriverStart == driver) & (Trucklog.Date > cut60)).all()
+        tlogs = Trucklog.query.filter((Trucklog.DriverStart == driver) & (Trucklog.Date > cut60)).order_by(Trucklog.Date).all()
         try:
             # get last 30 times in truck
             tlogs = tlogs[-30:]
+            exemptnumber = 1
         except:
             print('Tlogs shorter than 30')
 
@@ -500,34 +505,46 @@ def subreport_contents(fp,rep,each,item):
 
                 if hrs > 1.0:
                     if hrs > 12.0 or airmiles > 100:
-                        if hrs > 12.0 and airmiles < 100:  exempt = 'Paper Log  **Shift hours exceed 12.0**'
-                        if hrs < 12.0 and airmiles > 100:  exempt = 'Paper Log **Airmiles exceed 100.0**'
-                        if hrs > 12.0 and airmiles > 100:  exempt = 'Paper Log  **Shift hours exceed 12.0 and Airmiles exceed 100.0**'
+                        if hrs > 12.0 and airmiles < 100:  exempt = '**Shift hours exceed 12.0**'
+                        if hrs < 12.0 and airmiles > 100:  exempt = '**Airmiles exceed 100.0**'
+                        if hrs > 12.0 and airmiles > 100:  exempt = '**Shift hours exceed 12.0 and Airmiles exceed 100.0**'
                     else:
                         exempt = '100 mile exemption'
 
-                thisdate = dd.GPSin
-                thisdate = thisdate.date()
-                c.drawString(leftw1, top, f'Shift Start: {dd.GPSin}')
-                c.drawString(leftw2, top, f'Unit {dd.Unit}')
-                c.drawString(leftw3, top, f'{dd.Locationstart}')
-                top = top - dl * .7
-                c.drawString(leftw1, top, f'Shift End : {dd.GPSout}')
-                c.drawString(leftw2, top, f'Unit {dd.Unit}')
-                c.drawString(leftw3, top, f'{dd.Locationstop}')
-                top = top - dl * .7
-                c.drawString(leftw1, top, f'Duty Hours/Miles: {hrs} / {dd.Distance}')
-                c.drawString(leftw2, top, f'Farthest Dist/Loc:{dd.Rdist} / {dd.Rloc}')
-                top = top - dl * .7
-                c.drawString(leftw1, top, f'Logging: {exempt}')
-                top = top - dl * 1.2
+                    thisdate = dd.GPSin
+                    thisdate = thisdate.date()
+                    c.drawString(leftw1, top, f'Shift Start: {dd.GPSin}')
+                    c.drawString(leftw2, top, f'Unit {dd.Unit}')
+                    c.drawString(leftw3, top, f'{dd.Locationstart}')
+                    top = top - dl * .7
+                    c.drawString(leftw1, top, f'Shift End : {dd.GPSout}')
+                    c.drawString(leftw2, top, f'Unit {dd.Unit}')
+                    c.drawString(leftw3, top, f'{dd.Locationstop}')
+                    top = top - dl * .7
+                    c.drawString(leftw1, top, f'Duty Hours: {hrs}')
+                    c.drawString(leftw2, top, f'Truck Miles: {dd.Distance}')
+                    c.drawString(leftw2 + 120, top, f'Air Miles: {dd.Rdist}')
+                    top = top - dl * .7
+                    c.drawString(leftw2, top, f'Farthest Location: {dd.Rloc}')
+                    #top = top - dl * .7
+                    if '**' in exempt:
+                        c.setFillColorRGB(1, 0, 0)
+                        c.drawString(leftw1, top, f'Paper Log Required')
+                        top = top - dl * .7
+                        c.drawString(leftw1, top, f'{exempt}')
+                        c.drawString(leftw2, top, f'Exemption #{exemptnumber} of 8 allowed last 30 days')
+                        exemptnumber = exemptnumber + 1
+                        c.setFillColorRGB(0, 0, 0)
+                    else:
+                        c.drawString(leftw1, top, f'Logging: {exempt}')
+                    top = top - dl * 1.2
 
-                if top < n3:
-                    c, page, top, pages = topcheck(fp, n2, dh, c, page, pages)
-                    c.drawCentredString(mid, 535, f'HOS Data For Driver {each} (cont.) ')
-                    c.line(ltm, 550, rtm, 550)
-                    c.line(ltm, 530, rtm, 530)
-                    c.setFont('Helvetica', 10, leading=None)
+                    if top < n3:
+                        c, page, top, pages = topcheck(fp, n2, dh, c, page, pages)
+                        c.drawCentredString(mid, 535, f'HOS Data For Driver {each} (cont.) ')
+                        c.line(ltm, 550, rtm, 550)
+                        c.line(ltm, 530, rtm, 530)
+                        c.setFont('Helvetica', 10, leading=None)
 
         if item == 'hosval':
             c.drawCentredString(mid, 535, f'HOS Validation Data For Driver {each}')
