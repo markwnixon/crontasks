@@ -342,159 +342,180 @@ if 1 == 1:
     #if 1 == 1:
         browser = webdriver.Firefox(firefox_profile=paths[4])
         url1 = websites['disp']
-        print(url1)
         browser.get(url1)
         time.sleep(2)
-        selectElem = browser.find_element_by_xpath('//*[@id="Username"]')
-        selectElem.send_keys(username)
-        selectElem.clear()
-        selectElem.send_keys(username)
-        selectElem = browser.find_element_by_xpath('//*[@id="password"]')
-        print(f'Got xpath for Password {password}')
-        selectElem.clear()
-        selectElem.send_keys(password)
-        selectElem = browser.find_element_by_xpath('//*[@id="loginButton"]').click()
-        time.sleep(2)
-        selectElem = browser.find_element_by_xpath('//*[@id="primary-navbar-collapse"]/ul/li[1]/a').click()
-        selectElem = browser.find_element_by_xpath('//*[@id="navMyVehicles"]').click()
-        time.sleep(2)
-        cases = [3,5] #3 is Dispatched and 5 is Delivered
-        for case in cases:
-            selectElem = browser.find_element_by_xpath(f'/html/body/view/div/ul/li[{case}]/a').click()
+        try:
+            keepgoing = 1
+            selectElem = browser.find_element_by_xpath('//*[@id="Username"]')
+            selectElem.send_keys(username)
+            selectElem.clear()
+            selectElem.send_keys(username)
+            selectElem = browser.find_element_by_xpath('//*[@id="password"]')
+            print(f'Got xpath for Password {password}')
+            selectElem.clear()
+            selectElem.send_keys(password)
+            selectElem = browser.find_element_by_xpath('//*[@id="loginButton"]').click()
             time.sleep(2)
-            dispatch_url = browser.current_url
+            selectElem = browser.find_element_by_xpath('//*[@id="primary-navbar-collapse"]/ul/li[1]/a').click()
+            selectElem = browser.find_element_by_xpath('//*[@id="navMyVehicles"]').click()
+            time.sleep(2)
+        except:
+            keepgoing=0
+            print('Could not log onto system and navigate to my vehicles')
 
-            selectElem = browser.find_element_by_xpath('/html/body/view/div/div[3]/div[2]')
-            con = selectElem.text
-            res = [int(i) for i in con.split() if i.isdigit()]
-            print(res)
-            ntows = res[0]
-            cardata=[]
-            newcardata=[]
-            for ix in range(ntows):
-                jx = ix+1
-                selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[3]/a')
-                pickup = selectElem.text
-                print(pickup)
-                selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[4]/a')
-                delivery = selectElem.text
-                print(delivery)
+        if keepgoing == 1:
 
+            cases = [3,5] #3 is Dispatched and 5 is Delivered
+            for case in cases:
 
-                selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[5]/div[1]')
-                car = selectElem.text
-                print(car)
-                selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[5]/span')
-                orderid = selectElem.text
-                print(orderid)
-
-                selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[6]/a[1]')
-                towco = selectElem.text
-                print(towco)
-                selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[6]/span[3]/span[1]')
-                amount = selectElem.text
-                print(amount)
-
-                selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[7]/strong/span')
-                shipped = selectElem.text
-                print(shipped)
-
-
-
-                list1 = [pickup, delivery, car, orderid, amount, shipped]
-                cardata.append(list1)
-
-            for ix in range(ntows):
-                jx = ix + 1
-
-
-                selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[8]/a[2]').click()
+                jxlist = []
+                selectElem = browser.find_element_by_xpath(f'/html/body/view/div/ul/li[{case}]/a').click()
                 time.sleep(2)
+                dispatch_url = browser.current_url
 
-                list1 = cardata[ix]
-
-                selectElem = browser.find_element_by_xpath('//*[@id="sheetBottom"]/div[1]/div[1]/h4/span')
+                selectElem = browser.find_element_by_xpath('/html/body/view/div/div[3]/div[2]')
                 con = selectElem.text
                 res = [int(i) for i in con.split() if i.isdigit()]
-                try:
-                    ncars = res[0]
-                except:
-                    ncars = 0
-                print(ncars)
-                list1.append(ncars)
+                print(res)
+                ntows = res[0]
+                cardata=[]
+                newcardata=[]
+                for ix in range(ntows):
+                    jx = ix+1
+
+                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[3]/a')
+                    pickup = selectElem.text
+                    print(pickup)
+
+                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[4]/a')
+                    delivery = selectElem.text
+                    print(delivery)
+
+                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[5]/div[1]')
+                    car = selectElem.text
+                    print(car)
+
+                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[5]/span')
+                    orderid = selectElem.text
+                    print(orderid)
+
+                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[6]/a[1]')
+                    towco = selectElem.text
+                    print(towco)
+
+                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[6]/span[3]/span[1]')
+                    amount = selectElem.text
+                    print(amount)
+
+                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[7]/strong/span')
+                    shipped = selectElem.text
+                    print(shipped)
+
+                    dt = datetime.datetime.strptime(shipped, '%m/%d/%y')
+                    dt = dt.date()
+                    print(dt)
+
+                    adat = Autos.query.filter( (Autos.TowCompany==towco) & (Autos.Date1==dt) ).first()
+                    if adat is None:
+                        list1 = [pickup, delivery, car, orderid, amount, shipped]
+                        cardata.append(list1)
+                        jxlist.append(jx)
+                    else:
+                        print('The tow is already in the system')
+
+                print(jxlist)
+                print(cardata)
+                ix = 0
+                for jx in jxlist:
+
+                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[8]/a[2]').click()
+                    time.sleep(2)
+
+                    list1 = cardata[ix]
+                    ix += 1
+
+                    selectElem = browser.find_element_by_xpath('//*[@id="sheetBottom"]/div[1]/div[1]/h4/span')
+                    con = selectElem.text
+                    res = [int(i) for i in con.split() if i.isdigit()]
+                    try:
+                        ncars = res[0]
+                    except:
+                        ncars = 0
+                    print(ncars)
+                    list1.append(ncars)
 
 
-                selectElem = browser.find_element_by_xpath('//*[@id="sheetDetails"]/div[1]/div[1]/div[2]/div/div[1]/address')
-                address = selectElem.text
-                print(address)
-                list1.append(address)
+                    selectElem = browser.find_element_by_xpath('//*[@id="sheetDetails"]/div[1]/div[1]/div[2]/div/div[1]/address')
+                    address = selectElem.text
+                    print(address)
+                    list1.append(address)
 
-                selectElem = browser.find_element_by_xpath('//*[@id="sheetDetails"]/div[1]/div[1]/div[2]/div/div[2]/a[1]')
-                phone = selectElem.text
-                print(phone)
-                list1.append(phone)
-                ilist = [2, 3, 4, 6, 8]
+                    selectElem = browser.find_element_by_xpath('//*[@id="sheetDetails"]/div[1]/div[1]/div[2]/div/div[2]/a[1]')
+                    phone = selectElem.text
+                    print(phone)
+                    list1.append(phone)
+                    ilist = [2, 3, 4, 6, 8]
 
-                if ncars == 1:
-                    for kx in ilist:
-                        selectElem = browser.find_element_by_xpath(f'//*[@id="sheetBottom"]/div[1]/div[2]/table/tbody/tr/td[{kx}]')
-                        item = selectElem.text
-                        print(item)
-                        list1.append(item)
-                    newcardata.append(list1)
-
-                if ncars > 1:
-                    for mx in range(1,ncars+1):
-                        thislist = list1
+                    if ncars == 1:
                         for kx in ilist:
-                            selectElem = browser.find_element_by_xpath(f'//*[@id="sheetBottom"]/div[1]/div[2]/table/tbody/tr[{mx}]/td[{kx}]')
+                            selectElem = browser.find_element_by_xpath(f'//*[@id="sheetBottom"]/div[1]/div[2]/table/tbody/tr/td[{kx}]')
                             item = selectElem.text
                             print(item)
-                            thislist.append(item)
+                            list1.append(item)
+                        newcardata.append(list1)
 
-                        newcardata.append(thislist)
+                    if ncars > 1:
+                        for mx in range(1,ncars+1):
+                            thislist = list1
+                            for kx in ilist:
+                                selectElem = browser.find_element_by_xpath(f'//*[@id="sheetBottom"]/div[1]/div[2]/table/tbody/tr[{mx}]/td[{kx}]')
+                                item = selectElem.text
+                                print(item)
+                                thislist.append(item)
 
-                browser.get(dispatch_url)
-                time.sleep(2)
+                            newcardata.append(thislist)
+
+                    browser.get(dispatch_url)
+                    time.sleep(2)
 
 
-            #Now update the database:
-            for cardata in newcardata:
-                print(cardata)
-                pu=cardata[0]
-                de=cardata[1]
-                od=cardata[3]
-                mo=cardata[4].replace('$','')
-                print(mo)
-                dt=cardata[5]
-                dt = datetime.datetime.strptime(dt, '%m/%d/%y')
-                dt = dt.date()
-                print(dt)
-                ncars = cardata[6]
-                towcolist = cardata[7].splitlines()
-                towco = towcolist[0]
-                addr1 = towcolist[1]
-                addr2 = towcolist[2]
-                print(towco,addr1,addr2)
-                phone = cardata[8]
-                year = cardata[9]
-                make = cardata[10]
-                model = cardata[11]
-                color = cardata[12]
-                vin = cardata[13]
-                print(vin)
+                #Now update the database:
+                for cardata in newcardata:
+                    print(cardata)
+                    pu=cardata[0]
+                    de=cardata[1]
+                    od=cardata[3]
+                    mo=cardata[4].replace('$','')
+                    print(mo)
+                    dt=cardata[5]
+                    dt = datetime.datetime.strptime(dt, '%m/%d/%y')
+                    dt = dt.date()
+                    print(dt)
+                    ncars = cardata[6]
+                    towcolist = cardata[7].splitlines()
+                    towco = towcolist[0]
+                    addr1 = towcolist[1]
+                    addr2 = towcolist[2]
+                    print(towco,addr1,addr2)
+                    phone = cardata[8]
+                    year = cardata[9]
+                    make = cardata[10]
+                    model = cardata[11]
+                    color = cardata[12]
+                    vin = cardata[13]
+                    print(vin)
 
-                adat = Autos.query.filter( (Autos.TowCompany==towco) & (Autos.Date1==dt) ).first()
-                if adat is None:
-                    addauto(cardata)
+                    adat = Autos.query.filter( (Autos.TowCompany==towco) & (Autos.Date1==dt) ).first()
+                    if adat is None:
+                        addauto(cardata)
 
-                pdat = People.query.filter( (People.Ptype == 'TowCo') & (People.Company == towco) ).first()
-                if pdat is None:
-                    addtowco(cardata)
+                    pdat = People.query.filter( (People.Ptype == 'TowCo') & (People.Company == towco) ).first()
+                    if pdat is None:
+                        addtowco(cardata)
 
-                bdat = Bills.query.filter( (Bills.Company==towco) & (Bills.bDate == dt) ).first()
-                if bdat is None:
-                    addbill(cardata)
+                    bdat = Bills.query.filter( (Bills.Company==towco) & (Bills.bDate == dt) ).first()
+                    if bdat is None:
+                        addbill(cardata)
 
 
 tunnel.stop()

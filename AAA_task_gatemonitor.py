@@ -204,7 +204,7 @@ def gatescraper(printif, dayback):
         browser.quit()
     return
 
-dayback = 1
+dayback = 3
 for ix in range(dayback+1):
     gohere = dayback - ix
     gatescraper(printif, gohere)
