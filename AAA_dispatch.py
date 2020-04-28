@@ -228,6 +228,10 @@ def checkdate(emaildate, filename, txtfile):
                     print('File found, but have no date to compare')
                     returnval = 1
     return returnval
+def limit_text(input):
+    if input is not None:
+        if len(input)>50: input = input[0:49]
+    return input
 
 def addauto(cardata):
     pu = cardata[0].title()
@@ -240,7 +244,7 @@ def addauto(cardata):
     dt = dt.date()
     ncars = cardata[6]
     towcolist = cardata[7].splitlines()
-    towco = towcolist[0]
+    towco = limit_text(towcolist[0])
     year = cardata[9]
     make = cardata[10].title()
     model = cardata[11].title()
@@ -259,7 +263,7 @@ def addtowco(cardata):
     dt = datetime.datetime.strptime(dt, '%m/%d/%y')
     dt = dt.date()
     towcolist = cardata[7].splitlines()
-    towco = towcolist[0]
+    towco = limit_text(towcolist[0])
     addr1 = towcolist[1].title()
     addr2 = towcolist[2]
     phone = cardata[8]
@@ -285,7 +289,7 @@ def addbill(cardata):
     print(dt)
     ncars = cardata[6]
     towcolist = cardata[7].splitlines()
-    towco = towcolist[0]
+    towco = limit_text(towcolist[0])
     addr1 = towcolist[1]
     addr2 = towcolist[2]
     print(towco, addr1, addr2)
@@ -369,62 +373,68 @@ if 1 == 1:
             for case in cases:
 
                 jxlist = []
-                selectElem = browser.find_element_by_xpath(f'/html/body/view/div/ul/li[{case}]/a').click()
-                time.sleep(2)
-                dispatch_url = browser.current_url
+                cardata = []
+                newcardata = []
 
-                selectElem = browser.find_element_by_xpath('/html/body/view/div/div[3]/div[2]')
-                con = selectElem.text
-                res = [int(i) for i in con.split() if i.isdigit()]
-                print(res)
-                ntows = res[0]
-                cardata=[]
-                newcardata=[]
-                for ix in range(ntows):
-                    jx = ix+1
+                try:
+                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/ul/li[{case}]/a').click()
+                    time.sleep(2)
+                    dispatch_url = browser.current_url
 
-                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[3]/a')
-                    pickup = selectElem.text
-                    print(pickup)
+                    selectElem = browser.find_element_by_xpath('/html/body/view/div/div[3]/div[2]')
+                    con = selectElem.text
+                    res = [int(i) for i in con.split() if i.isdigit()]
+                    print(res)
+                    ntows = res[0]
 
-                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[4]/a')
-                    delivery = selectElem.text
-                    print(delivery)
+                    for ix in range(ntows):
+                        jx = ix+1
 
-                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[5]/div[1]')
-                    car = selectElem.text
-                    print(car)
+                        selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[3]/a')
+                        pickup = selectElem.text
+                        print(pickup)
 
-                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[5]/span')
-                    orderid = selectElem.text
-                    print(orderid)
+                        selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[4]/a')
+                        delivery = selectElem.text
+                        print(delivery)
 
-                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[6]/a[1]')
-                    towco = selectElem.text
-                    print(towco)
+                        selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[5]/div[1]')
+                        car = selectElem.text
+                        print(car)
 
-                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[6]/span[3]/span[1]')
-                    amount = selectElem.text
-                    print(amount)
+                        selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[5]/span')
+                        orderid = selectElem.text
+                        print(orderid)
 
-                    selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[7]/strong/span')
-                    shipped = selectElem.text
-                    print(shipped)
+                        selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[6]/a[1]')
+                        towco = limit_text(selectElem.text)
+                        print(towco)
 
-                    dt = datetime.datetime.strptime(shipped, '%m/%d/%y')
-                    dt = dt.date()
-                    print(dt)
+                        selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[6]/span[3]/span[1]')
+                        amount = selectElem.text
+                        print(amount)
 
-                    adat = Autos.query.filter( (Autos.TowCompany==towco) & (Autos.Date1==dt) ).first()
-                    if adat is None:
-                        list1 = [pickup, delivery, car, orderid, amount, shipped]
-                        cardata.append(list1)
-                        jxlist.append(jx)
-                    else:
-                        print('The tow is already in the system')
+                        selectElem = browser.find_element_by_xpath(f'/html/body/view/div/form/div/table/tbody/tr[{jx}]/td[7]/strong/span')
+                        shipped = selectElem.text
+                        print(shipped)
 
-                print(jxlist)
-                print(cardata)
+                        dt = datetime.datetime.strptime(shipped, '%m/%d/%y')
+                        dt = dt.date()
+                        print(dt)
+
+                        adat = Autos.query.filter( (Autos.TowCompany==towco) & (Autos.Date1==dt) ).first()
+                        if adat is None:
+                            list1 = [pickup, delivery, car, orderid, amount, shipped]
+                            cardata.append(list1)
+                            jxlist.append(jx)
+                        else:
+                            print('The tow is already in the system')
+                            print(' ')
+                except:
+                    print(f'No dispataches for case {case}')
+
+                print('jxlist',case,jxlist)
+                print('cardata',case,cardata)
                 ix = 0
                 for jx in jxlist:
 
@@ -493,7 +503,7 @@ if 1 == 1:
                     print(dt)
                     ncars = cardata[6]
                     towcolist = cardata[7].splitlines()
-                    towco = towcolist[0]
+                    towco = limit_text(towcolist[0])
                     addr1 = towcolist[1]
                     addr2 = towcolist[2]
                     print(towco,addr1,addr2)
