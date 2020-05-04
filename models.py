@@ -622,7 +622,7 @@ class Quotes(db.Model):
     From = db.Column('From', db.String(200))
     Subject = db.Column('Subject', db.String(200))
     Body = db.Column('Body', db.String(500))
-    Mid = db.Column('Mid', db.String(100))
+    Mid = db.Column('Mid', db.String(200))
     Person = db.Column('Person', db.String(100))
     Response = db.Column('Response', db.String(500))
     Amount = db.Column('Amount', db.String(45))
