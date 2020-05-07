@@ -21,7 +21,7 @@ booking_p=re.compile("[159][0123456789]{8}|[E][BKG0123456789]{11}|[S][0123456789
 #_____________________________________________________________________________________________________________
 remit=0
 gjob=1
-gbook=0
+gbook=1
 kjob=0
 cdata = companydata()
 tcode= cdata[10]
@@ -227,10 +227,42 @@ if 1==1:
             flist=os.listdir(att_dir)
             loadconsadd=[]
             loadconsupdate=[]
+            bookcheck = []
             for j,msg in enumerate(msgs):
                 raw=email.message_from_bytes(msg[0][1])
                 thesefiles=get_attachment_filename(raw,'pdf','DB')
                 thisdate=get_date(msg)
+                subject = get_subject(msg)
+                #print('The subject is:', subject)
+                blist = get_bookings(subject)
+                if blist:
+                    bkhere = blist[0]
+                    bkhere = bkhere.strip()
+                    if bkhere not in bookcheck:
+                        bookcheck.append(bkhere)
+                        #print(bkhere)
+                        odat = OverSeas.query.filter(OverSeas.Booking == bkhere).first()
+                        if odat is not None:
+                            print(f'Booking {bkhere} already in database')
+                        else:
+                            sdate = thisdate.strftime('%Y-%m-%d')
+                            jtype = tcode + 'O'
+                            nextjo = newjo(jtype, sdate)
+                            input = OverSeas(Jo=nextjo, Pid=0, MoveType=None, Direction=None, Commodity=None,
+                                             Pod=None, Pol=None, Origin=None, PuDate=sdate, ContainerType=None,
+                                             Booking=bkhere, CommoList=0, ExportID=0, ConsigID=0, NotifyID=0,
+                                             FrForID=0, PreCarryID=0, Estimate=None, Charge=None,
+                                             Container=None,
+                                             Dpath=None, Ipath=None, Apath=None, Cache=0, Status='000', Label=None,
+                                             BillTo=None, Exporter=None, Consignee=None, Notify=None,
+                                             FrFor=None, PreCarry=None, Driver=None, Seal=None,
+                                             Description=None, RetDate=sdate, Tpath=None, Itotal='',
+                                             RelType='Seaway Bill', AES='', ExpRef='', AddNote='')
+
+                            db.session.add(input)
+                            db.session.commit()
+                            print(f'Booking {bkhere} has been added to database')
+
                 for thisfile in thesefiles:
                     #print(thisdate,thisfile)
                     if gbook==2:
@@ -240,6 +272,7 @@ if 1==1:
                         #print('Adding new file:',thisfile)
                         loadconsadd.append([thisdate,thisfile])
                         get_attachments_pdf(raw,att_dir,'pdf','DB')
+
                     elif gbook==1:
                         update=checkdate(thisdate,thisfile,txt_file)
                         #print(update)

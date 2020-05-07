@@ -15,7 +15,9 @@ printif = 0
 runat = datetime.now()
 today = runat.date()
 lookback = runat - timedelta(30)
+lookback_ocean = runat - timedelta(30)
 lbdate = lookback.date()
+lbdate_ocean = lookback_ocean.date()
 print(' ')
 print('________________________________________________________')
 print(f'This sequence run at {runat} with look back to {lbdate}')
@@ -157,14 +159,14 @@ for jdat in jdata:
     db.session.commit()
 
 
-#Make a match of all Jobs with Container Data:
+#Make a match of all Truck Jobs with Container Data:
 jdata = Orders.query.filter( (Orders.Hstat < 3) & (Orders.Date > lbdate)).all()
 for jdat in jdata:
     con, bk = checkon(jdat.Container, jdat.Booking)
     idat = Interchange.query.filter(((Interchange.Container == con) & (Interchange.Release == bk)) & (Interchange.Type.contains('Out')) & (Interchange.Date > lbdate)).first()
     if idat is None:
         idat = Interchange.query.filter( (Interchange.Container == con) & (Interchange.Type.contains('Out')) & (Interchange.Date > lbdate)).first()
-    if idat is None:
+    elif idat is None:
         idat = Interchange.query.filter( (Interchange.Release == bk) & (Interchange.Type.contains('Out')) & (Interchange.Date > lbdate) ).first()
     if idat is not None:
         #print(f'Match to truck job {idat.Order} and {idat.Container}')
@@ -178,10 +180,9 @@ for jdat in jdata:
         imat = Interchange.query.filter(((Interchange.Container == con) & (Interchange.Release == bk)) & (Interchange.Type.contains('In')) & (Interchange.Date > lbdate)).first()
         if imat is None:
             imat = Interchange.query.filter( (Interchange.Container == con) & (Interchange.Type.contains('In')) & (Interchange.Date > lbdate)).first()
-        if imat is None:
-            imat = Interchange.query.filter(((Interchange.Container == con) & (Interchange.Release == bk)) & (Interchange.Type.contains('Out')) & (Interchange.Date > lbdate)).first()
-        if imat is None:
-            imat = Interchange.query.filter( (Interchange.Container == con) & (Interchange.Type.contains('Out')) & (Interchange.Date > lbdate)).first()
+        elif imat is None:
+            imat = Interchange.query.filter((Interchange.Release == bk) & (Interchange.Type.contains('In')) & (Interchange.Date > lbdate)).first()
+
         if imat is not None:
             jdat.Date2 = imat.Date
             imat.Jo = jdat.Jo
@@ -191,6 +192,35 @@ for jdat in jdata:
             finishdate = jdat.Date2
             if today > finishdate:
                 jdat.Date2 = today
+
+        db.session.commit()
+
+#Make a match of all Ocean Jobs with Container Data:
+jdata = OverSeas.query.filter( OverSeas.PuDate > lbdate_ocean ).all()
+for jdat in jdata:
+    con, bk = checkon(jdat.Container, jdat.Booking)
+    idat = Interchange.query.filter(((Interchange.Container == con) & (Interchange.Release == bk)) & (Interchange.Type.contains('Out')) & (Interchange.Date > lbdate_ocean)).first()
+    if idat is None:
+        idat = Interchange.query.filter( (Interchange.Container == con) & (Interchange.Type.contains('Out')) & (Interchange.Date > lbdate_ocean)).first()
+    if idat is None:
+        idat = Interchange.query.filter( (Interchange.Release == bk) & (Interchange.Type.contains('Out')) & (Interchange.Date > lbdate_ocean) ).first()
+    if idat is not None:
+        #print(f'Match to truck job {idat.Order} and {idat.Container}')
+        jdat.Container = idat.Container
+        jdat.ContainerType = idat.ConType
+        jdat.PuDate = idat.Date
+        idat.Company = 'Ocean'
+        idat.Jo = jdat.Jo
+
+        imat = Interchange.query.filter(((Interchange.Container == con) & (Interchange.Release == bk)) & (Interchange.Type.contains('In')) & (Interchange.Date > lbdate_ocean)).first()
+        if imat is None:
+            imat = Interchange.query.filter( (Interchange.Container == con) & (Interchange.Type.contains('In')) & (Interchange.Date > lbdate_ocean)).first()
+        elif imat is None:
+            imat = Interchange.query.filter((Interchange.Release == bk) & (Interchange.Type.contains('In')) & (Interchange.Date > lbdate_ocean)).first()
+        if imat is not None:
+            jdat.RetDate = imat.Date
+            imat.Jo = jdat.Jo
+            imat.Company = 'Ocean'
 
         db.session.commit()
 
