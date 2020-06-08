@@ -14,7 +14,7 @@ from remote_db_connect import tunnel, db
 from models import Orders, OverSeas, People, Drops
 
 #booking_p=re.compile('[159][0123456789]{8}')
-booking_p=re.compile("[159][0123456789]{8}|[E][BKG0123456789]{11}|[S][0123456789]{9}")
+booking_p=re.compile("[159][0123456789]{8}|[E][BKG0123456789]{11}|[S0][PHL0123456789]{9}")
 
 #_____________________________________________________________________________________________________________
 # Switches for routines
