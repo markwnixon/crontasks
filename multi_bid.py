@@ -4,7 +4,7 @@ from remote_db_connect import tunnel, db
 from models import Drivers, Vehicles, DriverAssign, Trucklog, KeyInfo
 from utils import d2s, d1s
 import os
-import xlrd
+import xlrd, xlwt
 from requests import get
 import math
 
@@ -84,35 +84,43 @@ def get_directions(start,end):
 
 #Set location of xls file to read from
 # Give the location of the file
-loc = ("/home/mark/Documents/maersktest.xls")
+loc = ("/home/mark/Documents/Maersk Bid Sheet2.xlsx")
 
 # To open Workbook
 wb = xlrd.open_workbook(loc)
-sheet = wb.sheet_by_index(1)
+sheet = wb.sheet_by_index(5)
 sheet.cell_value(0, 0)
+
+from xlwt import Workbook
+
+wbout = Workbook()
+sheet1 = wbout.add_sheet('Baltimore')
+
+
 
 # Extracting number of rows and columns
 print(f'The data sheet has {sheet.nrows} rows')
-print(f'The data sheet has {sheet.ncols} colss')
+print(f'The data sheet has {sheet.ncols} cols')
 print(f'The header for columns are:')
 for i in range(sheet.ncols):
-    print(f'Column {i}: {sheet.cell_value(0, i)}')
+    print(f'Column {i}: {sheet.cell_value(7, i)}')
+#for mx in range(1,sheet.nrows):
 
-for kx in range(1,sheet.nrows):
-    id = str(sheet.cell_value(kx, 0))
-    locfrom = str(sheet.cell_value(kx, 1))
-    locto = str(sheet.cell_value(kx, 2))
-    movetype = str(sheet.cell_value(kx, 3))
-    equiptype = str(sheet.cell_value(kx, 4))
-    haz = str(sheet.cell_value(kx, 5))
-    ratetype = str(sheet.cell_value(kx, 6))
+for mx in range(8,3039):
+    id = str(sheet.cell_value(mx, 2))
+    locfrom = str(sheet.cell_value(mx, 3))
+    locto = str(sheet.cell_value(mx, 4))
+    movetype = str(sheet.cell_value(mx, 5))
+    equiptype = str(sheet.cell_value(mx, 6))
+    haz = str(sheet.cell_value(mx, 7))
+    ratetype = str(sheet.cell_value(mx, 8))
     tollmat = []
     if 'seagirt' in locfrom.lower(): locfrom = 'Seagirt Marine Terminal, Baltimore, MD 21224'
     if 'seagirt' in locto.lower(): locto = 'Seagirt Marine Terminal, Baltimore, MD 21224'
 
-    print(f'Running case {kx} for {id} {locfrom} {locto} {movetype} {equiptype} {haz} {ratetype}')
+    print(f'Running row {mx+1} for {id} {locfrom} {locto} {movetype} {equiptype} {haz} {ratetype}')
 
-    if haz != 'Y':
+    if haz != 'Y' and ('seagirt' in locfrom.lower() or 'seagirt' in locto.lower()):
 
         try:
             miles, hours, lats, lons, dirdata, tot_dist, tot_dura = get_directions(locfrom,locto)
@@ -231,6 +239,18 @@ for kx in range(1,sheet.nrows):
                     f'{d1s(miles[lx])} MI {d2s(hours[lx])} HRS {aline} Tolls:${d2s(legtolls[lx])}, TollCode:{legcodes[lx]}')
 
         # Cost Analysis:
+        #Charge $10 per day for chassis
+        if tot_dura < 4.0:
+            our_chassis = 10.0
+        else:
+            our_chassis = 20.00
+
+        #Slight increase for reefer
+        if equiptype == 'REEF':
+            reefer = 20.00
+        else:
+            reefer = 0.00
+
         cost_drv = tottime * ex_drv
         cost_fuel = totmiles * ex_fuel
         cost_tolls = 2.0 * tot_tolls
@@ -245,21 +265,58 @@ for kx in range(1,sheet.nrows):
         costdata = [d2s(cost_drv), d2s(cost_fuel), d2s(cost_tolls), d2s(cost_insur), d2s(cost_rm), d2s(cost_misc),
                     d2s(cost_ga), d2s(cost_direct), d2s(cost_total)]
 
-        bid = cost_total * 1.2
-        haul_no_tolls = bid - cost_tolls
+        bid_base = cost_total * 1.2 + our_chassis + reefer
+        haul_no_tolls = bid_base - cost_tolls
         fsc = haul_no_tolls *.13
-        m_bid = bid - cost_tolls - fsc
+        m_bid = bid_base - cost_tolls - fsc
+        m_bid = float(int(m_bid))
+        cost_tolls = float(int(cost_tolls))
+        bid = m_bid + cost_tolls + fsc
 
-        print(f'Case {i}: Bid = {d2s(m_bid)} Tolls:{d2s(cost_tolls)} Fuel Surcharge:{d2s(fsc)} Total: {d2s(bid)}')
+
+        if ratetype == 'One Way':
+            cost_of_bobtail = 1. * tot_dist + 65 * tot_dura
+            m_bid = m_bid/2.0 + cost_of_bobtail
+            m_bid = float(int(m_bid))
+            bid = m_bid + cost_tolls + fsc
+
+        print(f'Row {mx+1}: Bid = {d2s(m_bid)} Tolls:{d2s(cost_tolls)} Fuel Surcharge:{d2s(fsc)} Chassis:{d2s(our_chassis)} Total: {d2s(bid)}')
+        sheet1.write(mx, 0, id)
+        sheet1.write(mx, 1, locfrom)
+        sheet1.write(mx, 2, locto)
+        sheet1.write(mx, 3, movetype)
+        sheet1.write(mx, 4, equiptype)
+        sheet1.write(mx, 5, haz)
+        sheet1.write(mx, 6, ratetype)
+        sheet1.write(mx,7,d2s(m_bid))
+        sheet1.write(mx,8,d2s(cost_tolls))
+        sheet1.write(mx, 9, ' ')
+        sheet1.write(mx, 10, d2s(fsc))
+        sheet1.write(mx, 11, d2s(our_chassis))
+        sheet1.write(mx, 12, d2s(reefer))
+        sheet1.write(mx, 13, d2s(bid))
+
+
         if cost_tolls > 48:
             print(f'TollMat:{legtolls}')
             print(f'TollCodes:{legcodes}')
         print(' ')
 
+    else:
+        if haz == 'Y': print('Decline because hazardous')
+        if 'baltimore' not in locfrom and 'baltimore' not in locto: print('Not a Baltimore related trip')
+        sheet1.write(mx, 0, id)
+        sheet1.write(mx, 1, locfrom)
+        sheet1.write(mx, 2, locto)
+        sheet1.write(mx, 3, movetype)
+        sheet1.write(mx, 4, equiptype)
+        sheet1.write(mx, 5, haz)
+        sheet1.write(mx, 6, ratetype)
 
 
 
 
+wbout.save('/home/mark/Documents/mexample.xls')
 
 
 
