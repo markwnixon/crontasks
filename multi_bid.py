@@ -88,13 +88,14 @@ loc = ("/home/mark/Documents/Maersk Bid Sheet2.xlsx")
 
 # To open Workbook
 wb = xlrd.open_workbook(loc)
-sheet = wb.sheet_by_index(5)
+sheet = wb.sheet_by_index(3)
 sheet.cell_value(0, 0)
 
 from xlwt import Workbook
 
 wbout = Workbook()
 sheet1 = wbout.add_sheet('Baltimore')
+imili = 1
 
 
 
@@ -106,14 +107,24 @@ for i in range(sheet.ncols):
     print(f'Column {i}: {sheet.cell_value(7, i)}')
 #for mx in range(1,sheet.nrows):
 
-for mx in range(8,3039):
-    id = str(sheet.cell_value(mx, 2))
-    locfrom = str(sheet.cell_value(mx, 3))
-    locto = str(sheet.cell_value(mx, 4))
-    movetype = str(sheet.cell_value(mx, 5))
-    equiptype = str(sheet.cell_value(mx, 6))
-    haz = str(sheet.cell_value(mx, 7))
-    ratetype = str(sheet.cell_value(mx, 8))
+for mx in range(8,867):
+    if imili == 1:
+        id = str(sheet.cell_value(mx, 2))
+        region = str(sheet.cell_value(mx, 3))
+        locfrom = str(sheet.cell_value(mx, 4))
+        locto = str(sheet.cell_value(mx, 5))
+        movetype = str(sheet.cell_value(mx, 6))
+        equiptype = str(sheet.cell_value(mx, 7))
+        haz = str(sheet.cell_value(mx, 8))
+        ratetype = str(sheet.cell_value(mx, 9))
+    else:
+        id = str(sheet.cell_value(mx, 2))
+        locfrom = str(sheet.cell_value(mx, 3))
+        locto = str(sheet.cell_value(mx, 4))
+        movetype = str(sheet.cell_value(mx, 5))
+        equiptype = str(sheet.cell_value(mx, 6))
+        haz = str(sheet.cell_value(mx, 7))
+        ratetype = str(sheet.cell_value(mx, 8))
     tollmat = []
     if 'seagirt' in locfrom.lower(): locfrom = 'Seagirt Marine Terminal, Baltimore, MD 21224'
     if 'seagirt' in locto.lower(): locto = 'Seagirt Marine Terminal, Baltimore, MD 21224'
