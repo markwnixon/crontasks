@@ -12,7 +12,7 @@ today = datetime.datetime.today()
 #today = today.date()
 print(today) if printif == 1 else 1
 
-odata = Orders.query.filter(Orders.Shipper == 'Global Business Link').order_by(Orders.Date).all()
+odata = Orders.query.filter(Orders.Shipper == 'Global Business Link').order_by(Orders.id).all()
 
 if 1 == 1:
     num_dups = 0
@@ -22,6 +22,7 @@ if 1 == 1:
         if cn == 'TBD':
             cn = 'NOM'
         tid = odat.id
+        print(f'Checking booking {bk} container {cn}')
         bdat = Orders.query.filter( ((Orders.Booking == bk) | (Orders.Container == cn)) & (Orders.id != tid) ).first()
         if bdat is not None:
             num_dups = num_dups + 1
