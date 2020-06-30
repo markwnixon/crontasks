@@ -205,8 +205,8 @@ if 1==1:
 
     if gbook>0:
         if gbook==1:
-            usernamelist=[usernames['inf2']]
-            password = passwords['inf2']
+            usernamelist=[usernames['info']]
+            password = passwords['info']
             dayback=14
         if gbook==2:
             usernamelist=[usernames['info']]
