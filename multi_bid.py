@@ -84,11 +84,11 @@ def get_directions(start,end):
 
 #Set location of xls file to read from
 # Give the location of the file
-loc = ("/home/mark/Documents/Maersk Bid Sheet2.xlsx")
+loc = ("/home/mark/Documents/Maersk Bid Sheet3.xlsx")
 
 # To open Workbook
 wb = xlrd.open_workbook(loc)
-sheet = wb.sheet_by_index(3)
+sheet = wb.sheet_by_index(4)
 sheet.cell_value(0, 0)
 
 from xlwt import Workbook
@@ -107,7 +107,7 @@ for i in range(sheet.ncols):
     print(f'Column {i}: {sheet.cell_value(7, i)}')
 #for mx in range(1,sheet.nrows):
 
-for mx in range(8,867):
+for mx in range(8,354):
     if imili == 1:
         id = str(sheet.cell_value(mx, 2))
         region = str(sheet.cell_value(mx, 3))
@@ -126,6 +126,8 @@ for mx in range(8,867):
         haz = str(sheet.cell_value(mx, 7))
         ratetype = str(sheet.cell_value(mx, 8))
     tollmat = []
+    cost_tolls = 0.0
+    tot_tolls = 0.0
     if 'seagirt' in locfrom.lower(): locfrom = 'Seagirt Marine Terminal, Baltimore, MD 21224'
     if 'seagirt' in locto.lower(): locto = 'Seagirt Marine Terminal, Baltimore, MD 21224'
 
@@ -283,6 +285,9 @@ for mx in range(8,867):
         m_bid = float(int(m_bid))
         cost_tolls = float(int(cost_tolls))
         bid = m_bid + cost_tolls + fsc
+        # Round 2 discount
+        cost_tolls = cost_tolls*.8
+        m_bid = m_bid*.95
 
 
         if ratetype == 'One Way':
@@ -327,7 +332,7 @@ for mx in range(8,867):
 
 
 
-wbout.save('/home/mark/Documents/mexample.xls')
+wbout.save('/home/mark/Documents/mexample3.xls')
 
 
 
