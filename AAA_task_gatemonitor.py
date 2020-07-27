@@ -35,7 +35,7 @@ def gatescraper(printif, dayback):
 
     outpath = addpath3('interchange/')
     print('Entering Firefox') if printif == 1 else 1
-    yesterday = datetime.strftime(datetime.now() - timedelta(dayback+1), '%m/%d/%Y')
+    yesterday = datetime.strftime(datetime.now() - timedelta(dayback), '%m/%d/%Y')
     todaystr = datetime.strftime(datetime.now() - timedelta(dayback), '%m/%d/%Y')
     today = datetime.today()
     cutoff = datetime.now() - timedelta(30)
@@ -44,6 +44,8 @@ def gatescraper(printif, dayback):
     startdate = yesterday
     enddate = todaystr
     consets = []
+    print('startdate is:',yesterday)
+    print('enddate is:',todaystr)
 
     # for j,startdate in enumerate(startdates):
     # enddate=enddates[j]
@@ -207,6 +209,7 @@ def gatescraper(printif, dayback):
 dayback = 3
 for ix in range(dayback+1):
     gohere = dayback - ix
+    print('Running this far back:',gohere)
     gatescraper(printif, gohere)
 
 tunnel.stop()
