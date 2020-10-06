@@ -403,7 +403,7 @@ if 1==1:
 #_____________________________________________________________________________________________________________
     if gjob>0:
         if gjob==1:
-            dayback=30
+            dayback=90
         if gjob==2:
             dayback=450
         datefrom = (datetime.date.today() - datetime.timedelta(dayback)).strftime("%d-%b-%Y")
