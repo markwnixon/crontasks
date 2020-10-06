@@ -238,6 +238,7 @@ if 1==1:
                 if blist:
                     bkhere = blist[0]
                     bkhere = bkhere.strip()
+                    bkhere = bkhere.replace('-','')
                     if bkhere not in bookcheck:
                         bookcheck.append(bkhere)
                         #print(bkhere)
@@ -430,6 +431,7 @@ if 1==1:
                 if blist:
                     for b in blist:
                         b=b.strip()
+                        b = b.replace('-', '')
                         if b not in norepeat:
                             booktriplet=[b,getdate,getdate]
                             bookings.append(booktriplet)
